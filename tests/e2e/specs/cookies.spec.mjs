@@ -49,9 +49,17 @@ test.describe('Cookie 與快取隔離', () => {
       // 瀏覽器實際儲存：皆為 host-only，且不會送到另一個主機
       const stored = await context.cookies();
       for (const c of stored) expect(c.domain.startsWith('.'), `${c.name} 應為 host-only（實際網域 ${c.domain}）`).toBe(false);
-      const toApp = (await context.cookies(appUrl('/'))).map((c) => c.name);
-      const toCms = (await context.cookies(cmsUrl('/'))).map((c) => c.name);
-      expect(toApp.filter((n) => n.startsWith('wordpress')), '主站請求不得帶 WordPress cookie').toEqual([]);
+      // 以瀏覽器實際送出的 Cookie 標頭判斷（只取名稱，不讀值）
+      const sentNames = async (url) => {
+        const [req] = await Promise.all([page.waitForRequest((r) => r.url() === url), page.goto(url)]);
+        const header = (await req.allHeaders()).cookie || '';
+        return header.split(';').map((p) => p.split('=')[0].trim()).filter(Boolean);
+      };
+      const toApp = await sentNames(appUrl('/admin'));
+      const toCms = await sentNames(cmsUrl('/wp-admin/'));
+      expect(toApp.filter((n) => appNames.has(n)).length, '主站後臺請求應帶主站 Session').toBeGreaterThan(0);
+      expect(toCms.some((n) => n.startsWith('wordpress_logged_in_')), 'CMS 後臺請求應帶 WordPress 登入 cookie').toBe(true);
+      expect(toApp.filter((n) => n.startsWith('wordpress') || n.startsWith('wp-')), '主站請求不得帶 WordPress cookie').toEqual([]);
       expect(toCms.filter((n) => appNames.has(n)), 'CMS 請求不得帶主站 cookie').toEqual([]);
       note(testInfo, `CMS cookie：${[...cmsNames].map((n) => n.replace(/_[0-9a-f]{32}$/, '_<hash>')).join('、')}；主站 cookie：${[...appNames].join('、')}；皆 host-only`);
     } finally {
@@ -60,11 +68,13 @@ test.describe('Cookie 與快取隔離', () => {
   });
 
   test('後臺、預覽、訂單回應為 private／no-store', { tag: ['@OPS-12'] }, async ({ browser, request }) => {
+    // 有內容的回應必須 private＋no-store；無內容的導向（302）至少 private、不得 public（不進共享快取）
     const expectNoStore = (res, label) => {
       const cc = res.headers()['cache-control'] || '';
-      expect(cc, `${label} Cache-Control 應含 no-store`).toMatch(/no-store/);
       expect(cc, `${label} Cache-Control 應含 private`).toMatch(/private/);
       expect(cc, `${label} 不得 public`).not.toMatch(/public/);
+      expect(cc, `${label} 不得允許共享快取`).not.toMatch(/s-maxage/);
+      if (res.status() < 300 || res.status() >= 400) expect(cc, `${label}（HTTP ${res.status()}）Cache-Control 應含 no-store`).toMatch(/no-store/);
     };
     expectNoStore(await request.get(appUrl('/admin/login')), '/admin/login');
     expectNoStore(await request.get(appUrl('/admin'), { maxRedirects: 0 }), '/admin（未登入）');

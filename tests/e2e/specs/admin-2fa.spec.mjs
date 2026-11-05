@@ -26,7 +26,7 @@ test.describe('後臺 2FA（TOTP）', () => {
       const page = await context.newPage();
       expect(await loginAdmin(page, email, password)).toBe(302);
       await page.goto(appUrl('/admin/security'));
-      await expect(page.getByText('未啟用')).toBeVisible();
+      await expect(page.getByText('未啟用', { exact: true })).toBeVisible();
       for (let i = 0; i < 2 && (await page.getByRole('button', { name: '開始設定 2FA' }).isVisible()); i += 1) {
         await page.getByRole('button', { name: '開始設定 2FA' }).click();
         if (/confirm-password/.test(page.url())) {
@@ -42,7 +42,7 @@ test.describe('後臺 2FA（TOTP）', () => {
       const first = await freshTotp(page, secret);
       await page.locator('#code').fill(first.code);
       await page.getByRole('button', { name: '確認啟用' }).click();
-      await expect(page.getByText('已啟用')).toBeVisible();
+      await expect(page.getByText('已啟用', { exact: true })).toBeVisible();
       await expect(page.getByText('復原碼（只顯示這一次')).toBeVisible();
 
       // 登出後重新登入：密碼正確後必須通過 TOTP 挑戰
