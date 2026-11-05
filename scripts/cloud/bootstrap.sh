@@ -86,6 +86,7 @@ if [[ ! -f "$env_file" ]]; then
     printf 'COMMERCE_MODE=%s\n' "${MYSITE_COMMERCE_MODE:-disabled}"
     printf 'APP_TEST_DB_NAME=mysite_app_test\n'
     printf 'EDGE_SUBNET=172.%s.10.0/24\nBACKEND_SUBNET=172.%s.20.0/24\nDB_SUBNET=172.%s.30.0/24\n' "$subnet" "$subnet" "$subnet"
+    printf 'GATEWAY_EDGE_IP=172.%s.10.10\nEDGE_IP_RANGE=172.%s.10.128/25\n' "$subnet" "$subnet"
     printf 'MAIL_MAILER=log\nSESSION_SECURE_COOKIE=false\n'
     [[ -n "$registry" ]] && printf 'BASE_IMAGE_REGISTRY=%s\n' "$registry"
     if [[ "$env_name" == testing ]]; then

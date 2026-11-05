@@ -52,6 +52,15 @@ ms_compose_prepare() {
   export MYSITE_EFFECTIVE_REGISTRY
   MYSITE_EFFECTIVE_REGISTRY="$(grep -E '^BASE_IMAGE_REGISTRY=' "$MS_COMPOSE_ENV_FILE" | tail -1 | cut -d= -f2-)"
   MYSITE_EFFECTIVE_REGISTRY="${MYSITE_EFFECTIVE_REGISTRY:-$BASE_IMAGE_REGISTRY}"
+  # gateway 固定位址與 edge 動態分配範圍：由 EDGE_SUBNET（x.y.z.0/24）推導，環境檔明列時以環境檔為準
+  local edge base
+  edge="$(grep -E '^EDGE_SUBNET=' "$MS_COMPOSE_ENV_FILE" | tail -1 | cut -d= -f2-)"
+  if [[ -n "$edge" ]]; then
+    [[ "$edge" =~ ^(172\.(1[6-9]|2[0-9]|3[01])\.[0-9]{1,3})\.0/24$ ]] || ms_die "$EXIT_USAGE" "EDGE_SUBNET 必須是 172.16–31 範圍的 /24：$edge"
+    base="${BASH_REMATCH[1]}"
+    grep -qE '^GATEWAY_EDGE_IP=' "$MS_COMPOSE_ENV_FILE" || export GATEWAY_EDGE_IP="${base}.10"
+    grep -qE '^EDGE_IP_RANGE=' "$MS_COMPOSE_ENV_FILE" || export EDGE_IP_RANGE="${base}.128/25"
+  fi
   # shellcheck disable=SC2034
   MS_COMPOSE_ARGS=(--env-file "$root/infra/versions.env" --env-file "$MS_COMPOSE_ENV_FILE")
   local f

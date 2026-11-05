@@ -56,7 +56,8 @@ x-app-env: &app-env
   SIMULATION_DATA_RETENTION_DAYS: ${SIMULATION_DATA_RETENTION_DAYS:-30}
   CART_RETENTION_DAYS: ${CART_RETENTION_DAYS:-7}
   AUDIT_RETENTION_DAYS: ${AUDIT_RETENTION_DAYS:-90}
-  TRUSTED_PROXIES: ${EDGE_SUBNET:-172.30.10.0/24}
+  # 只信任 gateway 的固定位址（不信任整個 edge 子網：子網內的 Docker bridge 位址可能代表主機本機或 docker-proxy 轉入的連線）
+  TRUSTED_PROXIES: ${GATEWAY_EDGE_IP:-172.30.10.10}
   DEPLOY_ENVIRONMENT: ${DEPLOY_ENVIRONMENT:-}
   DEPLOY_CHANNEL: ${DEPLOY_CHANNEL:-}
   RELEASE_ID: ${RELEASE_ID:-unreleased}
@@ -180,6 +181,7 @@ services:
     restart: unless-stopped
     environment:
       EDGE_SUBNET: ${EDGE_SUBNET:-172.30.10.0/24}
+      GATEWAY_EDGE_IP: ${GATEWAY_EDGE_IP:-172.30.10.10}
     secrets: [wp_internal_tls_cert, wp_internal_tls_key]
     volumes:
       - wp-uploads:/var/www/wp/wp-content/uploads:ro
@@ -258,7 +260,10 @@ services:
       CMS_HOST: ${CMS_HOST:-_}
       MYSITE_HSTS_HEADER: ${MYSITE_HSTS_HEADER:-}
       MYSITE_LOGIN_RATE: ${MYSITE_LOGIN_RATE:-10r/m}
-    networks: [edge]
+    networks:
+      edge:
+        # 固定位址：主站與 CMS 只信任這個位址轉送的 X-Forwarded-*（動態分配範圍見 edge 網路的 ip_range）
+        ipv4_address: ${GATEWAY_EDGE_IP:-172.30.10.10}
     depends_on:
       app-web: { condition: service_healthy }
       wp-web: { condition: service_healthy }
@@ -280,7 +285,8 @@ services:
 networks:
   edge:
     ipam:
-      config: [{ subnet: "${EDGE_SUBNET:-172.30.10.0/24}" }]
+      # 動態位址只從後半段分配，前半段保留給固定位址（gateway），避免啟動順序造成位址衝突
+      config: [{ subnet: "${EDGE_SUBNET:-172.30.10.0/24}", ip_range: "${EDGE_IP_RANGE:-172.30.10.128/25}" }]
   backend:
     internal: true
     ipam:

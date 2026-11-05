@@ -327,4 +327,26 @@ app-key)
   fi
   ;;
 esac
+if [[ "$env_name" == development || "$env_name" == testing ]] && [[ -f "$MD_STATE_DIR/fingerprint.json" ]]; then
+  # 雲端環境：bootstrap 以 fingerprint.json 檢查「重跑 bootstrap 不得改變金鑰」（CLD-05）。受控輪替成功後同步更新基準
+  # （只存 SHA-256，不存秘密），否則下一次 bootstrap 會把核准過的輪替誤判為重設。
+  python3 -I - "$MD_STATE_DIR/fingerprint.json" "$MD_SECRETS_DIR" <<'PY' || ms_warn "無法更新 bootstrap 冪等指紋基準（$MD_STATE_DIR/fingerprint.json）；下一次 bootstrap 的 CLD-05 檢查會不一致"
+import hashlib, json, os, sys
+path, sec = sys.argv[1:3]
+def h(*names):
+    d = hashlib.sha256()
+    for n in names:
+        d.update(open(os.path.join(sec, n), "rb").read())
+    return d.hexdigest()
+fp = json.load(open(path, encoding="utf-8"))
+fp["app_key_sha256"] = h("app_key")
+fp["wp_salts_sha256"] = h("wp_salts")
+fp["db_passwords_sha256"] = h("mysql_root_password", "wp_db_password", "app_db_password")
+tmp = path + ".tmp"
+with open(tmp, "w", encoding="utf-8") as fh:
+    json.dump(fp, fh, ensure_ascii=False, indent=2)
+    fh.write("\n")
+os.replace(tmp, path)
+PY
+fi
 exit "$EXIT_OK"
