@@ -17,8 +17,20 @@ export const adminPassword = () => readSecret('app_admin_password');
  */
 export async function loginAdmin(page, email, password, { retryOn429 = true } = {}) {
   await page.goto(appUrl('/admin/login'));
+  await page.waitForLoadState('load');
   await page.locator('#email').fill(email);
   await page.locator('#password').fill(password);
+  // 確認密碼只在密碼欄（type=password）；不符就清空、不送出，避免失敗截圖出現明文
+  const ok = await page.evaluate((e) => {
+    const u = document.getElementById('email');
+    const p = document.getElementById('password');
+    return u.value === e && p.type === 'password' && p.value.length > 0;
+  }, email);
+  if (!ok) {
+    await page.locator('#email').fill('');
+    await page.locator('#password').fill('');
+    throw new Error('後臺登入欄位填寫異常（已清空欄位，未送出）');
+  }
   const [res] = await Promise.all([
     page.waitForResponse((r) => r.request().method() === 'POST' && new URL(r.url()).pathname === '/admin/login'),
     page.getByRole('button', { name: '登入' }).click(),

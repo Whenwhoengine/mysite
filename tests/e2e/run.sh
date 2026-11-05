@@ -10,7 +10,9 @@ usage() {
   MYSITE_CMS_BASE    CMS 網址（預設 http://cms.mysite.localhost:8081）
   MYSITE_SCOPE       content（預設）或 simulation；決定商店測試的預期
   MYSITE_RESULTS_DIR 結果 JSONL 目錄（預設 .runtime/results）
-截圖輸出：tests/e2e/screenshots/（僅合成資料；trace／video 關閉以免外洩 cookie）
+截圖輸出：tests/e2e/screenshots/<project>/<頁名>.png、screenshots/zoom-200/（僅合成資料；trace／video 關閉以免外洩 cookie）
+其他輸出：結果目錄的 e2e.jsonl（逐驗收 ID）、axe-<project>-<頁名>.json（無障礙掃描摘要）
+測試自建帳號密碼：.runtime/e2e/<env>/（Git 忽略、0600）；WP 測試內容結束時改回草稿，不刪除
 exit：0 全部通過；30 有失敗；20 缺前置（未安裝相依或秘密）
 USAGE
 }
@@ -19,6 +21,8 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root="$(git -C "$here" rev-parse --show-toplevel)"
 export MYSITE_ENV="${MYSITE_ENV:-development}"
 case "$MYSITE_ENV" in development|testing) ;; *) echo "MYSITE_ENV 不合法" >&2; exit 10 ;; esac
+export MYSITE_SCOPE="${MYSITE_SCOPE:-content}"
+case "$MYSITE_SCOPE" in content|simulation) ;; *) echo "MYSITE_SCOPE 不合法（content|simulation）" >&2; exit 10 ;; esac
 export MYSITE_SECRETS_DIR="$root/.runtime/secrets/$MYSITE_ENV"
 export MYSITE_RESULTS_DIR="${MYSITE_RESULTS_DIR:-$root/.runtime/results}"
 mkdir -p "$MYSITE_RESULTS_DIR" "$here/screenshots"

@@ -125,10 +125,12 @@ export async function expectNoHorizontalOverflow(page, label) {
   return o;
 }
 
-/** 解析一個回應的全部 Set-Cookie 標頭：[{ name, attrs:{domain,path,httponly,...}, raw }]（raw 不輸出）。 */
-export function parseSetCookies(response) {
-  return response
-    .headersArray()
+/**
+ * 解析一個回應的全部 Set-Cookie 標頭：[{ name, attrs:{domain,path,httponly,...} }]（不保留 cookie 值）。
+ * 瀏覽器 Response 的 headersArray() 是非同步、APIResponse 是同步，一律 await。
+ */
+export async function parseSetCookies(response) {
+  return (await response.headersArray())
     .filter((h) => h.name.toLowerCase() === 'set-cookie')
     .flatMap((h) => h.value.split('\n'))
     .map((line) => {
@@ -143,9 +145,9 @@ export function parseSetCookies(response) {
     });
 }
 
-/** 標頭出現次數（大小寫不分）。 */
-export function headerValues(response, name) {
-  return response.headersArray().filter((h) => h.name.toLowerCase() === name.toLowerCase()).map((h) => h.value);
+/** 某標頭的全部值（大小寫不分，可用來確認只出現一次）。 */
+export async function headerValues(response, name) {
+  return (await response.headersArray()).filter((h) => h.name.toLowerCase() === name.toLowerCase()).map((h) => h.value);
 }
 
 /** 把列表頁上的內容連結轉成 { path, title }。 */

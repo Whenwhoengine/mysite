@@ -69,7 +69,7 @@ test.describe('Podcast 播放器', () => {
       const duration = page.locator('[data-audio-player] time').first();
       await expect(duration, '應顯示片長').toBeVisible();
       await expect(duration).toHaveAttribute('datetime', /^PT/);
-      const download = page.locator('[data-audio-player] a[download]').first();
+      const download = page.locator('[data-audio-player] .player__audio-meta a[download]').first();
       await expect(download, '應有下載替代連結').toBeVisible();
       expect(await download.getAttribute('href')).toBe(await audio.evaluate((a) => a.querySelector('source')?.getAttribute('src') || a.getAttribute('src')));
       // 使用者主動播放（靜音避免聲音），再跳轉到第 2 秒，確認 Range 讀取與 seek 可用
@@ -101,7 +101,7 @@ test.describe('Podcast 播放器', () => {
     const audio = page.locator('[data-audio-player] audio');
     await audio.evaluate((a) => { a.muted = true; a.play().catch(() => {}); });
     await expect(page.locator('[data-audio-error]')).toBeVisible({ timeout: 15_000 });
-    await expect(page.locator('[data-audio-player] a[download]').first()).toBeVisible();
+    await expect(page.locator('[data-audio-player] .player__audio-meta a[download]').first()).toBeVisible();
     await expect(page.locator('main')).toContainText(/\S{10,}/);
   });
 });
@@ -119,7 +119,7 @@ test.describe('失效與空狀態畫面', () => {
     const res = await page.goto(appUrl(`/articles/e2e-not-found-${Date.now()}`));
     expect(res.status()).toBe(404);
     await expect(page.getByRole('heading', { level: 1 })).toContainText('找不到');
-    await expect(page.getByRole('link', { name: '回首頁' })).toBeVisible();
+    await expect(page.locator('main').getByRole('link', { name: '回首頁', exact: true })).toBeVisible();
     await expect(page.locator('main')).toContainText('請求編號');
     await page.goto(appUrl(`/search?q=${encodeURIComponent(`查無此字${Date.now()}`)}`));
     await expect(page.locator('main [role="status"]')).toContainText('找不到符合');
@@ -139,7 +139,7 @@ test.describe('隱私說明與實際行為一致', () => {
     try {
       const p = await ctx.newPage();
       const res = await p.goto(appUrl('/admin/login'));
-      const names = parseSetCookies(res).map((c) => c.name);
+      const names = (await parseSetCookies(res)).map((c) => c.name);
       expect(names.length).toBeGreaterThan(0);
       for (const n of [...new Set([...names, 'mysite_preview'])]) expect(text, `隱私說明應列出 cookie「${n}」`).toContain(n);
       const hosts = new Set();

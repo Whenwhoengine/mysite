@@ -71,7 +71,7 @@ test.describe('草稿預覽', () => {
         // 交換頁：302、清除參數、no-store、no-referrer，cookie 為 host-only、HttpOnly、path=/preview
         expect(exchange.status()).toBe(302);
         expect(exchange.headers().location || '').toMatch(/\/preview\/view$/);
-        const cookies = parseSetCookies(exchange);
+        const cookies = await parseSetCookies(exchange);
         const pv = cookies.find((c) => c.name === 'mysite_preview');
         expect(pv, '交換後應設定預覽 cookie').toBeTruthy();
         expect(pv.attrs.domain, '預覽 cookie 不得帶 Domain（host-only）').toBeUndefined();
@@ -82,7 +82,7 @@ test.describe('草稿預覽', () => {
           expect(res.headers()['cache-control'] || '', `${label} Cache-Control`).toMatch(/no-store/);
           expect(res.headers()['cache-control'] || '', `${label} Cache-Control`).toMatch(/private/);
           expect(res.headers()['x-robots-tag'] || '', `${label} X-Robots-Tag`).toMatch(/noindex/);
-          expect(headerValues(res, 'referrer-policy'), `${label} Referrer-Policy 只能有一個且為 no-referrer`).toEqual(['no-referrer']);
+          expect(await headerValues(res, 'referrer-policy'), `${label} Referrer-Policy 只能有一個且為 no-referrer`).toEqual(['no-referrer']);
         }
         expect(view.status()).toBe(200);
 
@@ -103,7 +103,7 @@ test.describe('草稿預覽', () => {
           expect(res.status(), '重播票券應回 403').toBe(403);
           await expect(p.locator('body')).toContainText('預覽已失效');
           await expect(p.locator('body')).not.toContainText(v1);
-          expect(headerValues(res, 'referrer-policy')).toEqual(['no-referrer']);
+          expect(await headerValues(res, 'referrer-policy')).toEqual(['no-referrer']);
           expect(res.headers()['cache-control'] || '').toMatch(/no-store/);
         } finally {
           await fresh.close();

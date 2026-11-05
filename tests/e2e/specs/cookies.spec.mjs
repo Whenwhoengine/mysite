@@ -9,10 +9,12 @@ import { detailPaths, parseSetCookies, sitemapEntries } from '../helpers/site.mj
 /** 收集 context 內某主機所有回應的 Set-Cookie（只保留名稱與屬性）。 */
 function collectSetCookies(context, host) {
   const list = [];
+  const pending = [];
   context.on('response', (res) => {
     if (new URL(res.url()).host !== host) return;
-    for (const c of parseSetCookies(res)) list.push({ ...c, path: new URL(res.url()).pathname });
+    pending.push(parseSetCookies(res).then((cs) => { for (const c of cs) list.push({ ...c, path: new URL(res.url()).pathname }); }).catch(() => {}));
   });
+  list.settle = () => Promise.all(pending);
   return list;
 }
 
@@ -28,6 +30,8 @@ test.describe('Cookie 與快取隔離', () => {
       expect(await loginAdmin(page, ADMIN_EMAIL, adminPassword())).toBe(302);
       await expectDashboard(page);
       await rememberAdminState(context);
+      await cmsCookies.settle();
+      await appCookies.settle();
 
       expect(cmsCookies.length, 'CMS 登入應設定 cookie').toBeGreaterThan(0);
       expect(appCookies.length, '主站後臺登入應設定 cookie').toBeGreaterThan(0);
@@ -88,10 +92,13 @@ test.describe('Cookie 與快取隔離', () => {
     try {
       const page = await context.newPage();
       const setters = [];
+      const pending = [];
       page.on('response', (res) => {
-        if (new URL(res.url()).host === APP_URL.host && parseSetCookies(res).length) setters.push(new URL(res.url()).pathname);
+        if (new URL(res.url()).host !== APP_URL.host) return;
+        pending.push(parseSetCookies(res).then((cs) => { if (cs.length) setters.push(new URL(res.url()).pathname); }).catch(() => {}));
       });
       for (const p of targets) await page.goto(appUrl(p));
+      await Promise.all(pending);
       expect([...new Set(setters)], '公開內容頁不得設定 cookie').toEqual([]);
       expect((await context.cookies()).map((c) => c.name), '瀏覽後瀏覽器內不得有 cookie').toEqual([]);
       note(testInfo, `匿名瀏覽 ${targets.length} 個公開頁：未設定任何 cookie`);

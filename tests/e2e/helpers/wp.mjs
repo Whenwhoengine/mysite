@@ -8,13 +8,36 @@ const ACCOUNTS = {
   admin: { login: 'mysite-admin', secret: 'wp_admin_password' },
 };
 
-/** 以 CMS 登入頁登入（密碼只填入瀏覽器輸入框）。 */
+/**
+ * 以 CMS 登入頁登入（密碼只填入瀏覽器輸入框）。
+ * wp-login.php 載入後約 200ms 會以腳本把焦點移到帳號欄並全選；若在這之前填密碼，鍵入可能落到帳號欄（明文）。
+ * 因此先等腳本完成，填完後確認帳號欄仍是帳號；不符就先清空兩欄再丟錯，確保失敗截圖不會出現密碼。
+ */
 export async function loginToCms(page, role = 'editor') {
   const acct = ACCOUNTS[role];
-  await page.goto(cmsUrl('/wp-login.php'));
-  await page.locator('#user_login').fill(acct.login);
-  await page.locator('#user_pass').fill(readSecret(acct.secret));
-  await Promise.all([page.waitForURL(/\/wp-admin\//, { timeout: 30_000 }), page.locator('#wp-submit').click()]);
+  const user = page.locator('#user_login');
+  const pass = page.locator('#user_pass');
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    await page.goto(cmsUrl('/wp-login.php'));
+    await page.waitForLoadState('load');
+    await page.waitForFunction(() => document.activeElement?.id === 'user_login', null, { timeout: 5_000 }).catch(() => {});
+    await page.waitForTimeout(300);
+    await user.fill(acct.login);
+    await pass.fill(readSecret(acct.secret));
+    const ok = await page.evaluate((login) => {
+      const u = document.getElementById('user_login');
+      const p = document.getElementById('user_pass');
+      return u.value === login && p.value.length > 0 && p.type === 'password';
+    }, acct.login);
+    if (!ok) {
+      await user.fill('');
+      await pass.fill('');
+      if (attempt === 2) throw new Error('CMS 登入欄位填寫異常（已清空欄位，未送出）');
+      continue;
+    }
+    await Promise.all([page.waitForURL(/\/wp-admin\//, { timeout: 30_000 }), page.locator('#wp-submit').click()]);
+    return;
+  }
 }
 
 /** 歡迎導覽彈窗可能隨時出現：註冊處理器，出現時按「關閉」。 */
