@@ -32,7 +32,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
 # shellcheck source=../lib/compose.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/compose.sh"
 case "$scope" in content|simulation) ;; *) usage >&2; exit "$EXIT_USAGE" ;; esac
-[[ "$steps" =~ ^[a-z,-]+$ ]] || ms_die "$EXIT_USAGE" "--steps 格式錯誤"
+[[ "$steps" =~ ^[a-z0-9,-]+$ ]] || ms_die "$EXIT_USAGE" "--steps 格式錯誤"
 
 root="$(ms_root)"; cd "$root"; ms_load_versions "$root"
 results="$root/.runtime/results"
