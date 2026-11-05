@@ -36,9 +36,17 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0   # 治理檢查需核對初始提交與證據追溯（與 ci.yml 相同）
           persist-credentials: false
       - name: 預檢
         run: bash scripts/cloud/preflight.sh
+      - name: 本機測試主機名稱（只對應 127.0.0.1）
+        run: echo '127.0.0.1 mysite.localhost cms.mysite.localhost' | sudo tee -a /etc/hosts
+      - name: 安裝 E2E 瀏覽器（鎖定版本）
+        run: |
+          if [ -f tests/e2e/package-lock.json ]; then
+            cd tests/e2e && npm ci --no-audit --no-fund && npx playwright install --with-deps chromium
+          fi
       - name: 驗證
         env:
           MYSITE_RUN_ID: sandbox-${{ github.run_id }}-${{ github.run_attempt }}

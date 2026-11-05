@@ -90,6 +90,11 @@ for s in mysql_root_password wp_db_password app_db_password app_key wp_salts con
          deploy_status_token restic_password restic_repository; do
   md_secret_ok "$s" || missing+="$s "
 done
+# 金鑰圈（GAP-KEYRING-01）：必須存在且格式合法；app_previous_keys 可為空但必須存在（Compose 掛載）
+for s in content_event_hmac_keyring preview_signing_keyring; do
+  md_keyring_ok "$s" || missing+="$s(缺少或格式不合法) "
+done
+md_optional_secret_ok app_previous_keys || missing+="app_previous_keys "
 [[ -z "$missing" ]] && pass secrets || failc secrets "缺少或權限過寬：${missing}"
 
 # disk

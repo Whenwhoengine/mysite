@@ -157,7 +157,8 @@ def check_cld03():
     try:
         status = json.loads(read(ROOT / "docs/state/status.json"))
         ref = os.environ.get("GITHUB_REF_NAME", "")
-        if os.environ.get("GITHUB_EVENT_NAME") == "push" and ref and status.get("working_branch") != ref:
+        # 工作分支合併進預設分支後，main 上的 state 仍記錄原工作分支，屬正常；其他分支則必須一致
+        if os.environ.get("GITHUB_EVENT_NAME") == "push" and ref and status.get("working_branch") not in (ref, "main") and ref != "main":
             problems.append(f"status.json working_branch={status.get('working_branch')} 與遠端分支 {ref} 不同")
     except ValueError:
         problems.append("status.json 無法解析")

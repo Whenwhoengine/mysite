@@ -12,6 +12,8 @@ x-app-env: &app-env
   APP_FALLBACK_LOCALE: zh_TW
   APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Taipei}
   APP_KEY_FILE: /run/secrets/app_key
+  # APP_KEY 輪替過渡期的舊金鑰（可為空檔；Laravel 原生 APP_PREVIOUS_KEYS／app.previous_keys）
+  APP_PREVIOUS_KEYS_FILE: /run/secrets/app_previous_keys
   LOG_CHANNEL: stderr_json
   LOG_LEVEL: ${LOG_LEVEL:-info}
   DB_CONNECTION: mysql
@@ -39,6 +41,9 @@ x-app-env: &app-env
   CONTENT_EVENT_KEY_ID: ${CONTENT_EVENT_KEY_ID:-k1}
   CONTENT_EVENT_HMAC_KEY_FILE: /run/secrets/content_event_hmac_key
   PREVIEW_SIGNING_KEY_FILE: /run/secrets/preview_signing_key
+  # 金鑰圈（GAP-KEYRING-01）：有金鑰圈時優先於單一金鑰；事件與預覽用途分離
+  CONTENT_EVENT_HMAC_KEYRING_FILE: /run/secrets/content_event_hmac_keyring
+  PREVIEW_SIGNING_KEYRING_FILE: /run/secrets/preview_signing_keyring
   DIAGNOSTICS_TOKEN_FILE: /run/secrets/diagnostics_token
   DEPLOY_STATUS_TOKEN_FILE: /run/secrets/deploy_status_token
   CONTENT_CONNECT_TIMEOUT_SECONDS: ${CONTENT_CONNECT_TIMEOUT_SECONDS:-2}
@@ -59,9 +64,12 @@ x-app-env: &app-env
 
 x-app-secrets: &app-secrets
   - app_key
+  - app_previous_keys
   - app_db_password
   - content_event_hmac_key
   - preview_signing_key
+  - content_event_hmac_keyring
+  - preview_signing_keyring
   - wp_service_app_password
   - internal_ca_cert
   - diagnostics_token
@@ -83,6 +91,8 @@ x-wp-env: &wp-env
   CONTENT_EVENT_KEY_ID: ${CONTENT_EVENT_KEY_ID:-k1}
   CONTENT_EVENT_HMAC_KEY_FILE: /run/secrets/content_event_hmac_key
   PREVIEW_SIGNING_KEY_FILE: /run/secrets/preview_signing_key
+  CONTENT_EVENT_HMAC_KEYRING_FILE: /run/secrets/content_event_hmac_keyring
+  PREVIEW_SIGNING_KEYRING_FILE: /run/secrets/preview_signing_keyring
   PREVIEW_TTL_SECONDS: ${PREVIEW_TTL_SECONDS:-600}
   PODCAST_AUDIO_ALLOWED_HOSTS: ${PODCAST_AUDIO_ALLOWED_HOSTS:-}
   DIAGNOSTICS_TOKEN_FILE: /run/secrets/diagnostics_token
@@ -93,6 +103,8 @@ x-wp-secrets: &wp-secrets
   - wp_salts
   - content_event_hmac_key
   - preview_signing_key
+  - content_event_hmac_keyring
+  - preview_signing_keyring
   - diagnostics_token
 
 services:
@@ -298,6 +310,13 @@ secrets:
     file: ${MYSITE_SECRETS_DIR}/content_event_hmac_key
   preview_signing_key:
     file: ${MYSITE_SECRETS_DIR}/preview_signing_key
+  # 金鑰圈與舊 APP_KEY：bootstrap／bootstrap-host 首次建立（ms_ensure_derived_secrets 冪等補建）；輪替由 scripts/ops/rotate-secrets.sh 改寫
+  content_event_hmac_keyring:
+    file: ${MYSITE_SECRETS_DIR}/content_event_hmac_keyring
+  preview_signing_keyring:
+    file: ${MYSITE_SECRETS_DIR}/preview_signing_keyring
+  app_previous_keys:
+    file: ${MYSITE_SECRETS_DIR}/app_previous_keys
   wp_service_app_password:
     file: ${MYSITE_SECRETS_DIR}/wp_service_app_password
   internal_ca_cert:

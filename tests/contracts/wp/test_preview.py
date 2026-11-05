@@ -6,7 +6,7 @@ import time
 import urllib.parse
 
 from wpct_lib import (HEX32_RE, Context, TestFailure, check, contract, forge_ticket, internal_get, make_png, public_get,
-                      ticket_parts, ticket_valid_signature, wp)
+                      signing_key, ticket_parts, ticket_valid_signature, wp)
 
 PRIVATE = "https://wp-web:8443/wp-json/site-content/v1/preview"
 
@@ -67,7 +67,8 @@ def preview(ctx: Context) -> str | None:
 
     # 票券格式（docs/API契約.md §5）。
     head, _, _ = ticket_parts(ticket)
-    check(head == {"alg": "HS256", "typ": "mysite-preview"}, f"票券 header 不符：{head}")
+    # 契約 §7 擴充（GAP-KEYRING-01）：header 帶 active 預覽金鑰的 kid（沒有金鑰圈時為 k1）
+    check(head == {"alg": "HS256", "typ": "mysite-preview", "kid": signing_key("preview_signing")[0]}, f"票券 header 不符：{head}")
     check(list(claims.keys()) == ["iss", "aud", "typ", "ctype", "cid", "sid", "rev", "iat", "exp", "jti", "sub"], f"claims 欄位或順序不符：{list(claims)}")
     check(claims["iss"] == "mysite-cms" and claims["aud"] == "mysite-app" and claims["typ"] == "preview", "iss／aud／typ 不符")
     check(claims["ctype"] == "video" and claims["cid"] == vid and claims["sub"] == s.user_id, "ctype／cid／sub 不符")

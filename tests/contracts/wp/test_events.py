@@ -9,7 +9,8 @@ import time
 from pathlib import Path
 
 from wpct_lib import (RECEIVER_DIR, RECEIVER_ENDPOINT, RECEIVER_PORT, UTC_RE, UUID4_RE, Context, TestFailure, check,
-                      compose_exec, contract, event_signature, mysql_ts, outbox_rows, public_get, wp, wp_create_post)
+                      compose_exec, contract, dev, event_signature, keyring, mysql_ts, outbox_rows, public_get, signing_key, wp,
+                      wp_create_post)
 
 FIXTURE = Path(__file__).resolve().parents[2] / "fixtures" / "wp" / "event-receiver.php"
 BODY_KEYS = ["event_id", "event_type", "content_type", "content_id", "content_version", "status", "occurred_at"]
@@ -69,6 +70,9 @@ def one(event_id: str) -> dict:
 def signature_and_retry(ctx: Context) -> str | None:
     start_receiver(ctx)
     key_id = wp("eval", "echo MYSITE_CONTENT_EVENT_KEY_ID;").stdout.strip()
+    if keyring("content_event_hmac") is not None:
+        # GAP-KEYRING-01：有金鑰圈時，WP 必須以金鑰圈中的 active key ID 送出
+        check(key_id == signing_key("content_event_hmac")[0], f"X-Mysite-Key-Id 應為事件金鑰圈的 active key ID：{key_id}")
     pid = wp_create_post(ctx, "--post_type=post", "--post_status=publish", "--post_title=契約測試事件文章", "--post_content=sc-contract-event")
     ev = latest_event(pid)
     check(ev["event_type"] == "content.published" and ev["state"] == "pending" and int(ev["attempts"]) == 0, f"新發布應產生 pending 的 content.published：{ev}")
@@ -108,12 +112,35 @@ def signature_and_retry(ctx: Context) -> str | None:
         check(re.fullmatch(r"\d{10}", ts) is not None and abs(int(ts) - time.time()) < 120, "X-Mysite-Timestamp 應為目前 unix 秒")
         sig = h.get("x-mysite-signature", "")
         check(re.fullmatch(r"[0-9a-f]{64}", sig) is not None, "簽章應為 64 位小寫 hex")
-        check(sig == event_signature(ts, ev["event_id"], raw), "HMAC-SHA256(timestamp\\nevent_id\\nbody) 驗證失敗")
+        check(sig == event_signature(ts, ev["event_id"], raw, h.get("x-mysite-key-id")), "HMAC-SHA256(timestamp\\nevent_id\\nbody) 驗證失敗")
         stamps.append((ts, sig))
     check(stamps[0][0] != stamps[1][0] and stamps[0][1] != stamps[1][1], "每次投遞應重新產生 timestamp 與簽章")
     tampered = event_signature(stamps[1][0], ev["event_id"], body + b" ")
     check(tampered != stamps[1][1], "竄改 body 後簽章應不同")
     return None
+
+
+@contract("keyring_loaded_matches_secret_files", ["API-06", "API-11"], "events")
+def keyring_loaded(ctx: Context) -> str | None:
+    """GAP-KEYRING-01：WP（發送端）與 Laravel（接收端）實際載入的金鑰圈與秘密檔一致；狀態輸出不含金鑰。"""
+    notes = []
+    for name, kind in (("content_event_hmac", "event-hmac"), ("preview_signing", "preview")):
+        ring = keyring(name)
+        if ring is None:
+            default_id = wp("eval", "echo MYSITE_CONTENT_EVENT_KEY_ID;").stdout.strip() if kind == "event-hmac" else "k1"
+            expected = [f"{default_id} active"]
+        else:
+            expected = [f"{k} {v[1]}" for k, v in sorted(ring.items(), key=lambda kv: int(kv[0][1:]))]
+        wp_out = wp("site-content", "keyring", kind).stdout
+        app = dev("compose", "exec", "-T", "app-php", "php", "artisan", "mysite:keyring", kind, "--no-ansi")
+        check(app.code == 0, f"Laravel mysite:keyring {kind} 執行失敗")
+        for side, out in (("WordPress", wp_out), ("Laravel", app.stdout)):
+            lines = [line.strip() for line in out.splitlines() if line.strip()]
+            check(lines == expected, f"{side} 載入的 {kind} 金鑰圈與秘密檔不一致：{lines} ≠ {expected}")
+            for key, _ in (ring or {}).values():
+                check(key not in out, f"{side} 的金鑰圈狀態輸出不得含金鑰")
+        notes.append(f"{kind}={'／'.join(expected)}")
+    return "；".join(notes)
 
 
 @contract("events_dead_letter_replay_redirect_transport", ["API-08"], "events")

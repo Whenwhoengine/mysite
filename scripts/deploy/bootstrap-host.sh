@@ -148,6 +148,20 @@ salts_lines() {
 need_secret wp_salts mysql-data && gen wp_salts < <(salts_lines)
 need_secret content_event_hmac_key "" && gen content_event_hmac_key < <(openssl rand -hex 32)
 need_secret preview_signing_key "" && gen preview_signing_key < <(openssl rand -hex 32)
+# 金鑰圈（GAP-KEYRING-01）：缺少才由既有單一金鑰建立 `k1 <金鑰> active`；已存在不覆寫（輪替由 rotate-secrets.sh 改寫）
+for pair in content_event_hmac_key:content_event_hmac_keyring preview_signing_key:preview_signing_keyring; do
+  single="${pair%%:*}"; ring="${pair##*:}"
+  md_secret_ok "$ring" && continue
+  [[ -e "$MD_SECRETS_DIR/$ring" ]] && ms_die "$EXIT_FORBIDDEN" "秘密 $ring 存在但為空或權限過寬；請人工檢查（不自動覆寫）"
+  [[ "$(tr -d '\r\n' < "$MD_SECRETS_DIR/$single")" =~ ^[0-9a-f]{64}$ ]] \
+    || ms_die "$EXIT_FORBIDDEN" "$single 不是 64 字元小寫 hex，無法建立 $ring；請依 docs/runbooks/秘密輪替.md 處理"
+  gen "$ring" < <(printf 'k1 %s active\n' "$(tr -d '\r\n' < "$MD_SECRETS_DIR/$single")")
+done
+# APP_KEY 輪替過渡期的舊金鑰檔：平時為空檔（Compose 需要檔案存在）
+md_optional_secret_ok app_previous_keys || {
+  [[ -e "$MD_SECRETS_DIR/app_previous_keys" ]] && ms_die "$EXIT_FORBIDDEN" "秘密 app_previous_keys 權限過寬或不是一般檔；請人工檢查"
+  gen app_previous_keys < /dev/null
+}
 need_secret diagnostics_token "" && gen diagnostics_token < <(openssl rand -hex 24)
 need_secret deploy_status_token "" && gen deploy_status_token < <(openssl rand -hex 32)
 need_secret wp_service_app_password "" && gen wp_service_app_password < <(printf 'PENDING-BOOTSTRAP-%s\n' "$(openssl rand -hex 8)")

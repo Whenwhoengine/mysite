@@ -12,11 +12,18 @@ namespace SiteContent;
 
 defined( 'ABSPATH' ) || exit;
 
+require_once __DIR__ . '/keyring.php';
+
 /**
  * HS256 compact 預覽票券。
+ *
+ * 金鑰圈（GAP-KEYRING-01、契約 §7 擴充）：簽發時 header 帶 active key 的 kid
+ * （{"alg":"HS256","typ":"mysite-preview","kid":"k2"}）；驗證時依 kid 找金鑰（active 或 accept），
+ * kid 不在金鑰圈即拒絕；沒有 kid 的舊格式只以 active key 驗證。
  */
 final class Ticket {
 
+	/** 舊格式（無 kid）header；新簽發的票券改用 header_json() 加上 kid。 */
 	public const HEADER      = '{"alg":"HS256","typ":"mysite-preview"}';
 	public const ISSUER      = 'mysite-cms';
 	public const AUDIENCE    = 'mysite-app';
@@ -45,6 +52,21 @@ final class Ticket {
 		return $key;
 	}
 
+	/**
+	 * 簽發用 header（帶 active key 的 kid）。
+	 *
+	 * @param string $kid key ID。
+	 */
+	public static function header_json( string $kid ): string {
+		return (string) wp_json_encode(
+			array(
+				'alg' => 'HS256',
+				'typ' => 'mysite-preview',
+				'kid' => $kid,
+			)
+		);
+	}
+
 	public static function ttl(): int {
 		$ttl = defined( 'MYSITE_PREVIEW_TTL_SECONDS' ) ? (int) MYSITE_PREVIEW_TTL_SECONDS : 600;
 		return max( 60, min( self::MAX_TTL, $ttl ) );
@@ -65,16 +87,21 @@ final class Ticket {
 			'jti'   => bin2hex( random_bytes( 16 ) ),
 			'sub'   => $sub,
 		);
-		$signing = self::b64u( self::HEADER ) . '.' . self::b64u( (string) wp_json_encode( $claims, JSON_UNESCAPED_SLASHES ) );
-		return $signing . '.' . self::b64u( hash_hmac( 'sha256', $signing, self::key(), true ) );
+		self::key(); // 未設定預覽金鑰時維持原本的錯誤訊息
+		$active  = Keyring::active( Keyring::PREVIEW );
+		$signing = self::b64u( self::header_json( $active['id'] ) ) . '.' . self::b64u( (string) wp_json_encode( $claims, JSON_UNESCAPED_SLASHES ) );
+		return $signing . '.' . self::b64u( hash_hmac( 'sha256', $signing, $active['key'], true ) );
 	}
 
 	/**
 	 * 驗簽與固定欄位；成功回 claims，失敗回 null（不透露是哪一項不符）。
 	 *
+	 * @param string                                             $ticket 票券。
+	 * @param int|null                                           $now    目前時間（測試用）。
+	 * @param array<string,array{key:string,state:string}>|null $ring   指定金鑰圈（自我測試用）；null 時讀目前設定。
 	 * @return array<string,mixed>|null
 	 */
-	public static function verify( string $ticket, ?int $now = null ): ?array {
+	public static function verify( string $ticket, ?int $now = null, ?array $ring = null ): ?array {
 		$now = $now ?? time();
 		if ( strlen( $ticket ) > self::MAX_LENGTH ) {
 			return null;
@@ -89,12 +116,31 @@ final class Ticket {
 		if ( null === $header_raw || null === $claims_raw || null === $sig_raw ) {
 			return null;
 		}
-		$expected = hash_hmac( 'sha256', $parts[0] . '.' . $parts[1], self::key(), true );
+		// 先只讀 kid 以選擇金鑰；其餘 header 欄位在驗簽通過後才檢查
+		$header = json_decode( $header_raw, true );
+		$kid    = null;
+		if ( is_array( $header ) && array_key_exists( 'kid', $header ) ) {
+			if ( ! is_string( $header['kid'] ) || ! preg_match( Keyring::KEY_ID_PATTERN, $header['kid'] ) ) {
+				return null;
+			}
+			$kid = $header['kid'];
+		}
+		if ( null === $ring ) {
+			self::key();
+		}
+		try {
+			$key = null === $kid ? Keyring::active( Keyring::PREVIEW, $ring )['key'] : Keyring::find( Keyring::PREVIEW, $kid, $ring );
+		} catch ( \RuntimeException $e ) {
+			return null;
+		}
+		if ( null === $key || '' === $key ) {
+			return null;
+		}
+		$expected = hash_hmac( 'sha256', $parts[0] . '.' . $parts[1], $key, true );
 		if ( ! hash_equals( $expected, $sig_raw ) ) {
 			return null;
 		}
-		$header = json_decode( $header_raw, true );
-		if ( ! is_array( $header ) || 2 !== count( $header ) || 'HS256' !== ( $header['alg'] ?? null ) || 'mysite-preview' !== ( $header['typ'] ?? null ) ) {
+		if ( ! is_array( $header ) || ( null === $kid ? 2 : 3 ) !== count( $header ) || 'HS256' !== ( $header['alg'] ?? null ) || 'mysite-preview' !== ( $header['typ'] ?? null ) ) {
 			return null;
 		}
 		$c = json_decode( $claims_raw, true );

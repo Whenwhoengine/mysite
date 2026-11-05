@@ -134,6 +134,11 @@ if need_secret wp_salts mysql-data; then
 fi
 need_secret content_event_hmac_key "" && write_secret content_event_hmac_key "$(openssl rand -hex 32)"
 need_secret preview_signing_key "" && write_secret preview_signing_key "$(openssl rand -hex 32)"
+# 金鑰圈（k1 <既有單一金鑰> active）與空的 app_previous_keys：缺少才建立，已存在不覆寫、不改金鑰值（GAP-KEYRING-01）
+ms_ensure_derived_secrets "$secrets_dir"
+for derived in content_event_hmac_keyring preview_signing_keyring app_previous_keys; do
+  [[ -f "$secrets_dir/$derived" ]] || ms_die "$EXIT_EXTERNAL" "無法建立 $derived（Compose 會因缺檔拒絕啟動）"
+done
 need_secret diagnostics_token "" && write_secret diagnostics_token "$(openssl rand -hex 24)"
 need_secret deploy_status_token "" && write_secret deploy_status_token "$(openssl rand -hex 24)"
 need_secret wp_admin_password mysql-data && write_secret wp_admin_password "$(rand_b64 48 32)"

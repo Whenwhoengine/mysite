@@ -11,6 +11,7 @@ use App\Domain\Content\Http\UrlGuard;
 use App\Domain\Content\Http\WordPressRestClient;
 use App\Domain\Preview\PreviewTicketVerifier;
 use App\Support\Html\Sanitizer;
+use App\Support\Secrets\KeyRing;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Client\Factory;
@@ -52,10 +53,12 @@ class ContentServiceProvider extends ServiceProvider
             (array) config('mysite.content'),
         ));
 
+        // 金鑰圈（GAP-KEYRING-01）：有金鑰圈設定時優先使用；沒有時以單一金鑰視為唯一一把 active（向後相容）
         $this->app->bind(EventSignatureVerifier::class, fn (): EventSignatureVerifier => new EventSignatureVerifier(
             (string) config('mysite.content.event_key_id', ''),
             (string) config('mysite.content.event_hmac_key', ''),
             (int) config('mysite.content.event_clock_skew', 300),
+            self::keyRing('CONTENT_EVENT_HMAC_KEYRING', config('mysite.content.event_keyring')),
         ));
 
         $this->app->bind(PreviewTicketVerifier::class, fn (): PreviewTicketVerifier => new PreviewTicketVerifier(
@@ -64,7 +67,21 @@ class ContentServiceProvider extends ServiceProvider
             (string) config('mysite.preview.audience', 'mysite-app'),
             (int) config('mysite.preview.ttl', 600),
             (int) config('mysite.preview.max_ttl', 900),
+            self::keyRing('PREVIEW_SIGNING_KEYRING', config('mysite.preview.signing_keyring')),
         ));
+    }
+
+    /**
+     * 設定中的金鑰圈（單行精簡格式）→ KeyRing；未設定回傳 null（改用單一金鑰）。
+     * 格式不合法時拋出例外（啟動時 MysiteConfig 已先擋下，這裡是第二道防護，不默默退回單一金鑰）。
+     */
+    public static function keyRing(string $label, mixed $compact): ?KeyRing
+    {
+        if (! is_string($compact) || $compact === '') {
+            return null;
+        }
+
+        return KeyRing::fromCompact($label, $compact);
     }
 
     public function boot(): void

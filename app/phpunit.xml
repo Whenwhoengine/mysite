@@ -39,6 +39,10 @@
         <env force="true" name="QUEUE_CONNECTION" value="sync"/>
         <env force="true" name="SESSION_DRIVER" value="array"/>
         <env name="COMMERCE_MODE" value="disabled" force="true"/>
+        <!-- 金鑰圈與舊 APP_KEY 由各測試明確設定，不讀容器掛載的環境秘密檔（GAP-KEYRING-01） -->
+        <env name="CONTENT_EVENT_HMAC_KEYRING_FILE" value="" force="true"/>
+        <env name="PREVIEW_SIGNING_KEYRING_FILE" value="" force="true"/>
+        <env name="APP_PREVIOUS_KEYS_FILE" value="" force="true"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

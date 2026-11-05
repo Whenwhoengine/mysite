@@ -1,6 +1,6 @@
 # wp-web：WordPress 靜態檔與 PHP 入口（路徑一致：/var/www/wp），PHP 交給 wp-php。
 #  8080：容器內一般 HTTP（Laravel 公開唯讀 REST、健康檢查）；不信任 X-Forwarded-*。
-#  8081：只接受 gateway（edge 子網 ${EDGE_SUBNET}）；信任其 X-Forwarded-Proto。
+#  8081：只接受 gateway（edge 子網 ${EDGE_SUBNET}）；信任其 X-Forwarded-Proto，並以其 X-Forwarded-For 還原真實來源 IP（real_ip）。
 #  8443：容器內 TLS（測試／主機 CA 簽發），供帶服務憑證的預覽讀取；HTTPS=on。
 # 上游容器重建後 IP 會改變：一律經 Docker 內建 DNS 動態解析（避免把流量送到重新分配同一 IP 的其他服務）
 resolver 127.0.0.11 valid=10s ipv6=off;
@@ -23,6 +23,13 @@ map $upstream_http_x_frame_options $mysite_frame_options {
 map $http_x_forwarded_proto $mysite_gateway_https {
     default "";
     https on;
+}
+
+# 8081 的來源限制以「TCP 直接連線者」判斷。real_ip 會把 $remote_addr（以及 allow／deny 檢查的位址）換成還原後的
+# 客戶端位址，因此改用 realip 模組保留的原始位址 $realip_remote_addr；未經 real_ip 改寫時兩者相同。
+geo $realip_remote_addr $mysite_from_edge {
+    default 0;
+    ${EDGE_SUBNET} 1;
 }
 
 server {
@@ -52,8 +59,17 @@ server {
     listen 8081;
     server_name _;
     root /var/www/wp;
-    allow ${EDGE_SUBNET};
-    deny all;
+    # 原為 `allow ${EDGE_SUBNET};`＋`deny all;`。啟用 real_ip 後 allow／deny 會改看還原後的客戶端位址（外部客戶端將被拒），
+    # 所以改以直接連線者 $realip_remote_addr 判斷；效果相同：只接受 edge 子網直接連線，其餘 403。
+    if ($mysite_from_edge = 0) {
+        return 403;
+    }
+    # 真實來源 IP（WordPress 登入紀錄、Two Factor 等使用的 REMOTE_ADDR）：只信任 edge 子網（gateway）送來的 X-Forwarded-For，
+    # real_ip_recursive off 只取最後一個位址＝gateway 以 $proxy_add_x_forwarded_for 附上的「gateway 直接連線者」；
+    # 用戶端自帶的 X-Forwarded-For 位於前面，不會被採用。8080／8443（容器內）不設定 real_ip，且照舊清空轉送標頭。
+    set_real_ip_from ${EDGE_SUBNET};
+    real_ip_header X-Forwarded-For;
+    real_ip_recursive off;
     include /etc/nginx/snippets/wp-site.conf;
 
     location ~ \.php$ {

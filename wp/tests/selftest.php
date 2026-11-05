@@ -10,6 +10,7 @@
  */
 
 use SiteContent\Content_Model;
+use SiteContent\Keyring;
 use SiteContent\Outbox;
 use SiteContent\Rest_Public;
 use SiteContent\Support;
@@ -104,6 +105,83 @@ $assert( null === Ticket::verify( $parts[0] . '.' . $parts[1] . '.' . strrev( $p
 $assert( null === Ticket::verify( $parts[0] . '.' . $parts[1] ), 'ticket: 段數不符拒絕' );
 $assert( null === Ticket::verify( $ticket . '=' ), 'ticket: padding 拒絕' );
 $assert( null === Ticket::verify( str_repeat( 'a', 5000 ) ), 'ticket: 過長拒絕' );
+
+// ---- 金鑰圈（GAP-KEYRING-01）：WP 以 active key 簽、帶 key ID；依 kid 驗證；retire 後舊 kid 拒絕 ----
+$active_preview = Keyring::active( Keyring::PREVIEW );
+$head           = json_decode( (string) Ticket::b64u_decode( $parts[0] ), true );
+$assert( is_array( $head ) && array( 'alg', 'typ', 'kid' ) === array_keys( $head ) && 'HS256' === $head['alg'] && 'mysite-preview' === $head['typ'], 'ticket: header 為 alg／typ／kid' );
+$assert( is_array( $head ) && $active_preview['id'] === $head['kid'], 'ticket: kid 為目前 active key ID' );
+$assert( 1 === preg_match( Keyring::KEY_ID_PATTERN, (string) ( $head['kid'] ?? '' ) ), 'ticket: kid 格式 k[0-9]{1,6}' );
+$assert( hash_equals( Ticket::b64u( hash_hmac( 'sha256', $parts[0] . '.' . $parts[1], $active_preview['key'], true ) ), $parts[2] ), 'ticket: 以 active key 簽章' );
+// 容器有掛金鑰圈（*_KEYRING_FILE）時，wp-config 必須實際載入；沒掛時（舊部署）沿用單一金鑰，視為 k1 active
+$ring_files = array(
+	'preview' => (string) getenv( 'PREVIEW_SIGNING_KEYRING_FILE' ),
+	'event'   => (string) getenv( 'CONTENT_EVENT_HMAC_KEYRING_FILE' ),
+);
+if ( '' !== $ring_files['preview'] ) {
+	$assert( defined( 'MYSITE_PREVIEW_SIGNING_KEYRING' ), 'wp-config 已載入預覽金鑰圈（PREVIEW_SIGNING_KEYRING_FILE）' );
+}
+if ( '' !== $ring_files['event'] ) {
+	$assert( defined( 'MYSITE_CONTENT_EVENT_HMAC_KEYRING' ), 'wp-config 已載入事件金鑰圈（CONTENT_EVENT_HMAC_KEYRING_FILE）' );
+}
+if ( defined( 'MYSITE_PREVIEW_SIGNING_KEY_ID' ) ) {
+	$assert( MYSITE_PREVIEW_SIGNING_KEY_ID === $active_preview['id'], 'ticket: wp-config 的 active key ID 與金鑰圈一致' );
+} else {
+	$assert( 'k1' === $active_preview['id'], 'ticket: 沒有金鑰圈時 kid 為 k1' );
+}
+$assert( array_values( array_filter( Keyring::states( Keyring::PREVIEW ), static fn ( $s ) => 'active' === $s ) ) === array( 'active' ), 'preview 金鑰圈恰好一把 active' );
+
+$active_event = Keyring::active( Keyring::EVENT );
+$assert( MYSITE_CONTENT_EVENT_KEY_ID === $active_event['id'], 'event: X-Mysite-Key-Id 使用 active key ID' );
+$assert( hash_hmac( 'sha256', "1800000000\nevt\n{}", $active_event['key'] ) === Outbox::signature( '1800000000', 'evt', '{}' ), 'event: 以 active key 簽章' );
+$assert( array_values( array_filter( Keyring::states( Keyring::EVENT ), static fn ( $s ) => 'active' === $s ) ) === array( 'active' ), 'event 金鑰圈恰好一把 active' );
+$assert( ! hash_equals( $active_event['key'], $active_preview['key'] ), '事件與預覽金鑰用途分離（不同金鑰）' );
+
+// 以合成金鑰圈驗證三期（只在記憶體，不碰設定）
+$k1    = str_repeat( '1a', 32 );
+$k2    = str_repeat( '2b', 32 );
+$forge = static function ( string $key, ?string $kid ) use ( $parts ): string {
+	$h = null === $kid ? Ticket::b64u( Ticket::HEADER ) : Ticket::b64u( Ticket::header_json( $kid ) );
+	return $h . '.' . $parts[1] . '.' . Ticket::b64u( hash_hmac( 'sha256', $h . '.' . $parts[1], $key, true ) );
+};
+$ring_add     = array( 'k1' => array( 'key' => $k1, 'state' => 'active' ), 'k2' => array( 'key' => $k2, 'state' => 'accept' ) );
+$ring_promote = array( 'k1' => array( 'key' => $k1, 'state' => 'accept' ), 'k2' => array( 'key' => $k2, 'state' => 'active' ) );
+$ring_retire  = array( 'k2' => array( 'key' => $k2, 'state' => 'active' ) );
+$assert( is_array( Ticket::verify( $forge( $k1, 'k1' ), null, $ring_add ) ), 'keyring add: active kid 通過' );
+$assert( is_array( Ticket::verify( $forge( $k2, 'k2' ), null, $ring_add ) ), 'keyring add: accept kid 通過' );
+$assert( is_array( Ticket::verify( $forge( $k1, 'k1' ), null, $ring_promote ) ), 'keyring promote: 舊 kid 在 retire 前仍通過' );
+$assert( is_array( Ticket::verify( $forge( $k2, null ), null, $ring_promote ) ), 'keyring: 無 kid 舊格式以 active key 通過' );
+$assert( null === Ticket::verify( $forge( $k1, null ), null, $ring_promote ), 'keyring: 無 kid 不嘗試 accept key' );
+$assert( null === Ticket::verify( $forge( $k1, 'k9' ), null, $ring_add ), 'keyring: 未知 kid 拒絕' );
+$assert( null === Ticket::verify( $forge( $k1, 'k1' ), null, $ring_retire ), 'keyring retire: 舊 kid 拒絕' );
+$assert( null === Ticket::verify( $forge( $k1, 'K1' ), null, $ring_add ), 'keyring: kid 格式不合法拒絕' );
+$assert( null === Ticket::verify( $forge( $k2, 'k1' ), null, $ring_add ), 'keyring: kid 與金鑰不符拒絕' );
+
+// wp-config 的金鑰圈解析（格式錯誤即拒絕啟動）；舊映像的 wp-config 沒有此函式時，只在容器掛有金鑰圈時判失敗
+if ( ! function_exists( 'mysite_wp_parse_keyring' ) ) {
+	$assert( '' === $ring_files['preview'] && '' === $ring_files['event'], 'wp-config 缺少金鑰圈解析（WordPress 映像需重建）' );
+	$ring_cases = array();
+	$valid_ring = null;
+} else {
+	$valid_ring = mysite_wp_parse_keyring( "k1 {$k1} accept\r\n\nk2\t{$k2}  active\n" );
+	$ring_cases = array(
+		'兩把 active'   => "k1 {$k1} active\nk2 {$k2} active",
+		'沒有 active'   => "k1 {$k1} accept",
+		'不是 64 hex'   => 'k1 abc active',
+		'key ID 不合法' => "K1 {$k1} active",
+		'狀態不合法'    => "k1 {$k1} primary",
+		'欄位數錯'      => "k1 {$k1}",
+		'重複 key ID'   => "k1 {$k1} active\nk1 {$k2} accept",
+		'空內容'        => "\n",
+	);
+}
+if ( null !== $valid_ring ) {
+	$assert( is_array( $valid_ring ) && 'active' === $valid_ring['k2']['state'] && $k1 === $valid_ring['k1']['key'], 'keyring parse: 合法內容' );
+}
+foreach ( $ring_cases as $label => $raw ) {
+	$parsed = mysite_wp_parse_keyring( $raw );
+	$assert( is_string( $parsed ) && false === strpos( $parsed, $k1 ) && false === strpos( $parsed, $k2 ), 'keyring parse 拒絕（不含金鑰）: ' . $label );
+}
 
 echo wp_json_encode(
 	array(

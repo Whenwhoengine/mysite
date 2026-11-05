@@ -58,8 +58,12 @@ def main():
         m = re.fullmatch(r"([0-9a-f]{64})\s+\*?\./(\S+)", line.strip())
         if m:
             sums[m.group(2)] = m.group(1)
+    # sandbox.yml 先產生 SHA256SUMS（只涵蓋 lockfile 與 manifest 以外的成品）再寫 manifest.json，所以 manifest 不在清單內
+    for name in REPO_PATH:
+        if name not in sums:
+            problems.append(f"SHA256SUMS 未列出 {name}")
     for name in files:
-        if name in ("SHA256SUMS",):
+        if name in ("SHA256SUMS", "manifest.json"):
             continue
         digest = hashlib.sha256((src / name).read_bytes()).hexdigest()
         if sums.get(name) != digest:

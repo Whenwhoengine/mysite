@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "gh_run": "41973465852",
+  "source_commit": "aad927e64cf9be00261d2d7dae1faaf95d5bce6b",
+  "arch": "x86_64",
+  "checked_at": "2026-11-05T05:43:03Z",
+  "files": [
+    "SHA256SUMS",
+    "composer.json",
+    "composer.lock",
+    "manifest.json",
+    "package-lock.json",
+    "package.json"
+  ],
+  "lockfile_comparison": {
+    "app/composer.json": "identical",
+    "app/composer.lock": "identical",
+    "app/package.json": "identical",
+    "app/package-lock.json": "identical"
+  },
+  "problems": [],
+  "status": "PASS",
+  "note": "lockfile 由 sandbox.yml 在乾淨 runner 以 PHP 8.5.12 與鎖定 Node 映像重新解析；逐位元組與已提交版本比對。"
+}

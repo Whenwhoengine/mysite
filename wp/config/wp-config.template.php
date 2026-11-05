@@ -66,6 +66,86 @@ if ( ! function_exists( 'mysite_wp_secret' ) ) {
 	}
 }
 
+if ( ! function_exists( 'mysite_wp_parse_keyring' ) ) {
+	/**
+	 * 解析金鑰圈內容（GAP-KEYRING-01）：每個非空行 `<key_id> <64 hex> <active|accept>`，
+	 * key_id 符合 k[0-9]{1,6} 且不重複，恰好一把 active。成功回傳 key_id → array{key,state}；
+	 * 不合法時回傳錯誤說明字串（只含行號與欄位種類，不含金鑰）。
+	 *
+	 * @return array<string,array{key:string,state:string}>|string
+	 */
+	function mysite_wp_parse_keyring( string $raw ) {
+		$ring   = array();
+		$active = 0;
+		foreach ( preg_split( "/\r?\n/", $raw ) as $n => $line ) {
+			if ( '' === trim( $line ) ) {
+				continue;
+			}
+			$p = preg_split( '/[ \t]+/', trim( $line ) );
+			if ( 3 !== count( $p ) ) {
+				return '第 ' . ( $n + 1 ) . ' 行格式不合法（必須是 <key_id> <64 hex> <active|accept>）';
+			}
+			if ( ! preg_match( '/^k[0-9]{1,6}$/D', $p[0] ) ) {
+				return '第 ' . ( $n + 1 ) . ' 行的 key ID 不合法';
+			}
+			if ( ! preg_match( '/^[0-9a-f]{64}$/D', $p[1] ) ) {
+				return '第 ' . ( $n + 1 ) . ' 行的金鑰不是 64 字元小寫 hex';
+			}
+			if ( 'active' !== $p[2] && 'accept' !== $p[2] ) {
+				return '第 ' . ( $n + 1 ) . ' 行的狀態必須是 active 或 accept';
+			}
+			if ( isset( $ring[ $p[0] ] ) ) {
+				return 'key ID ' . $p[0] . ' 重複';
+			}
+			$ring[ $p[0] ] = array(
+				'key'   => $p[1],
+				'state' => $p[2],
+			);
+			if ( 'active' === $p[2] ) {
+				++$active;
+			}
+		}
+		if ( array() === $ring ) {
+			return '內容為空';
+		}
+		if ( 1 !== $active ) {
+			return '必須恰好一把 active';
+		}
+		return $ring;
+	}
+}
+
+if ( ! function_exists( 'mysite_wp_keyring' ) ) {
+	/**
+	 * 讀取 <NAME>_KEYRING_FILE 金鑰圈；未設定時回傳 null（沿用單一金鑰檔）。
+	 * 檔案缺失、權限過寬或格式不合法一律拒絕啟動（不默默退回單一金鑰，避免回到已撤銷的舊 key）。
+	 *
+	 * @return array<string,array{key:string,state:string}>|null
+	 */
+	function mysite_wp_keyring( string $name ): ?array {
+		$path = getenv( $name . '_KEYRING_FILE' );
+		if ( false === $path || '' === $path ) {
+			return null;
+		}
+		clearstatcache( true, $path );
+		if ( ! is_file( $path ) ) {
+			mysite_wp_fail( "{$name}_KEYRING_FILE 指向的檔案不存在" );
+		}
+		if ( ( fileperms( $path ) & 0007 ) !== 0 ) {
+			mysite_wp_fail( "{$name}_KEYRING_FILE 權限過寬（其他使用者可存取）" );
+		}
+		$raw = @file_get_contents( $path );
+		if ( false === $raw ) {
+			mysite_wp_fail( "{$name}_KEYRING_FILE 無法讀取" );
+		}
+		$ring = mysite_wp_parse_keyring( $raw );
+		if ( is_string( $ring ) ) {
+			mysite_wp_fail( "{$name}_KEYRING_FILE {$ring}" );
+		}
+		return $ring;
+	}
+}
+
 $mysite_env = mysite_wp_env( 'WP_ENVIRONMENT_TYPE' );
 if ( ! in_array( $mysite_env, array( 'development', 'staging', 'production' ), true ) ) {
 	mysite_wp_fail( 'WP_ENVIRONMENT_TYPE 不合法' );
@@ -101,9 +181,33 @@ unset( $mysite_salts, $mysite_line, $mysite_salt_name, $m );
 // ---- 本案整合設定（site-content 外掛讀取）----
 define( 'MYSITE_APP_URL', rtrim( mysite_wp_env( 'MYSITE_APP_URL' ), '/' ) );
 define( 'MYSITE_CONTENT_EVENT_URL', mysite_wp_env( 'CONTENT_EVENT_URL' ) );
-define( 'MYSITE_CONTENT_EVENT_KEY_ID', mysite_wp_env( 'CONTENT_EVENT_KEY_ID' ) );
-define( 'MYSITE_CONTENT_EVENT_HMAC_KEY', mysite_wp_secret( 'CONTENT_EVENT_HMAC_KEY' ) );
-define( 'MYSITE_PREVIEW_SIGNING_KEY', mysite_wp_secret( 'PREVIEW_SIGNING_KEY' ) );
+// 簽章金鑰：有金鑰圈（*_KEYRING_FILE）時以其中的 active key 簽章、key ID 取自金鑰圈；
+// 沒有金鑰圈時沿用單一金鑰檔（事件 key ID 為 CONTENT_EVENT_KEY_ID，預覽視為 k1）。
+foreach ( array(
+	'CONTENT_EVENT_HMAC' => array( 'MYSITE_CONTENT_EVENT_HMAC_KEYRING', 'MYSITE_CONTENT_EVENT_KEY_ID', 'MYSITE_CONTENT_EVENT_HMAC_KEY' ),
+	'PREVIEW_SIGNING'    => array( 'MYSITE_PREVIEW_SIGNING_KEYRING', 'MYSITE_PREVIEW_SIGNING_KEY_ID', 'MYSITE_PREVIEW_SIGNING_KEY' ),
+) as $mysite_ring_name => $mysite_ring_consts ) {
+	$mysite_ring = mysite_wp_keyring( $mysite_ring_name );
+	if ( null === $mysite_ring ) {
+		continue;
+	}
+	define( $mysite_ring_consts[0], $mysite_ring );
+	foreach ( $mysite_ring as $mysite_ring_id => $mysite_ring_entry ) {
+		if ( 'active' === $mysite_ring_entry['state'] ) {
+			define( $mysite_ring_consts[1], (string) $mysite_ring_id );
+			define( $mysite_ring_consts[2], $mysite_ring_entry['key'] );
+		}
+	}
+}
+unset( $mysite_ring, $mysite_ring_name, $mysite_ring_consts, $mysite_ring_id, $mysite_ring_entry );
+if ( ! defined( 'MYSITE_CONTENT_EVENT_HMAC_KEYRING' ) ) {
+	define( 'MYSITE_CONTENT_EVENT_KEY_ID', mysite_wp_env( 'CONTENT_EVENT_KEY_ID' ) );
+	define( 'MYSITE_CONTENT_EVENT_HMAC_KEY', mysite_wp_secret( 'CONTENT_EVENT_HMAC_KEY' ) );
+}
+if ( ! defined( 'MYSITE_PREVIEW_SIGNING_KEYRING' ) ) {
+	define( 'MYSITE_PREVIEW_SIGNING_KEY_ID', 'k1' );
+	define( 'MYSITE_PREVIEW_SIGNING_KEY', mysite_wp_secret( 'PREVIEW_SIGNING_KEY' ) );
+}
 define( 'MYSITE_PREVIEW_TTL_SECONDS', min( 900, max( 60, (int) mysite_wp_env( 'PREVIEW_TTL_SECONDS', '600' ) ) ) );
 $mysite_diag = getenv( 'DIAGNOSTICS_TOKEN_FILE' );
 if ( $mysite_diag !== false && $mysite_diag !== '' ) {

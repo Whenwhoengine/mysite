@@ -24,8 +24,11 @@ import test_editor  # noqa: E402,F401
 import test_events  # noqa: E402,F401
 import test_preview  # noqa: E402,F401
 import test_schedule  # noqa: E402,F401
+import test_realip  # noqa: E402,F401
+import test_maintenance  # noqa: E402,F401
 
-GROUP_ORDER = ["lint", "api", "security", "roles", "editor", "events", "preview", "schedule"]
+# maintenance 會切換全站維護模式，排在最後（每項結束一律關閉；收尾時再確認）
+GROUP_ORDER = ["lint", "api", "security", "roles", "editor", "events", "preview", "schedule", "maintenance"]
 
 
 @L.contract("php_syntax_lint", ["WP-02"], "lint")
@@ -91,6 +94,11 @@ def cleanup(ctx: L.Context) -> list[str]:
         L.wp("cap", "remove", role, cap, check_ok=False)
     for option in set(ctx.options_set) | {"site_content_simulate_outbox_failure"}:
         L.wp("option", "update", option, "0", check_ok=False)
+    if ctx.cache.get("maintenance_touched"):
+        # 維護模式測試中斷時也要讓 CMS 退出維護模式（只在本次測試開啟過時執行）
+        res = L.wp("site-content", "maintenance", "off", check_ok=False)
+        if res.code != 0:
+            notes.append("CMS 維護模式未能關閉，請執行 wp site-content maintenance off")
     L.release_jobs()
     if not notes:
         L.CLEANUP_FILE.write_text("{}", encoding="utf-8")
