@@ -186,6 +186,7 @@ def reconcile(ctx: Context) -> str | None:
     try:
         wp("option", "update", "site_content_simulate_outbox_failure", "1")
         ctx.options_set.append("site_content_simulate_outbox_failure")
+        ctx.persist()
         wp("post", "update", str(pid), "--post_title=契約測試對帳文章（故障中修改）")
     finally:
         wp("option", "delete", "site_content_simulate_outbox_failure", check_ok=False)

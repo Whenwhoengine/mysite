@@ -236,6 +236,7 @@ def wp03(ctx: Context) -> str | None:
                               "--post_content=sc-contract-exclude-marker", "--meta_input={\"sc_exclude\":\"1\",\"sc_youtube_url\":\"https://youtu.be/Contract-01\"}")
     term = wp("term", "create", "category", "契約測試私人分類", "--slug=sc-contract-private-cat", "--porcelain").stdout.strip()
     ctx.created_terms.append(("category", int(term)))
+    ctx.persist()
     wp("post", "term", "set", str(targets["sample-hidden-draft"]), "category", "sc-contract-private-cat", "sample-notes", "--by=slug")
     targets["pending"] = pending
     targets["excluded"] = excluded

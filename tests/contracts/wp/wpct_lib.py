@@ -32,6 +32,7 @@ APP_BASE = os.environ.get("MYSITE_APP_BASE", "http://127.0.0.1:8080").rstrip("/"
 SECRETS_DIR = ROOT / ".runtime" / "secrets" / ENV
 RESULTS_DIR = Path(os.environ.get("MYSITE_RESULTS_DIR", str(ROOT / ".runtime" / "results")))
 RESULTS_FILE = RESULTS_DIR / "wp-contract.jsonl"
+CLEANUP_FILE = RESULTS_DIR / "wp-contract-pending-cleanup.json"
 NS = "/wp-json/site-content/v1"
 UTC_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 UUID4_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")
@@ -99,8 +100,17 @@ def _clean_stderr(text: str) -> str:
     return "\n".join(lines[-5:])
 
 
+_NOT_RUNNING = ("is not running", "is restarting", "No such container", "no such service", "container not found")
+
+
 def dev(*args: str, stdin: bytes | None = None, timeout: int = 180) -> CmdResult:
-    return _run(["bash", "scripts/cloud/dev.sh", *args], stdin=stdin, timeout=timeout)
+    """經 scripts/cloud/dev.sh 執行；容器重啟中（整合者重建服務）時最多等待 3 分鐘再重試。"""
+    deadline = time.time() + 180
+    while True:
+        res = _run(["bash", "scripts/cloud/dev.sh", *args], stdin=stdin, timeout=timeout)
+        if res.code == 0 or not any(marker in res.stderr for marker in _NOT_RUNNING) or time.time() > deadline:
+            return res
+        time.sleep(5)
 
 
 def wp(*args: str, check_ok: bool = True, stdin: bytes | None = None, extra_env: dict[str, str] | None = None) -> CmdResult:
@@ -430,9 +440,22 @@ class Context:
             self.admin = s
         return self.admin
 
+    created_users: list[int] = field(default_factory=list)
+
     def track_post(self, post_id: int) -> int:
         self.created_posts.append(int(post_id))
+        self.persist()
         return int(post_id)
+
+    def persist(self) -> None:
+        """把待清理清單寫到結果目錄；中斷的執行可在下次開始時補清。"""
+        data = {"posts": self.created_posts, "terms": self.created_terms, "caps": self.caps_added,
+                "options": self.options_set, "users": self.created_users}
+        try:
+            RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+            CLEANUP_FILE.write_text(json.dumps(data), encoding="utf-8")
+        except OSError:
+            pass
 
 
 REGISTRY: list[TestCase] = []

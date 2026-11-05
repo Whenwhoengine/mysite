@@ -18,6 +18,7 @@ def wp05(ctx: Context) -> str | None:
     for role in ("administrator", "editor"):
         wp("cap", "add", role, OTHER_CAP)
         ctx.caps_added.append((role, OTHER_CAP))
+        ctx.persist()
     wp("cap", "add", "mysite_service", "edit_posts")  # 模擬服務帳號角色被擴權
     before_admin = _role_caps("administrator")
     before_editor = _role_caps("editor")

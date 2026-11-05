@@ -7,7 +7,7 @@ umask 077
 
 usage() {
   cat <<'EOF'
-用法：scripts/ops/restore-check.sh --env=staging|production --snapshot=<ID|latest> --target=isolated [--level=db|full] [--help]
+用法：scripts/ops/restore-check.sh --env=staging|production --snapshot=<ID|latest> --target=isolated [--level=db|full] [--tmpfs-mb=<N>] [--help]
 
   --env=<環境>        讀取哪個環境的 restic repository（只讀；不會寫入該環境任何 project）
   --snapshot=latest   取 WP（scope wp／all）與 Laravel（scope app／all）各自最新的 snapshot
@@ -15,19 +15,21 @@ usage() {
   --target=isolated   唯一允許值；其他任何值（含 staging、production）一律拒絕（exit 40）
   --level=db          完整性＋隔離 MySQL 匯入＋SQL 檢查（文章／草稿／媒體引用／訂單／庫存／刪除紀錄）
   --level=full        另以還原當時的 Laravel 映像在無外網的內部網路重套刪除紀錄（mysite:deletion-log:reapply）
+  --tmpfs-mb=<N>      隔離 MySQL 資料放在 N MB 的記憶體 tmpfs volume（演練資料庫用完即丟；預設 0＝磁碟 volume）
 
 結果：environments/<env>/state/restore-checks.jsonl（只含筆數、時間、snapshot ID 與判定，不含資料內容）
 exit code：0 PASS；10 參數錯；20 缺 restic／目的地；30 資料檢查失敗；40 非隔離目標；50 還原未完成（完整性或匯入失敗）。
 EOF
 }
 
-env_name=""; snapshot=""; target=""; level="db"
+env_name=""; snapshot=""; target=""; level="db"; tmpfs_mb=0
 for arg in "$@"; do
   case "$arg" in
     --env=*) env_name="${arg#--env=}" ;;
     --snapshot=*) snapshot="${arg#--snapshot=}" ;;
     --target=*) target="${arg#--target=}" ;;
     --level=*) level="${arg#--level=}" ;;
+    --tmpfs-mb=*) tmpfs_mb="${arg#--tmpfs-mb=}" ;;
     -h|--help) usage; exit 0 ;;
     *) printf '未知參數：%s\n' "$arg" >&2; usage >&2; exit 10 ;;
   esac
@@ -42,6 +44,7 @@ MD_SCRIPT_NAME=restore-check
 ms_require_env_enum "$env_name" staging production
 [[ "$snapshot" =~ $MD_RE_SNAPSHOT ]] || ms_die "$EXIT_USAGE" "--snapshot 必須是 latest 或 8／64 位 hex"
 case "$level" in db|full) ;; *) ms_die "$EXIT_USAGE" "--level 只允許 db／full" ;; esac
+[[ "$tmpfs_mb" =~ ^[0-9]{1,6}$ ]] || ms_die "$EXIT_USAGE" "--tmpfs-mb 必須是整數 MB"
 md_require_cmd python3 docker tar sha256sum
 md_resolve_host_root
 md_env_paths "$env_name"
@@ -222,14 +225,19 @@ for s in mysql_root_password wp_db_password app_db_password; do
   ( umask 022; md_rand_alnum 40 > "$secrets/$s" )
 done
 created_resources=1
-docker volume create --label "com.docker.compose.project=$project" --label mysite.restorecheck=1 "${project}_mysql-data" >/dev/null
+vol_opts=(); mysql_extra=(--disable-log-bin)   # 演練資料庫不需要 binlog
+if (( tmpfs_mb > 0 )); then
+  vol_opts=(--driver local --opt type=tmpfs --opt device=tmpfs --opt "o=size=${tmpfs_mb}m")
+  mysql_extra+=(--innodb-flush-method=fsync)    # tmpfs 不支援 O_DIRECT
+fi
+docker volume create "${vol_opts[@]}" --label "com.docker.compose.project=$project" --label mysite.restorecheck=1 "${project}_mysql-data" >/dev/null
 cid="$(docker run -d --name "${project}-mysql" --network none \
   --label "com.docker.compose.project=$project" --label com.docker.compose.service=mysql --label mysite.restorecheck=1 \
   -v "${project}_mysql-data:/var/lib/mysql" -v "$secrets:/run/secrets:ro" \
   -v "$MD_PLATFORM_DIR/infra/mysql/init:/docker-entrypoint-initdb.d:ro" \
   -e MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password \
   -e MYSITE_WP_DB_NAME=mysite_wp -e MYSITE_WP_DB_USER=mysite_wp -e MYSITE_APP_DB_NAME=mysite_app -e MYSITE_APP_DB_USER=mysite_app \
-  "$mysql_image" --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci --default-time-zone=+00:00 --skip-name-resolve)" \
+  "$mysql_image" --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci --default-time-zone=+00:00 --skip-name-resolve "${mysql_extra[@]}")" \
   || { check[mysql]="FAIL: 無法啟動隔離 MySQL"; report INCOMPLETE "$EXIT_DEPLOY_INCOMPLETE"; }
 
 q() { # q <秘密> <使用者> <庫> <SQL>

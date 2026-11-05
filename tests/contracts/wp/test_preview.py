@@ -143,6 +143,8 @@ def preview(ctx: Context) -> str | None:
     # 核發者事後失去編輯權限：以暫時的作者帳號建立快照與票券，降為訂閱者後必須拒絕。
     author = int(wp("user", "create", f"sc-contract-author-{stamp}", f"sc-contract-author-{stamp}@mysite.invalid", "--role=author",
                     f"--user_pass={stamp}-Contract-Only-Pw", "--porcelain").stdout.strip())
+    ctx.created_users.append(author)
+    ctx.persist()
     try:
         own = int(wp("post", "create", "--post_type=post", "--post_status=draft", f"--post_author={author}", "--post_title=作者自己的草稿",
                      "--porcelain").stdout.strip())

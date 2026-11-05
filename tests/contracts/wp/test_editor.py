@@ -180,6 +180,9 @@ def wp08(ctx: Context) -> str | None:
     check(bad_nonce.status == 403, f"錯誤 nonce 應 403，實得 {bad_nonce.status}")
     edit_screen = s.request("GET", "/wp-admin/post-new.php")
     check(edit_screen.status == 200 and "block-editor" in edit_screen.text, f"區塊編輯器頁面應可載入，實得 {edit_screen.status}")
+    auto_draft = _inputs(edit_screen.text).get("post_ID", "")
+    if auto_draft.isdigit():
+        ctx.track_post(int(auto_draft))  # 開啟「新增文章」會建立 auto-draft，測試結束時清掉
     heartbeat = s.request("POST", "/wp-admin/admin-ajax.php", {"Content-Type": "application/x-www-form-urlencoded"}, b"action=heartbeat&_nonce=x&data=")
     check(heartbeat.status in (200, 400, 403), f"admin-ajax 不應被 gateway 擋（實得 {heartbeat.status}）")
 

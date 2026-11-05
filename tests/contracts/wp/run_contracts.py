@@ -56,19 +56,33 @@ def registry_ids() -> set[str]:
     return {item["id"] for item in data["items"]}
 
 
+def wait_for_wp(seconds: int = 240) -> bool:
+    deadline = time.time() + seconds
+    while time.time() < deadline:
+        if L.wp("option", "get", "home", check_ok=False).code == 0:
+            return True
+        time.sleep(5)
+    return False
+
+
 def cleanup(ctx: L.Context) -> list[str]:
+    """只清本次（或上次中斷時記錄的）測試資料；清理完成才清空待清理清單。"""
     notes: list[str] = []
+    if not wait_for_wp():
+        return ["WP-CLI 無法使用，待清理清單保留在 " + str(L.CLEANUP_FILE)]
     try:
         test_events.stop_receiver()
     except Exception as exc:  # noqa: BLE001
         notes.append(f"停止測試接收端失敗：{exc}")
+    for user_id in ctx.created_users:
+        L.wp("user", "delete", str(user_id), "--yes", "--reassign=1", check_ok=False)
     ids = [str(i) for i in sorted(set(ctx.created_posts), reverse=True)]
     if ids:
         # 已被測試本身刪除的 ID 會產生警告，忽略即可（只刪本次測試建立的內容與附件）。
         L.wp("post", "delete", *ids, "--force", check_ok=False)
-        left = L.wp("eval", "echo implode(',', array_filter(array(" + ",".join(ids) + "), 'get_post'));", check_ok=False).stdout.strip()
-        if left:
-            notes.append(f"仍有測試內容未刪除：{left}")
+        left = L.wp("eval", "echo implode(',', array_filter(array(" + ",".join(ids) + "), 'get_post'));", check_ok=False)
+        if left.code != 0 or left.stdout.strip():
+            notes.append(f"仍有測試內容未刪除：{left.stdout.strip() or '（無法確認）'}")
     for taxonomy, term_id in ctx.created_terms:
         L.wp("term", "delete", taxonomy, str(term_id), check_ok=False)
     for role, cap in ctx.caps_added:
@@ -76,7 +90,26 @@ def cleanup(ctx: L.Context) -> list[str]:
     for option in set(ctx.options_set) | {"site_content_simulate_outbox_failure"}:
         L.wp("option", "delete", option, check_ok=False)
     L.release_jobs()
+    if not notes:
+        L.CLEANUP_FILE.write_text("{}", encoding="utf-8")
     return notes
+
+
+def recover_previous(ctx_cls=L.Context) -> list[str]:
+    """上次執行若中斷（例如容器重啟），先補清當時記錄的測試資料。"""
+    try:
+        data = json.loads(L.CLEANUP_FILE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    if not any(data.get(k) for k in ("posts", "terms", "caps", "options", "users")):
+        return []
+    old = ctx_cls()
+    old.created_posts = [int(x) for x in data.get("posts", [])]
+    old.created_terms = [tuple(x) for x in data.get("terms", [])]
+    old.caps_added = [tuple(x) for x in data.get("caps", [])]
+    old.options_set = list(data.get("options", []))
+    old.created_users = [int(x) for x in data.get("users", [])]
+    return ["已補清上次中斷的測試資料"] + cleanup(old)
 
 
 def main() -> int:
@@ -121,6 +154,8 @@ def main() -> int:
         if health.status != 200:
             print(f"環境未就緒：/health HTTP {health.status}（MYSITE_ENV={L.ENV}，CMS={L.CMS_BASE}）", file=sys.stderr)
             return 20
+        for note in recover_previous():
+            print(note, file=sys.stderr)
         ctx = L.Context()
         ctx.cache["app_url"] = L.app_url()
     except Exception as exc:  # noqa: BLE001
