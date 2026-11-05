@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         then: function (): void {
+            \Illuminate\Support\Facades\Route::middleware([])
+                ->group(base_path('routes/health.php'));
             \Illuminate\Support\Facades\Route::middleware(['internal'])
                 ->group(base_path('routes/internal.php'));
         },

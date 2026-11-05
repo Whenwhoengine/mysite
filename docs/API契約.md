@@ -69,6 +69,7 @@ WP 端錯誤碼：`site_content_not_found`(404)、`site_content_invalid_param`(4
 | `GET /content/{type}/{id}/visibility` | 公開 | `{"data":{"type":"post","id":123,"visible":true,"content_version":5,"checked_at":"..."}}`；不存在或非公開時 **仍回 200** 且 `visible:false`、`content_version` 為目前值或 0；不回標題或正文。 |
 | `GET /taxonomies` | 公開 | `{"data":{"categories":[{"id","slug","name","count"}],"tags":[...]}}`；`count` 只計公開內容 |
 | `GET /menus/{location}` | 公開 | location ∈ `primary`、`footer`；`{"data":{"location":"primary","items":[{"label":"文章","url":"/articles","external":false}]}}`。內部連結一律轉為主站相對路徑；外部連結只允許 `https:`。 |
+| `GET /site` | 公開 | 品牌最小集（v1 相容擴充）：`{"data":{"name":"mysite","tagline":"…","author_bio":"純文字","social_links":[{"label":"YouTube","url":"https://…"}],"logo":{url,alt,width,height}或 null,"is_sample":true}}`；只回 https 社群連結 |
 | `GET /search` | 公開 | `q`（必填，1–100 字元）、`type`（可選，核准型別）、`page`、`per_page`；只搜公開內容的標題、摘要、正文 |
 | `GET /preview/{type}/{id}` | 服務帳號（Application Password，僅 HTTPS）＋票券 | header `X-Mysite-Preview-Ticket: <ticket>`；參數 `snapshot=<sid>`。驗證見 §5；回 `{"data": ContentItem(含 body_html，preview:true, snapshot_id, revision_id), "meta":{...}}` |
 

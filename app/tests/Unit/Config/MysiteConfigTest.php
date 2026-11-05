@@ -49,7 +49,12 @@ final class MysiteConfigTest extends TestCase
     #[Test]
     public function production_requires_https_secure_cookie_and_no_debug(): void
     {
-        $errors = MysiteConfig::validate($this->mysite(['environment' => 'production']), $this->framework());
+        $mysite = $this->mysite(['environment' => 'production']);
+        $mysite['content']['event_hmac_key'] = null;
+        $mysite['content']['service_app_password'] = null;
+        $mysite['preview']['signing_key'] = null;
+        $mysite['deploy']['environment'] = null;
+        $errors = MysiteConfig::validate($mysite, $this->framework());
         $joined = implode("\n", $errors);
         $this->assertStringContainsString('APP_DEBUG', $joined);
         $this->assertStringContainsString('APP_URL 在 staging／production 必須使用 https', $joined);

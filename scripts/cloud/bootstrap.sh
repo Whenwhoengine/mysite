@@ -190,6 +190,8 @@ if [[ "$env_name" == development ]]; then
   fi
   ms_info "建置前端資產…"
   docker run --rm -v "$root/app:/app" -w /app "${BASE_IMAGE_REGISTRY_FALLBACK}/${NODE_IMAGE_REF}" npm run build >/dev/null
+  # 開發用空白 .env（不含任何設定或秘密；設定由 Compose 注入），避免 dotenv 讀取不存在檔案的警告
+  [[ -f "$root/app/.env" ]] || printf '# 開發用：設定由 Compose 環境變數注入，秘密由 *_FILE 讀取；請勿在此填入任何值。\n' > "$root/app/.env"
   mkdir -p "$root/app/storage/framework/"{cache/data,sessions,views,testing} "$root/app/storage/logs" "$root/app/bootstrap/cache"
   chgrp -R 33 "$root/app/storage" "$root/app/bootstrap/cache"; chmod -R g+rwX "$root/app/storage" "$root/app/bootstrap/cache"
 fi

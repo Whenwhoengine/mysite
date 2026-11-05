@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\System\HealthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,8 +12,7 @@ use Illuminate\Support\Facades\Route;
  *   routes/admin.php   — Laravel 管理後臺
  */
 
-Route::get('/healthz', [HealthController::class, 'live'])->name('healthz');
-Route::get('/readyz', [HealthController::class, 'ready'])->name('readyz');
+// /healthz、/readyz 定義於 routes/health.php（不經 web 群組，不啟動 Session）。
 
 foreach (['content', 'preview', 'shop', 'admin'] as $section) {
     $file = __DIR__."/{$section}.php";

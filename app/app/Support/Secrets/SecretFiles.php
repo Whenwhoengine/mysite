@@ -105,7 +105,11 @@ final class SecretFiles
             $_ENV[$name] = $value;
             $_SERVER[$name] = $value;
             putenv($name.'='.$value);
-            $_ENV['MYSITE_SECRET_EXPORTED_'.$name] = '1';
+            // 標記為本程式匯出（子程序繼承環境時不誤判為設定衝突）
+            $marker = 'MYSITE_SECRET_EXPORTED_'.$name;
+            $_ENV[$marker] = '1';
+            $_SERVER[$marker] = '1';
+            putenv($marker.'=1');
         }
     }
 
@@ -135,7 +139,7 @@ final class SecretFiles
 
     private static function isExportedByUs(string $name): bool
     {
-        return ($_ENV['MYSITE_SECRET_EXPORTED_'.$name] ?? null) === '1';
+        return self::env('MYSITE_SECRET_EXPORTED_'.$name) === '1';
     }
 
     private static function env(string $name): ?string

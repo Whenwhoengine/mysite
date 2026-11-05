@@ -29,11 +29,19 @@ final class HealthTest extends TestCase
     #[Test]
     public function readiness_fails_when_database_unreachable_but_liveness_stays_ok(): void
     {
-        config(['database.connections.mysql.host' => '203.0.113.1', 'database.connections.mysql.options' => [\PDO::ATTR_TIMEOUT => 1]]);
-        DB::purge('mysql');
+        // 另建一個指向不可達位址的連線並設為預設，原測試連線（含 RefreshDatabase 交易）保持不動
+        config(['database.connections.mysql_down' => array_merge(config('database.connections.mysql'), [
+            'host' => '203.0.113.1',
+            'options' => [\PDO::ATTR_TIMEOUT => 1],
+        ])]);
+        $original = config('database.default');
+        config(['database.default' => 'mysql_down']);
 
         $this->get('/readyz')->assertStatus(503)->assertExactJson(['status' => 'unavailable']);
-        $this->get('/healthz')->assertOk();
+        $this->get('/healthz')->assertOk()->assertExactJson(['status' => 'ok']);
+
+        config(['database.default' => $original]);
+        DB::purge('mysql_down');
     }
 
     #[Test]
