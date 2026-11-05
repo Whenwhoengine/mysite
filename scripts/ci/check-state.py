@@ -5,6 +5,7 @@
 登錄表恰含 v5 的 90 個 ID＋EXEC 6 個且不重號、狀態值合法、status.json 必要欄位齊全。
 exit 0 通過；30 有違規；10 檔案缺失或格式錯誤。
 """
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -100,6 +101,18 @@ def main():
     for m, s in status.get("milestones", {}).items():
         if s not in MILESTONE_STATES:
             errors.append(f"里程碑 {m} 狀態不合法：{s}")
+    # EXEC-01：規劃書原文必須與紀錄的 SHA-256 相符；不在 repo 時須誠實記為未取得（source_plan_file=null），不得以其他內容冒充。
+    plan_rel = status.get("source_plan_file")
+    if plan_rel:
+        plan = ROOT / plan_rel
+        if not plan.is_file():
+            errors.append(f"status.json 記錄的規劃書 {plan_rel} 不存在；原文未取得時應把 source_plan_file 設為 null 並依 docs/執行契約.md 開工")
+        else:
+            digest = hashlib.sha256(plan.read_bytes()).hexdigest()
+            if digest != status.get("plan_sha256"):
+                errors.append(f"規劃書 {plan_rel} 的 SHA-256 與 status.json 紀錄不符（可能被改寫或不是委託人提供的原件）")
+    elif not (ROOT / "docs/執行契約.md").is_file():
+        errors.append("規劃書原文未取得，且缺少 docs/執行契約.md（無法依內嵌契約開工）")
 
     if errors:
         print("state 檢查失敗：")

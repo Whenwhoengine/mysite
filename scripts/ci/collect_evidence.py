@@ -12,6 +12,7 @@
 （若該 ID 驗證場所為 staging_or_production，標 BLOCKED_EXTERNAL 並附阻擋 ID）。不會把 FAIL 改成 PASS。
 """
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -158,6 +159,9 @@ def main():
         "github": {k: os.environ.get(k) for k in ("GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_SHA", "GITHUB_REF", "GITHUB_WORKFLOW") if os.environ.get(k)},
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "steps": steps,
+        "lockfiles": {rel: hashlib.sha256((ROOT / rel).read_bytes()).hexdigest()
+                      for rel in ("app/composer.lock", "app/package-lock.json", "tests/e2e/package-lock.json", "infra/versions.env", "docs/versions.lock.json")
+                      if (ROOT / rel).is_file()},
         "coverage": coverage_summary(results_dir),
         "counts": counts,
         "p0_failures": p0_fail,

@@ -26,6 +26,18 @@ if [[ -f docs/state/status.json ]]; then
 else
   echo "缺少 docs/state/status.json（請檢查，勿自動重建）"
 fi
+# EXEC-01：規劃書原文是否存在且與紀錄相符；不在 repo 時照實說明，依內嵌契約開工，不自行補寫原文。
+plan_rel="$(jq -r '.source_plan_file // empty' docs/state/status.json 2>/dev/null || true)"
+plan_sha="$(jq -r '.plan_sha256 // empty' docs/state/status.json 2>/dev/null || true)"
+if [[ -n "$plan_rel" && -f "$plan_rel" ]]; then
+  if [[ "$(sha256sum "$plan_rel" | cut -d' ' -f1)" == "$plan_sha" ]]; then
+    echo "規劃書：${plan_rel}（SHA-256 與紀錄相符）"
+  else
+    echo "規劃書：${plan_rel} 的 SHA-256 與 status.json 不符；請停止依此檔施工並向委託人確認原件。"
+  fi
+else
+  echo "規劃書原文不在 repo：依 docs/執行契約.md 的內嵌契約開工，並在 status.json 記錄原文未取得（source_plan_file=null）；不得自行補寫或重建原文。"
+fi
 [[ -f docs/state/next-step.md ]] && { echo "--- next-step.md（前 15 行）---"; head -15 docs/state/next-step.md; }
 
 if ! command -v docker >/dev/null 2>&1; then

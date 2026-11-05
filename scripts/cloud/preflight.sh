@@ -86,6 +86,7 @@ done
 if ! command -v docker >/dev/null 2>&1; then
   rec 'docker_cli=missing'
   rec 'BACKEND=github-actions'
+  printf '%s\n' 'USE_ACTIONS: 找不到 Docker CLI；請改用 GitHub Actions（sandbox.yml）。明細：.runtime/evidence/cloud-preflight.txt' >&2
   exit "$EXIT_USE_ACTIONS"
 fi
 rec "docker_cli=$(docker --version 2>/dev/null)"
@@ -94,6 +95,7 @@ if ! timeout 15 docker info >/dev/null 2>&1; then
   rec 'docker_daemon=unreachable'
   rec 'hint=可嘗試以 dockerd 啟動 daemon；仍失敗即改用 GitHub Actions'
   rec 'BACKEND=github-actions'
+  printf '%s\n' 'USE_ACTIONS: Docker daemon 無法連線（15 秒內 docker info 失敗）；可先以 dockerd 啟動，仍失敗即改用 GitHub Actions（sandbox.yml）。明細：.runtime/evidence/cloud-preflight.txt' >&2
   exit "$EXIT_USE_ACTIONS"
 fi
 rec "docker_daemon=reachable server=$(docker version --format '{{.Server.Version}}' 2>/dev/null)"
@@ -101,6 +103,7 @@ rec "docker_daemon=reachable server=$(docker version --format '{{.Server.Version
 if ! compose_v="$(docker compose version 2>&1)"; then
   rec 'docker_compose=missing'
   rec 'BACKEND=github-actions'
+  printf '%s\n' 'USE_ACTIONS: 缺少 docker compose 外掛；請改用 GitHub Actions（sandbox.yml）。' >&2
   exit "$EXIT_USE_ACTIONS"
 fi
 rec "docker_compose=${compose_v}"
@@ -121,6 +124,7 @@ for registry in "${BASE_IMAGE_REGISTRY:-docker.io/library}" "${BASE_IMAGE_REGIST
 done
 if [[ "$pull_ok" != yes ]]; then
   rec 'BACKEND=github-actions'
+  printf '%s\n' 'USE_ACTIONS: Docker Hub 與 ECR Public 都無法取得鎖定的 MySQL 映像；請改用 GitHub Actions（sandbox.yml）。明細：.runtime/evidence/cloud-preflight.txt' >&2
   exit "$EXIT_USE_ACTIONS"
 fi
 
@@ -130,6 +134,7 @@ if out="$(timeout 60 docker run --rm --network none "$probe_ref" mysqld --versio
 else
   rec 'container_start=failed'
   rec 'BACKEND=github-actions'
+  printf '%s\n' 'USE_ACTIONS: 測試容器無法啟動（mysqld --version 失敗）；請改用 GitHub Actions（sandbox.yml）。明細：.runtime/evidence/cloud-preflight.txt' >&2
   exit "$EXIT_USE_ACTIONS"
 fi
 

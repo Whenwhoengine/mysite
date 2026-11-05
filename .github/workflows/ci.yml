@@ -64,9 +64,10 @@ jobs:
       matrix:
         scope: [content, simulation]
     steps:
-      - name: Checkout
+      - name: Checkout（完整歷史：治理檢查需核對初始提交與證據追溯）
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
       - name: 雲端預檢（記錄 runner 能力）
         run: bash scripts/cloud/preflight.sh
@@ -81,14 +82,6 @@ jobs:
         env:
           MYSITE_RUN_ID: gha-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.scope }}
         run: bash scripts/ci/verify.sh --scope=${{ matrix.scope }}
-      - name: 映像弱點掃描（高風險阻擋）
-        if: matrix.scope == 'simulation'
-        run: |
-          set -a; source infra/versions.env; set +a
-          for img in mysite/laravel:local mysite/wordpress:local mysite/app-web:local mysite/wp-web:local mysite/gateway:local; do
-            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "docker.io/${TRIVY_IMAGE_REF}" image \
-              --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress "$img"
-          done
       - name: 去秘密化診斷（失敗時）
         if: failure()
         run: |

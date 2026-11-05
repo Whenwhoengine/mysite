@@ -83,6 +83,8 @@ def main():
         m = merged.get(item["id"])
         if not m:
             continue
+        if m["status"] == "NOT_RUN" and item.get("status") == "NOT_APPLICABLE" and item.get("note"):
+            continue  # 已附理由的不適用項不被「本次未執行」覆蓋
         item["status"] = m["status"]
         item["evidence"] = sorted(set(m["evidence"]))
         item["tests"] = m["tests"][:20]

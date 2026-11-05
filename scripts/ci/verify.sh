@@ -9,7 +9,7 @@ usage() {
   cat <<'EOF'
 用法：scripts/ci/verify.sh --scope=content|simulation [--skip-build] [--steps=a,b,...] [--help]
 
-步驟（預設全部）：static、bootstrap、idempotency、doctor、phpunit、wp-contract、deploy、e2e、collect
+步驟（預設全部）：static、bootstrap、idempotency、doctor、phpunit、wp-contract、e2e、deploy、governance、collect
   --skip-build   testing 映像已存在時略過重建
   --steps=...    只跑指定步驟（逗號分隔）
 結果：.runtime/results/*.jsonl、junit.xml、coverage；彙整：docs/evidence/<run-id>/（由 collect 步驟產生）
@@ -17,7 +17,7 @@ exit code：0 全部通過；10 參數錯；21 無 Docker（改用 Actions）；
 EOF
 }
 
-scope=""; skip_build=0; steps="static,bootstrap,idempotency,doctor,phpunit,wp-contract,deploy,e2e,collect"
+scope=""; skip_build=0; steps="static,bootstrap,idempotency,doctor,phpunit,wp-contract,e2e,deploy,governance,collect"
 for a in "$@"; do
   case "$a" in
     --scope=*) scope="${a#--scope=}" ;;
@@ -187,6 +187,13 @@ e2e_step() {
     bash tests/e2e/run.sh
 }
 
+governance_step() {
+  # 治理／流程類驗收（CLD／EXEC／GOV／DAT、INF-06 重建保存、INF-08 架構與資源、GOV-02 弱點掃描）；需在部署工具與 E2E 之後執行
+  [[ -f tests/governance/run.sh ]] || { record governance runner-missing "" FAIL "tests/governance/run.sh 不存在"; return 1; }
+  : > "$results/governance.jsonl"
+  MYSITE_RESULTS_DIR="$results" bash tests/governance/run.sh
+}
+
 collect_step() {
   MYSITE_RESULTS_DIR="$results" MYSITE_SCOPE="$scope" MYSITE_EXECUTION_BACKEND="$backend" \
     bash scripts/ci/collect-evidence.sh --run-id="$run_id"
@@ -212,6 +219,10 @@ else
   want e2e && step e2e e2e_step
 fi
 want deploy && step deploy deploy_step
+if want governance; then
+  if [[ "$bootstrap_ok" == true ]]; then step governance governance_step
+  else jq -cn --arg at "$(now)" '{step:"governance", command:"skipped: bootstrap failed", started_at:$at, finished_at:$at, exit_code:99, status:"FAIL"}' >> "$steps_log"; overall=1; fi
+fi
 want collect && step collect collect_step
 
 if (( overall )); then
