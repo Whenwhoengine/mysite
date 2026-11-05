@@ -18,6 +18,18 @@ const activeInfo = (page) =>
     if (!el || el === document.body) return { tag: 'body' };
     const cs = getComputedStyle(el);
     const r = el.getBoundingClientRect();
+    // 焦點色（設計 token --color-focus）轉成 rgb，用來辨認畫在外層容器（:focus-within）的焦點框
+    const probe = document.createElement('span');
+    probe.style.color = getComputedStyle(document.documentElement).getPropertyValue('--color-focus').trim() || 'transparent';
+    document.body.appendChild(probe);
+    const focusRgb = getComputedStyle(probe).color;
+    probe.remove();
+    const own = (cs.boxShadow && cs.boxShadow !== 'none') || (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0);
+    let ancestorRing = false;
+    for (let p = el.parentElement, i = 0; p && i < 4 && !ancestorRing; p = p.parentElement, i += 1) {
+      const ps = getComputedStyle(p);
+      ancestorRing = p.matches(':focus-within') && focusRgb !== 'rgba(0, 0, 0, 0)' && ((ps.boxShadow || '').includes(focusRgb) || ((ps.outlineColor || '') === focusRgb && ps.outlineStyle !== 'none'));
+    }
     return {
       tag: el.tagName.toLowerCase(),
       id: el.id,
@@ -25,7 +37,7 @@ const activeInfo = (page) =>
       text: (el.textContent || el.getAttribute('aria-label') || '').trim().slice(0, 30),
       href: el.getAttribute('href'),
       focusVisible: el.matches(':focus-visible'),
-      indicator: (cs.boxShadow && cs.boxShadow !== 'none') || (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0),
+      indicator: own || ancestorRing,
       inViewport: r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth && r.width > 0 && r.height > 0,
     };
   });
@@ -75,6 +87,12 @@ test.describe('鍵盤與焦點', () => {
 
   test('只用鍵盤送出頁首搜尋表單', { tag: ['@UI-04'] }, async ({ page }) => {
     await page.goto(appUrl('/'));
+    if (isMobileWidth(page)) {
+      // 手機寬度：搜尋表單在收合的選單內，先以鍵盤展開
+      await tabUntil(page, (i) => (i.cls || '').includes('site-nav__toggle'));
+      await page.keyboard.press('Enter');
+      await expect(page.locator('[data-site-nav-toggle]')).toHaveAttribute('aria-expanded', 'true');
+    }
     await tabUntil(page, (i) => i.id === 'site-search-q');
     await page.keyboard.type('示例');
     await Promise.all([page.waitForURL(/\/search\?q=/), page.keyboard.press('Enter')]);
@@ -136,7 +154,12 @@ async function axeScan(page) {
   await page.evaluate(AXE_SOURCE);
   return page.evaluate(async (tags) => {
     const r = await window.axe.run(document, { runOnly: { type: 'tag', values: tags }, resultTypes: ['violations'] });
-    return r.violations.map((v) => ({ id: v.id, impact: v.impact, help: v.help, nodes: v.nodes.length, targets: v.nodes.slice(0, 3).map((n) => n.target.join(' ')) }));
+    return {
+      version: window.axe.version,
+      passes: r.passes.length,
+      incomplete: r.incomplete.map((v) => `${v.id}(${v.impact || '—'})`),
+      violations: r.violations.map((v) => ({ id: v.id, impact: v.impact, help: v.help, nodes: v.nodes.length, targets: v.nodes.slice(0, 3).map((n) => n.target.join(' ')) })),
+    };
   }, AXE_TAGS);
 }
 
@@ -157,13 +180,15 @@ test.describe('axe-core 自動無障礙掃描', () => {
       const res = await page.goto(appUrl(p));
       expect(res.status()).toBe(200);
       await page.waitForLoadState('networkidle');
-      const violations = await axeScan(page);
+      const scan = await axeScan(page);
+      expect(scan.passes, 'axe 應實際評估到規則（防止注入失敗而假通過）').toBeGreaterThan(0);
+      const { violations } = scan;
       const count = (lvl) => violations.filter((v) => v.impact === lvl).reduce((n, v) => n + v.nodes, 0);
-      const summary = { project: testInfo.project.name, page: def.name, path: p, axe: '4.14.0', tags: AXE_TAGS, critical: count('critical'), serious: count('serious'), moderate: count('moderate'), minor: count('minor'), violations };
+      const summary = { project: testInfo.project.name, page: def.name, path: p, axe: scan.version, tags: AXE_TAGS, rules_passed: scan.passes, needs_review: scan.incomplete, critical: count('critical'), serious: count('serious'), moderate: count('moderate'), minor: count('minor'), violations };
       fs.mkdirSync(RESULTS_DIR, { recursive: true });
       fs.writeFileSync(path.join(RESULTS_DIR, `axe-${testInfo.project.name}-${def.name}.json`), JSON.stringify(summary, null, 2));
       const severe = violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
-      note(testInfo, `axe ${def.label}：critical ${summary.critical}、serious ${summary.serious}、moderate ${summary.moderate}、minor ${summary.minor}${severe.length ? `；嚴重規則：${severe.map((v) => `${v.id}(${v.impact},${v.nodes})`).join('、')}` : ''}`);
+      note(testInfo, `axe ${scan.version} ${def.label}：通過規則 ${scan.passes}、critical ${summary.critical}、serious ${summary.serious}、moderate ${summary.moderate}、minor ${summary.minor}、待人工確認 ${scan.incomplete.join('、') || '0'}${severe.length ? `；嚴重規則：${severe.map((v) => `${v.id}(${v.impact},${v.nodes})`).join('、')}` : ''}`);
       expect(severe.map((v) => `${v.id}［${v.impact}］${v.help}：${v.targets.join('，')}`), `${def.label} 不得有 serious／critical 違規`).toEqual([]);
     });
   }
