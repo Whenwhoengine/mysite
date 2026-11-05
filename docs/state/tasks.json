@@ -1,0 +1,1225 @@
+{
+  "schema_version": 1,
+  "tasks": [
+    {
+      "id": "M0-01",
+      "milestone": "M0",
+      "title": "核對儲存庫、分支、既有檔案與 v5 原件 hash",
+      "status": "IN_PROGRESS",
+      "depends_on": [],
+      "owned_paths": [
+        "docs/環境查核.md",
+        "docs/sources/來源紀錄.md"
+      ],
+      "acceptance_ids": [
+        "CLD-02",
+        "EXEC-01"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M0-02",
+      "milestone": "M0",
+      "title": "建立 ignore／attributes 並以合成秘密驗證排除規則",
+      "status": "IN_PROGRESS",
+      "depends_on": [
+        "M0-01"
+      ],
+      "owned_paths": [
+        ".gitignore",
+        ".dockerignore",
+        ".gitattributes",
+        "tests/security/ignore-rules.sh"
+      ],
+      "acceptance_ids": [
+        "CLD-04",
+        "DAT-05"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M0-03",
+      "milestone": "M0",
+      "title": "雲端預檢腳本與執行路線判定",
+      "status": "IN_PROGRESS",
+      "depends_on": [
+        "M0-01"
+      ],
+      "owned_paths": [
+        "scripts/cloud/preflight.sh",
+        "scripts/lib/common.sh"
+      ],
+      "acceptance_ids": [
+        "CLD-01",
+        "CLD-08"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M0-04",
+      "milestone": "M0",
+      "title": "版本查核、versions.env、versions.lock.json 初稿",
+      "status": "IN_PROGRESS",
+      "depends_on": [
+        "M0-01"
+      ],
+      "owned_paths": [
+        "docs/版本查核.md",
+        "infra/versions.env",
+        "docs/versions.lock.json"
+      ],
+      "acceptance_ids": [
+        "GOV-05",
+        "WP-09"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M0-05",
+      "milestone": "M0",
+      "title": "狀態檔、驗收登錄表、CLAUDE.md／AGENTS.md、ADR",
+      "status": "IN_PROGRESS",
+      "depends_on": [
+        "M0-01"
+      ],
+      "owned_paths": [
+        "docs/state/",
+        "tests/acceptance/registry.json",
+        "CLAUDE.md",
+        "AGENTS.md",
+        "docs/架構決策.md"
+      ],
+      "acceptance_ids": [
+        "CLD-07",
+        "GOV-03"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M0-06",
+      "milestone": "M0",
+      "title": "第一個基線提交並推送工作分支、讀回遠端",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M0-02",
+        "M0-03",
+        "M0-04",
+        "M0-05"
+      ],
+      "owned_paths": [
+        "docs/state/status.json"
+      ],
+      "acceptance_ids": [
+        "CLD-03"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M1-01",
+      "milestone": "M1",
+      "title": "多目標 Dockerfile（PHP 8.5.12 擴充、security.ini、FPM pool）",
+      "status": "IN_PROGRESS",
+      "depends_on": [
+        "M0-04"
+      ],
+      "owned_paths": [
+        "infra/images/",
+        "infra/php/"
+      ],
+      "acceptance_ids": [
+        "INF-01",
+        "INF-07"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M1-02",
+      "milestone": "M1",
+      "title": "Compose base/dev/ci/prod 與網路分段（edge/backend/db）",
+      "status": "IN_PROGRESS",
+      "depends_on": [
+        "M1-01"
+      ],
+      "owned_paths": [
+        "infra/compose.*.yml"
+      ],
+      "acceptance_ids": [
+        "INF-02",
+        "OPS-01"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M1-03",
+      "milestone": "M1",
+      "title": "Nginx gateway／app-web／wp-web 設定與敏感路徑阻擋",
+      "status": "IN_PROGRESS",
+      "depends_on": [
+        "M1-01"
+      ],
+      "owned_paths": [
+        "infra/nginx/"
+      ],
+      "acceptance_ids": [
+        "INF-03",
+        "INF-04",
+        "WP-08"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M1-04",
+      "milestone": "M1",
+      "title": "MySQL 雙庫雙帳號初始化",
+      "status": "IN_PROGRESS",
+      "depends_on": [
+        "M1-02"
+      ],
+      "owned_paths": [
+        "infra/mysql/init/"
+      ],
+      "acceptance_ids": [
+        "INF-02"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M1-05",
+      "milestone": "M1",
+      "title": "Laravel 13 骨架、lockfiles、秘密檔契約、設定驗證、健康檢查",
+      "status": "IN_PROGRESS",
+      "depends_on": [
+        "M0-04"
+      ],
+      "owned_paths": [
+        "app/"
+      ],
+      "acceptance_ids": [
+        "GOV-01",
+        "INF-05"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M1-06",
+      "milestone": "M1",
+      "title": "WordPress 核心／ACF／Two Factor 下載驗證與 wp-config 模板",
+      "status": "IN_PROGRESS",
+      "depends_on": [
+        "M0-04"
+      ],
+      "owned_paths": [
+        "wp/config/",
+        "scripts/cloud/fetch-deps.sh"
+      ],
+      "acceptance_ids": [
+        "WP-09",
+        "INF-01"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M1-07",
+      "milestone": "M1",
+      "title": "bootstrap／up／doctor／session-start／checkpoint 腳本",
+      "status": "IN_PROGRESS",
+      "depends_on": [
+        "M1-02",
+        "M1-05",
+        "M1-06"
+      ],
+      "owned_paths": [
+        "scripts/cloud/"
+      ],
+      "acceptance_ids": [
+        "CLD-05",
+        "CLD-07",
+        "CLD-09",
+        "GOV-04"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M1-08",
+      "milestone": "M1",
+      "title": "ci.yml／sandbox.yml 首次 CI baseline 並讀回結果",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M1-07"
+      ],
+      "owned_paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/sandbox.yml",
+        "scripts/ci/"
+      ],
+      "acceptance_ids": [
+        "CLD-06",
+        "CLD-08",
+        "CLD-10",
+        "EXEC-02",
+        "EXEC-04",
+        "EXEC-03"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M2-01",
+      "milestone": "M2",
+      "title": "site-content：video／podcast CPT、taxonomy、capabilities 與可重跑遷移",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M1-07"
+      ],
+      "owned_paths": [
+        "wp/plugins/site-content/"
+      ],
+      "acceptance_ids": [
+        "WP-01",
+        "WP-02",
+        "WP-04",
+        "WP-05"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M2-02",
+      "milestone": "M2",
+      "title": "ACF Local JSON 欄位組（影片、Podcast、示例標記、品牌）",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M2-01"
+      ],
+      "owned_paths": [
+        "wp/acf-json/"
+      ],
+      "acceptance_ids": [
+        "WP-02",
+        "WP-09"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M2-03",
+      "milestone": "M2",
+      "title": "公開 REST：posts／pages／videos／podcasts／taxonomies／menus／search／visibility",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M2-01"
+      ],
+      "owned_paths": [
+        "wp/plugins/site-content/includes/"
+      ],
+      "acceptance_ids": [
+        "API-01",
+        "API-03",
+        "API-14",
+        "WP-03"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M2-04",
+      "milestone": "M2",
+      "title": "合成示例資料（標明示例）與 Gutenberg 全格式驗收文章",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M2-03"
+      ],
+      "owned_paths": [
+        "wp/plugins/site-content/includes/cli/",
+        "tests/fixtures/"
+      ],
+      "acceptance_ids": [
+        "WP-06",
+        "UI-01"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M2-05",
+      "milestone": "M2",
+      "title": "WP 權限與 REST 契約測試（含後臺實際編輯流程）",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M2-03"
+      ],
+      "owned_paths": [
+        "wp/tests/",
+        "tests/contracts/"
+      ],
+      "acceptance_ids": [
+        "WP-01",
+        "WP-03",
+        "WP-04",
+        "WP-05",
+        "WP-08"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M2-06",
+      "milestone": "M2",
+      "title": "Two Factor 外掛與登入限制 mu-plugin",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M2-01"
+      ],
+      "owned_paths": [
+        "wp/mu-plugins/"
+      ],
+      "acceptance_ids": [
+        "WP-10"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M3-01",
+      "milestone": "M3",
+      "title": "WordPressRestClient（timeout、重試、大小、redirect、host allowlist）",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M2-03"
+      ],
+      "owned_paths": [
+        "app/app/Domain/Content/Http/"
+      ],
+      "acceptance_ids": [
+        "API-02",
+        "API-03",
+        "API-04",
+        "API-16"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M3-02",
+      "milestone": "M3",
+      "title": "DTO／model_version 驗證、Sanitizer、SafeContent、Blade raw 檢查",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M3-01"
+      ],
+      "owned_paths": [
+        "app/app/Domain/Content/",
+        "app/app/Support/Html/",
+        "scripts/ci/check-blade-raw.sh"
+      ],
+      "acceptance_ids": [
+        "API-05",
+        "API-14"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M3-03",
+      "milestone": "M3",
+      "title": "ContentRepository＋可見性租約＋正文快取",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M3-02"
+      ],
+      "owned_paths": [
+        "app/app/Domain/Content/"
+      ],
+      "acceptance_ids": [
+        "API-10",
+        "API-15"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M3-04",
+      "milestone": "M3",
+      "title": "設計系統 Blade 元件與版型",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M1-05"
+      ],
+      "owned_paths": [
+        "app/resources/views/",
+        "app/resources/css/"
+      ],
+      "acceptance_ids": [
+        "UI-02",
+        "UI-04"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M3-05",
+      "milestone": "M3",
+      "title": "首頁、文章列表／詳情、分類、標籤、搜尋、靜態頁",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M3-03",
+        "M3-04"
+      ],
+      "owned_paths": [
+        "app/app/Http/Controllers/Content/",
+        "app/routes/content.php"
+      ],
+      "acceptance_ids": [
+        "UI-01",
+        "UI-03",
+        "UI-06"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M3-06",
+      "milestone": "M3",
+      "title": "WP 發文→Laravel 讀取的整合測試與三尺寸截圖",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M3-05"
+      ],
+      "owned_paths": [
+        "tests/e2e/"
+      ],
+      "acceptance_ids": [
+        "API-01",
+        "UI-01",
+        "UI-02"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M4-01",
+      "milestone": "M4",
+      "title": "影片與 Podcast 列表／詳情、播放器、失效狀態",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M3-05"
+      ],
+      "owned_paths": [
+        "app/resources/views/content/"
+      ],
+      "acceptance_ids": [
+        "UI-03",
+        "UI-07"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M4-02",
+      "milestone": "M4",
+      "title": "預覽快照、票券簽發、交換、preview session",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M3-03"
+      ],
+      "owned_paths": [
+        "wp/plugins/site-content/includes/preview/",
+        "app/app/Domain/Preview/"
+      ],
+      "acceptance_ids": [
+        "API-11",
+        "API-12",
+        "API-13"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M4-03",
+      "milestone": "M4",
+      "title": "outbox、投遞、Laravel 驗簽去重、queue、對帳",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M3-03"
+      ],
+      "owned_paths": [
+        "wp/plugins/site-content/includes/events/",
+        "app/app/Domain/Content/Events/"
+      ],
+      "acceptance_ids": [
+        "API-06",
+        "API-07",
+        "API-08",
+        "API-09"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M4-04",
+      "milestone": "M4",
+      "title": "撤下硬期限、事件失效、WP 斷線處置與故障測試",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M4-03"
+      ],
+      "owned_paths": [
+        "app/app/Domain/Content/"
+      ],
+      "acceptance_ids": [
+        "API-10",
+        "API-15"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M4-05",
+      "milestone": "M4",
+      "title": "WP／Laravel 排程、零訪客定時發布、跨日時區",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M4-03"
+      ],
+      "owned_paths": [
+        "infra/images/wordpress/jobs.sh",
+        "app/routes/console.php"
+      ],
+      "acceptance_ids": [
+        "WP-07"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M4-06",
+      "milestone": "M4",
+      "title": "RSS、sitemap、canonical、CMS 前臺轉向與網址映射",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M3-05"
+      ],
+      "owned_paths": [
+        "app/app/Http/Controllers/Content/",
+        "wp/mu-plugins/",
+        "docs/網址映射.md"
+      ],
+      "acceptance_ids": [
+        "UI-06",
+        "API-13"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M4-07",
+      "milestone": "M4",
+      "title": "基本備份與隔離還原腳本（合成資料演練）",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M1-07"
+      ],
+      "owned_paths": [
+        "scripts/ops/"
+      ],
+      "acceptance_ids": [
+        "OPS-07",
+        "DAT-06"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M8A-01",
+      "milestone": "M8-A",
+      "title": "內容範圍乾淨 CI：lint、單元、MySQL 整合、WP 契約、E2E、安全與秘密掃描",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M4-01",
+        "M4-02",
+        "M4-03",
+        "M4-04",
+        "M4-05",
+        "M4-06"
+      ],
+      "owned_paths": [
+        ".github/workflows/ci.yml",
+        "scripts/ci/verify.sh"
+      ],
+      "acceptance_ids": [
+        "CLD-06",
+        "GOV-02",
+        "GOV-03",
+        "INF-06",
+        "INF-08",
+        "UI-08"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M8A-02",
+      "milestone": "M8-A",
+      "title": "依賴／映像掃描與證據彙整",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M8A-01"
+      ],
+      "owned_paths": [
+        ".github/workflows/dependency-audit.yml",
+        "scripts/ci/collect-evidence.sh"
+      ],
+      "acceptance_ids": [
+        "GOV-02",
+        "DAT-05",
+        "EXEC-06"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M8A-03",
+      "milestone": "M8-A",
+      "title": "兩輪自我複查（主公角度、維護者角度）並修正",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M8A-01"
+      ],
+      "owned_paths": [
+        "docs/evidence/"
+      ],
+      "acceptance_ids": [
+        "GOV-06",
+        "UI-05"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M5-01",
+      "milestone": "M5",
+      "title": "products／variants／inventory_mutations migration 與模型",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M1-05"
+      ],
+      "owned_paths": [
+        "app/database/migrations/",
+        "app/app/Domain/Commerce/"
+      ],
+      "acceptance_ids": [
+        "COM-07"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M5-02",
+      "milestone": "M5",
+      "title": "Money 元件（整數最小單位、DECIMAL(12,2)）與邊界測試",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M5-01"
+      ],
+      "owned_paths": [
+        "app/app/Domain/Commerce/Money.php"
+      ],
+      "acceptance_ids": [
+        "COM-02"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M5-03",
+      "milestone": "M5",
+      "title": "商店列表／詳情與 COMMERCE_MODE 旗標",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M5-01"
+      ],
+      "owned_paths": [
+        "app/routes/shop.php",
+        "app/resources/views/shop/"
+      ],
+      "acceptance_ids": [
+        "COM-01"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M5-04",
+      "milestone": "M5",
+      "title": "後臺商品 CRUD 與庫存調整（授權骨架）",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M5-01",
+        "M7-01"
+      ],
+      "owned_paths": [
+        "app/app/Http/Controllers/Admin/"
+      ],
+      "acceptance_ids": [
+        "COM-10"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M6-01",
+      "milestone": "M6",
+      "title": "Session 購物車、數量上限、價格變動提示",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M5-03"
+      ],
+      "owned_paths": [
+        "app/app/Domain/Commerce/Cart/"
+      ],
+      "acceptance_ids": [
+        "COM-03"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M6-02",
+      "milestone": "M6",
+      "title": "結帳交易：重讀價格、鎖庫存、冪等鍵、訂單快照",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M6-01"
+      ],
+      "owned_paths": [
+        "app/app/Domain/Commerce/Checkout/"
+      ],
+      "acceptance_ids": [
+        "COM-03",
+        "COM-04",
+        "COM-05",
+        "COM-06",
+        "COM-07"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M6-03",
+      "milestone": "M6",
+      "title": "訂單 token、取消狀態機、補庫存一次",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M6-02"
+      ],
+      "owned_paths": [
+        "app/app/Domain/Commerce/Orders/"
+      ],
+      "acceptance_ids": [
+        "COM-08",
+        "COM-09"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M6-04",
+      "milestone": "M6",
+      "title": "MySQL 多連線併發測試（最後一件、重送、死鎖、故意失敗）",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M6-02"
+      ],
+      "owned_paths": [
+        "app/tests/Integration/Commerce/"
+      ],
+      "acceptance_ids": [
+        "COM-04",
+        "COM-05",
+        "COM-06"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M6-05",
+      "milestone": "M6",
+      "title": "模擬標示、不收卡號／地址、郵件只進捕捉器",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M6-02"
+      ],
+      "owned_paths": [
+        "app/resources/views/shop/"
+      ],
+      "acceptance_ids": [
+        "COM-11"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M7-01",
+      "milestone": "M7",
+      "title": "管理登入、角色、policies、無公開註冊",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M1-05"
+      ],
+      "owned_paths": [
+        "app/app/Http/Controllers/Admin/",
+        "app/app/Policies/"
+      ],
+      "acceptance_ids": [
+        "COM-10",
+        "WP-04"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M7-02",
+      "milestone": "M7",
+      "title": "Fortify 2FA 與復原碼",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M7-01"
+      ],
+      "owned_paths": [
+        "app/config/fortify.php"
+      ],
+      "acceptance_ids": [
+        "COM-10"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M7-03",
+      "milestone": "M7",
+      "title": "稽核紀錄與 log 遮罩",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M7-01"
+      ],
+      "owned_paths": [
+        "app/app/Domain/Audit/"
+      ],
+      "acceptance_ids": [
+        "DAT-02"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M7-04",
+      "milestone": "M7",
+      "title": "資料保存清理／匿名化、資料清單與隱私告知",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M6-03"
+      ],
+      "owned_paths": [
+        "app/app/Console/",
+        "docs/資料清單.md"
+      ],
+      "acceptance_ids": [
+        "COM-12",
+        "DAT-01",
+        "DAT-03",
+        "DAT-04",
+        "DAT-06"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M7-05",
+      "milestone": "M7",
+      "title": "內容編輯手冊與維護者故障手冊",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M4-02"
+      ],
+      "owned_paths": [
+        "docs/內容編輯手冊.md",
+        "docs/runbooks/"
+      ],
+      "acceptance_ids": [
+        "GOV-06"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M8B-01",
+      "milestone": "M8-B",
+      "title": "內容＋商務全量乾淨 CI 與 production-like smoke",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M6-04",
+        "M7-02",
+        "M7-04",
+        "M8A-01"
+      ],
+      "owned_paths": [
+        ".github/workflows/ci.yml"
+      ],
+      "acceptance_ids": [
+        "COM-01",
+        "COM-12",
+        "GOV-02",
+        "EXEC-05"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M8B-02",
+      "milestone": "M8-B",
+      "title": "隔離備份還原（含模擬訂單）與候選部署包",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M8B-01",
+        "M4-07"
+      ],
+      "owned_paths": [
+        "scripts/ops/",
+        "scripts/deploy/"
+      ],
+      "acceptance_ids": [
+        "OPS-07",
+        "OPS-03",
+        "OPS-04"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "DEP-01",
+      "milestone": "M8-B",
+      "title": "發布清單 payload／envelope、Ed25519 簽章與嚴格驗證",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "M1-07"
+      ],
+      "owned_paths": [
+        "scripts/deploy/"
+      ],
+      "acceptance_ids": [
+        "OPS-03",
+        "OPS-04"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "DEP-02",
+      "milestone": "M8-B",
+      "title": "pull-release／release／rollback／smoke 與部署鎖、序號抗重播",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "DEP-01"
+      ],
+      "owned_paths": [
+        "scripts/deploy/",
+        "infra/systemd/"
+      ],
+      "acceptance_ids": [
+        "OPS-05",
+        "OPS-06",
+        "OPS-11"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "DEP-03",
+      "milestone": "M8-B",
+      "title": "compose.prod、HTTPS bootstrap／續期、rotate-secrets、systemd timers",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "DEP-02"
+      ],
+      "owned_paths": [
+        "infra/compose.prod.yml",
+        "infra/systemd/",
+        "scripts/ops/rotate-secrets.sh"
+      ],
+      "acceptance_ids": [
+        "OPS-02",
+        "OPS-13"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "DEP-04",
+      "milestone": "M8-B",
+      "title": "release／deploy-staging／deploy-production／dependency-audit workflows",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "DEP-01"
+      ],
+      "owned_paths": [
+        ".github/workflows/"
+      ],
+      "acceptance_ids": [
+        "CLD-10",
+        "OPS-04"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "M9A-01",
+      "milestone": "M9-A",
+      "title": "staging 主機開通與部署（需外部主機與 DNS）",
+      "status": "BLOCKED_EXTERNAL",
+      "depends_on": [
+        "M8A-01",
+        "DEP-03"
+      ],
+      "owned_paths": [
+        "docs/runbooks/"
+      ],
+      "acceptance_ids": [
+        "OPS-02",
+        "OPS-08",
+        "OPS-09",
+        "OPS-10",
+        "OPS-13"
+      ],
+      "evidence_refs": [],
+      "blocker_id": "BLK-HOST-01",
+      "commit": null
+    },
+    {
+      "id": "M10A-01",
+      "milestone": "M10-A",
+      "title": "正式發布與交接（需核准）",
+      "status": "BLOCKED_EXTERNAL",
+      "depends_on": [
+        "M9A-01"
+      ],
+      "owned_paths": [
+        "docs/runbooks/"
+      ],
+      "acceptance_ids": [
+        "WP-10",
+        "OPS-14"
+      ],
+      "evidence_refs": [],
+      "blocker_id": "BLK-HOST-01",
+      "commit": null
+    },
+    {
+      "id": "M9B-01",
+      "milestone": "M9-B",
+      "title": "staging 商店驗收（需外部主機）",
+      "status": "BLOCKED_EXTERNAL",
+      "depends_on": [
+        "M8B-01",
+        "M9A-01"
+      ],
+      "owned_paths": [
+        "docs/runbooks/"
+      ],
+      "acceptance_ids": [
+        "OPS-07",
+        "OPS-11"
+      ],
+      "evidence_refs": [],
+      "blocker_id": "BLK-HOST-01",
+      "commit": null
+    },
+    {
+      "id": "M10B-01",
+      "milestone": "M10-B",
+      "title": "正式商店模式核准與交接（需核准）",
+      "status": "BLOCKED_EXTERNAL",
+      "depends_on": [
+        "M9B-01",
+        "M10A-01"
+      ],
+      "owned_paths": [
+        "docs/runbooks/"
+      ],
+      "acceptance_ids": [
+        "OPS-12"
+      ],
+      "evidence_refs": [],
+      "blocker_id": "BLK-HOST-01",
+      "commit": null
+    }
+  ]
+}

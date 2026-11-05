@@ -1,0 +1,79 @@
+# mysite — 版控排除規則
+# 自製外掛、ACF JSON、lockfiles、測試與 migrations 必須提交；以下只排除秘密、執行期資料與第三方成品。
+
+# 會話執行期（測試秘密、暫存、完整 log）
+/.runtime/
+
+# 環境與秘密
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+!infra/**/test-ca-public.crt
+secrets/
+**/secrets/*
+!**/secrets/.gitkeep
+auth.json
+id_ed25519*
+*.envelope.key
+cookies.txt
+**/storageState*.json
+**/.auth/
+
+# 資料庫與備份
+*.sql
+*.sql.gz
+*.dump
+*.mysql
+*.sqlite
+*.sqlite3
+*.bak
+*.tar.gz
+*.zip
+backup/
+backups/
+restic-cache/
+
+# 媒體（真實上傳不進 Git；測試 fixture 另以白名單放行）
+uploads/
+wp/uploads/
+*.mp3
+*.m4a
+*.wav
+*.mp4
+*.mov
+!tests/fixtures/media/**
+
+# 相依套件與建置成品
+vendor/
+node_modules/
+/app/public/build/
+/app/public/hot
+/app/public/storage
+/app/storage/*.key
+/app/storage/pail
+/app/bootstrap/cache/*.php
+/app/.phpunit.cache
+/app/coverage/
+/wp/core/
+/wp/vendor-dist/
+/tests/e2e/test-results/
+/tests/e2e/playwright-report/
+/tests/e2e/blob-report/
+/tests/e2e/screenshots-local/
+
+# 日誌與暫存
+*.log
+npm-debug.log*
+.phpunit.result.cache
+.php-cs-fixer.cache
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

@@ -1,0 +1,9 @@
+# gateway（正式主機首次啟動）：只提供 ACME HTTP-01 驗證與維護頁，不引用尚不存在的憑證（v5 §13.6）。
+map $http_x_forwarded_proto $mysite_scheme { default $scheme; }
+server {
+    listen 80 default_server;
+    server_name ${APP_HOST} ${CMS_HOST};
+    server_tokens off;
+    location ^~ /.well-known/acme-challenge/ { root /var/www/acme; default_type text/plain; try_files $uri =404; }
+    location / { root /var/www/maintenance; try_files /index.html =503; }
+}

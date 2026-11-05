@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "project": "Whenwhoengine/mysite",
+  "plan_version": "v5",
+  "plan_sha256": "7a9dc8b969010117a9d7e2bef11f92a4eb1ac8a4c0d4c12cc077d512b16b41c1",
+  "prompt_sha256": "b92cf5809217107abb54073225db77c99b1ca6782d26a33bb9a6803aab40393b",
+  "source_plan_file": "docs/規劃書v5.md",
+  "updated_at": null,
+  "execution_backend": "claude-cloud-compose",
+  "working_branch": "claude/happy-euler-evh676",
+  "source_commit": null,
+  "delivery_state": "IMPLEMENTATION_IN_PROGRESS",
+  "milestones": {
+    "M0": "IN_PROGRESS",
+    "M1": "IN_PROGRESS",
+    "M2": "NOT_STARTED",
+    "M3": "NOT_STARTED",
+    "M4": "NOT_STARTED",
+    "M5": "NOT_STARTED",
+    "M6": "NOT_STARTED",
+    "M7": "NOT_STARTED",
+    "M8-A": "NOT_STARTED",
+    "M8-B": "NOT_STARTED",
+    "M9-A": "BLOCKED_EXTERNAL",
+    "M9-B": "BLOCKED_EXTERNAL",
+    "M10-A": "BLOCKED_EXTERNAL",
+    "M10-B": "BLOCKED_EXTERNAL"
+  },
+  "active_task_id": "M0-06",
+  "last_verification_ref": ".runtime/evidence/doctor-development.json（VM 內，未推送；見 docs/evidence/）",
+  "production_release_id": null,
+  "external_blocker_ids": [
+    "BLK-HOST-01",
+    "BLK-DNS-01",
+    "BLK-BACKUP-01",
+    "BLK-ALERT-01",
+    "BLK-PRODSECRET-01",
+    "BLK-APPROVAL-01"
+  ],
+  "next_action": "推送基線提交後，並行實作 M2（WP 外掛）、M3／M4（Laravel 內容）、M5–M7（商店）、部署工具，並讓 ci.yml 在工作分支執行"
+}

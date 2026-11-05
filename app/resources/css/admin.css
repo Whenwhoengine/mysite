@@ -1,0 +1,5 @@
+/* Laravel 管理後臺樣式入口（沿用同一組 token）。由後臺工作包擴充。 */
+@import './tokens.css';
+@import './base.css';
+@import './layout.css';
+@import './components.css';

@@ -1,0 +1,46 @@
+# wp-web：WordPress 靜態檔與 PHP 入口（路徑一致：/var/www/wp），PHP 交給 wp-php。
+#  8080：容器內一般 HTTP（Laravel 公開唯讀 REST、健康檢查）；不信任 X-Forwarded-*。
+#  8081：只接受 gateway（edge 子網 ${EDGE_SUBNET}）；信任其 X-Forwarded-Proto。
+#  8443：容器內 TLS（測試／主機 CA 簽發），供帶服務憑證的預覽讀取；HTTPS=on。
+map $http_x_forwarded_proto $mysite_gateway_https {
+    default "";
+    https on;
+}
+
+server {
+    listen 8080 default_server;
+    listen 8443 ssl;
+    server_name _;
+    root /var/www/wp;
+    include /etc/nginx/snippets/wp-site.conf;
+
+    ssl_certificate /run/secrets/wp_internal_tls_cert;
+    ssl_certificate_key /run/secrets/wp_internal_tls_key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        include /etc/nginx/snippets/fastcgi-common.conf;
+        fastcgi_param HTTPS $https if_not_empty;
+        fastcgi_param HTTP_X_FORWARDED_PROTO "";
+        fastcgi_param HTTP_X_FORWARDED_FOR "";
+        fastcgi_param HTTP_X_FORWARDED_HOST "";
+        fastcgi_pass wp-php:9000;
+    }
+}
+
+server {
+    listen 8081;
+    server_name _;
+    root /var/www/wp;
+    allow ${EDGE_SUBNET};
+    deny all;
+    include /etc/nginx/snippets/wp-site.conf;
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        include /etc/nginx/snippets/fastcgi-common.conf;
+        fastcgi_param HTTPS $mysite_gateway_https if_not_empty;
+        fastcgi_pass wp-php:9000;
+    }
+}
