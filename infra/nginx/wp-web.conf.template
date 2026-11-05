@@ -2,6 +2,10 @@
 #  8080：容器內一般 HTTP（Laravel 公開唯讀 REST、健康檢查）；不信任 X-Forwarded-*。
 #  8081：只接受 gateway（edge 子網 ${EDGE_SUBNET}）；信任其 X-Forwarded-Proto。
 #  8443：容器內 TLS（測試／主機 CA 簽發），供帶服務憑證的預覽讀取；HTTPS=on。
+# 上游容器重建後 IP 會改變：一律經 Docker 內建 DNS 動態解析（避免把流量送到重新分配同一 IP 的其他服務）
+resolver 127.0.0.11 valid=10s ipv6=off;
+resolver_timeout 5s;
+
 # 存取紀錄只記路徑（$uri），不記查詢字串：預覽票券、nonce 等不得進 log（API-13、DAT-02）
 log_format mysite_noquery escape=json '{"timestamp":"$time_iso8601","service":"wp-web","level":"info","event":"http_access","request_id":"$http_x_request_id","status":$status,"method":"$request_method","path":"$uri","bytes":$body_bytes_sent,"duration":$request_time}';
 # access_log 在各 server 區塊設定（覆寫 nginx.conf 預設含查詢字串的 main 格式）
@@ -39,7 +43,8 @@ server {
         fastcgi_param HTTP_X_FORWARDED_PROTO "";
         fastcgi_param HTTP_X_FORWARDED_FOR "";
         fastcgi_param HTTP_X_FORWARDED_HOST "";
-        fastcgi_pass wp-php:9000;
+        set $mysite_php_upstream wp-php:9000;
+        fastcgi_pass $mysite_php_upstream;
     }
 }
 
@@ -55,6 +60,7 @@ server {
         try_files $uri =404;
         include /etc/nginx/snippets/fastcgi-common.conf;
         fastcgi_param HTTPS $mysite_gateway_https if_not_empty;
-        fastcgi_pass wp-php:9000;
+        set $mysite_php_upstream wp-php:9000;
+        fastcgi_pass $mysite_php_upstream;
     }
 }

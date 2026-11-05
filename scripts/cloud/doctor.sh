@@ -80,7 +80,7 @@ php_settings() {
     .php_version == $v and .sapi == "fpm-fcgi"
     and (.["session.upload_progress.enabled"] == "0" or .["session.upload_progress.enabled"] == "" or .["session.upload_progress.enabled"] == false)
     and (.expose_php == "0" or .expose_php == "" or .expose_php == false)
-    and (.display_errors == "0" or .display_errors == "" or .display_errors == false)
+    and ((.display_errors|tostring|ascii_downcase) as $d | ($d == "0" or $d == "" or $d == "off" or $d == "false"))
     and (.log_errors == "1")' >/dev/null || { echo "設定不符：$(echo "$json" | jq -c '{service,sapi,php_version,"session.upload_progress.enabled",expose_php,display_errors,log_errors}')"; return 1; }
   echo "$json" | jq -c '{service,sapi,php_version,"session.upload_progress.enabled",expose_php,display_errors,log_errors}' >> "$root/.runtime/evidence/web-php-$env_name.jsonl"
 }
@@ -128,7 +128,8 @@ uploads_not_executable() {
     [[ "$code" == 403 || "$code" == 404 ]] || { echo "uploads/$f 回 $code（應拒絕）"; return 1; }
   done
   body="$(curl -s --max-time 10 "http://127.0.0.1:${cms_port}/wp-content/uploads/mysite-doctor/probe.gif")"
-  [[ "$body" != *EXECUTED* && "$body" == *'<?php'* ]] || { echo "uploads 偽裝檔被執行"; return 1; }
+  # 未被執行時會原樣回傳原始碼（含 <?php）；被執行則只會剩輸出文字
+  [[ "$body" == *'<?php'* ]] || { echo "uploads 偽裝檔被執行（回應不含原始碼）"; return 1; }
   ms_compose exec -T -u www-data wp-php rm -rf "$dir"
 }
 

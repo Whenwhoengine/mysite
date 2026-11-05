@@ -1,7 +1,11 @@
 # gateway（development／testing）：只在容器埠 8080／8081 提供 HTTP，Compose 只綁 127.0.0.1。
 # 主站：${APP_PUBLIC_PORT_INTERNAL:-8080} → app-web；CMS：8081 → wp-web:8081
+# 上游容器重建後 IP 會改變：一律經 Docker 內建 DNS 動態解析（避免把流量送到重新分配同一 IP 的其他服務）
+resolver 127.0.0.11 valid=10s ipv6=off;
+resolver_timeout 5s;
+
 log_format mysite_json escape=json '{"timestamp":"$time_iso8601","service":"gateway","environment":"${MYSITE_ENVIRONMENT}","level":"info","event":"http_access","request_id":"$request_id","status":$status,"method":"$request_method","path":"$uri","bytes":$body_bytes_sent,"duration":$request_time,"upstream":"$upstream_addr"}';
-access_log /dev/stdout mysite_json;
+# access_log 設在各 server 區塊（覆寫 nginx.conf 預設含查詢字串的 main 格式）
 
 map $http_x_forwarded_proto $mysite_scheme { default $scheme; }
 
@@ -12,18 +16,20 @@ server {
     listen 8080 default_server;
     server_name _;
     server_tokens off;
+    access_log /dev/stdout mysite_json;
     client_max_body_size 2m;
-    location = /login { limit_req zone=mysite_login burst=10 nodelay; include /etc/nginx/snippets/gateway-proxy.conf; proxy_pass http://app-web:8080; }
-    location = /internal/deploy-status { include /etc/nginx/snippets/gateway-proxy.conf; proxy_pass http://app-web:8080; }
+    location = /login { limit_req zone=mysite_login burst=10 nodelay; include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
+    location = /internal/deploy-status { include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
     location ^~ /internal/ { return 404; }
-    location / { include /etc/nginx/snippets/gateway-proxy.conf; proxy_pass http://app-web:8080; }
+    location / { include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
 }
 
 server {
     listen 8081;
     server_name _;
     server_tokens off;
+    access_log /dev/stdout mysite_json;
     client_max_body_size 34m;
-    location = /wp-login.php { limit_req zone=mysite_login burst=10 nodelay; include /etc/nginx/snippets/gateway-proxy.conf; proxy_pass http://wp-web:8081; }
-    location / { include /etc/nginx/snippets/gateway-proxy.conf; proxy_pass http://wp-web:8081; }
+    location = /wp-login.php { limit_req zone=mysite_login burst=10 nodelay; include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_cms_upstream http://wp-web:8081; proxy_pass $mysite_cms_upstream; }
+    location / { include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_cms_upstream http://wp-web:8081; proxy_pass $mysite_cms_upstream; }
 }
