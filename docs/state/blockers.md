@@ -19,3 +19,11 @@
 | ENV-GITHUB-DIST | Claude VM 代理擋 `api.github.com` zipball | Composer 改 git source；CI 用 dist（ADR-005） |
 | ENV-PECL | pecl 經代理回 426 | pcov 改以 curl 下載並 SHA-256 鎖定後 phpize 編譯 |
 | ENV-BAKE | Compose v5 bake 需 `--allow` 權限 | 映像改由 `scripts/lib/build.sh` 以 docker build 建置 |
+
+## 已知功能缺口（非外部阻擋，列為後續工作）
+
+| ID | 缺口 | 影響 | 目前替代做法 |
+|---|---|---|---|
+| GAP-KEYRING-01 | 事件 HMAC 與預覽簽章金鑰尚未支援多金鑰（金鑰圈）過渡 | `scripts/ops/rotate-secrets.sh --kind=event-hmac|preview` 目前以 exit 20 拒絕自動輪替 | 依 `docs/runbooks/秘密輪替.md` 同時切換兩端並重播死信事件；預覽票券最長 15 分鐘，切換後請編輯重新按預覽 |
+| GAP-CMS-MAINT-01 | CMS（WordPress）沒有維護模式開關 | contract／breaking 遷移時無法單獨關閉 CMS 前臺 | `release.sh` 對 contract／breaking 變更停住等待核准，現行版本照常服務 |
+| GAP-EXT-PLAY-01 | YouTube 與音訊的外部實際播放 | Claude VM 無法連外部影音服務 | 嵌入契約（iframe src、Range／206、MIME）已驗；實際播放於 staging 以瀏覽器確認 |

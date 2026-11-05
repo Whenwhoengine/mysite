@@ -11,23 +11,23 @@
   "source_commit": null,
   "delivery_state": "IMPLEMENTATION_IN_PROGRESS",
   "milestones": {
-    "M0": "IN_PROGRESS",
-    "M1": "IN_PROGRESS",
-    "M2": "NOT_STARTED",
-    "M3": "NOT_STARTED",
-    "M4": "NOT_STARTED",
-    "M5": "NOT_STARTED",
-    "M6": "NOT_STARTED",
-    "M7": "NOT_STARTED",
-    "M8-A": "NOT_STARTED",
-    "M8-B": "NOT_STARTED",
+    "M0": "VERIFIED",
+    "M1": "IMPLEMENTED",
+    "M2": "IMPLEMENTED",
+    "M3": "IMPLEMENTED",
+    "M4": "IMPLEMENTED",
+    "M5": "IMPLEMENTED",
+    "M6": "IMPLEMENTED",
+    "M7": "IMPLEMENTED",
+    "M8-A": "IN_PROGRESS",
+    "M8-B": "IN_PROGRESS",
     "M9-A": "BLOCKED_EXTERNAL",
     "M9-B": "BLOCKED_EXTERNAL",
     "M10-A": "BLOCKED_EXTERNAL",
     "M10-B": "BLOCKED_EXTERNAL"
   },
-  "active_task_id": "M0-06",
-  "last_verification_ref": ".runtime/evidence/doctor-development.json（VM 內，未推送；見 docs/evidence/）",
+  "active_task_id": "M8A-01",
+  "last_verification_ref": "開發環境：doctor 全部通過、PHPUnit 全套通過（mysite_app_test_integ）；乾淨 CI 驗證進行中（見 docs/evidence/ 與 GitHub Actions）",
   "production_release_id": null,
   "external_blocker_ids": [
     "BLK-HOST-01",
@@ -37,5 +37,5 @@
     "BLK-PRODSECRET-01",
     "BLK-APPROVAL-01"
   ],
-  "next_action": "推送基線提交後，並行實作 M2（WP 外掛）、M3／M4（Laravel 內容）、M5–M7（商店）、部署工具，並讓 ci.yml 在工作分支執行"
+  "next_action": "讀回乾淨 CI（content／simulation）結果並修正；E2E 全流程驗收；以 verify.sh 在 VM testing 環境產生證據並更新驗收登錄表"
 }
