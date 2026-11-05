@@ -30,11 +30,14 @@ RUN --mount=type=secret,id=build_ca,required=false \
     docker-php-ext-install -j"$(nproc)" pdo_mysql mysqli intl zip gd exif pcntl; \
     apt-mark auto '.*' > /dev/null; \
     apt-mark manual $savedAptMark > /dev/null; \
+    apt-mark auto $PHPIZE_DEPS libc6-dev linux-libc-dev > /dev/null 2>&1 || true; \
     find /usr/local -type f -executable -exec ldd '{}' ';' 2>/dev/null \
       | awk '/=>/ { so = $(NF-1); if (index(so, "/usr/local/") == 1) { next }; gsub("^/(usr/)?", "", so); printf "*%s\n", so }' \
       | sort -u | xargs -r dpkg-query --search | grep -v '^diversion' | cut -d: -f1 | sort -u | xargs -r apt-mark manual; \
     $APT purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
     $APT install -y --no-install-recommends ca-certificates; \
+    $APT -y upgrade; \
+    ! command -v gcc; \
     rm -rf /var/lib/apt/lists/* /tmp/build-ca.pem /usr/src/php.tar.*; \
     php -m | grep -qi '^pdo_mysql$'; php -m | grep -qi '^intl$'; php -m | grep -qi '^gd$'; php -m | grep -qi '^mysqli$'; php -m | grep -qi 'opcache'
 
@@ -230,6 +233,14 @@ CMD ["php-fpm"]
 # Web 層：Nginx（Laravel 靜態入口、WP 靜態入口、gateway）
 # ---------------------------------------------------------------------------
 FROM ${BASE_IMAGE_REGISTRY}/${NGINX_IMAGE_REF} AS web-base
+# 套用 Debian 安全更新（基底映像 digest 固定，更新內容依建置時的 Debian 安全公告；CI 以 Trivy 驗證）
+RUN --mount=type=secret,id=build_ca,required=false \
+    set -eux; \
+    sed -i 's#http://deb.debian.org#https://deb.debian.org#g' /etc/apt/sources.list.d/debian.sources; \
+    cp /etc/ssl/certs/ca-certificates.crt /tmp/build-ca.pem; \
+    if [ -s /run/secrets/build_ca ]; then cat /run/secrets/build_ca >> /tmp/build-ca.pem; fi; \
+    APT="apt-get -o Acquire::https::CAInfo=/tmp/build-ca.pem"; \
+    $APT update; $APT -y upgrade; rm -rf /var/lib/apt/lists/* /tmp/build-ca.pem
 ARG SOURCE_COMMIT=unknown
 LABEL org.opencontainers.image.source="https://github.com/Whenwhoengine/mysite" \
       org.opencontainers.image.revision="${SOURCE_COMMIT}"

@@ -245,6 +245,7 @@ services:
       APP_HOST: ${APP_HOST:-_}
       CMS_HOST: ${CMS_HOST:-_}
       MYSITE_HSTS_HEADER: ${MYSITE_HSTS_HEADER:-}
+      MYSITE_LOGIN_RATE: ${MYSITE_LOGIN_RATE:-10r/m}
     networks: [edge]
     depends_on:
       app-web: { condition: service_healthy }

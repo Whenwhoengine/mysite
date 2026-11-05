@@ -91,6 +91,7 @@ if [[ ! -f "$env_file" ]]; then
     if [[ "$env_name" == testing ]]; then
       printf 'MYSITE_TOOLS_IMAGE=mysite/laravel-test:local\nMYSITE_TOOLS_TARGET=app-test\n'
       printf 'WP_JOBS_INTERVAL_SECONDS=10\n'
+      printf 'MYSITE_LOGIN_RATE=120r/m\n'   # 測試環境大量自動登入；正式維持 10r/m
     fi
   } > "$env_file"
   chmod 0640 "$env_file"

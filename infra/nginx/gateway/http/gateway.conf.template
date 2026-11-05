@@ -9,7 +9,12 @@ log_format mysite_json escape=json '{"timestamp":"$time_iso8601","service":"gate
 
 map $http_x_forwarded_proto $mysite_scheme { default $scheme; }
 
-limit_req_zone $binary_remote_addr zone=mysite_login:10m rate=10r/m;
+# 登入限流只計「送出登入」（POST）；開啟登入頁（GET）不計。速率可由 MYSITE_LOGIN_RATE 設定（正式預設 10r/m）
+map $request_method $mysite_login_limit_key {
+    POST    $binary_remote_addr;
+    default "";
+}
+limit_req_zone $mysite_login_limit_key zone=mysite_login:10m rate=${MYSITE_LOGIN_RATE};
 limit_req_status 429;
 
 server {
