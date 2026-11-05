@@ -47,29 +47,11 @@ for c in docker jq timeout df du uname awk; do
 done
 root="$(ms_root)" || exit "$EXIT_EXTERNAL"
 cd "$root"
-timeout 15 docker info >/dev/null 2>&1 || ms_die "$EXIT_EXTERNAL" "Docker daemon 不可用"
-ms_load_versions "$root"
-ms_compose_prepare "$root" "$ENV_NAME"
-project="$COMPOSE_PROJECT_NAME"
-
-dc() { timeout "$CMD_TIMEOUT" docker compose "${MS_COMPOSE_ARGS[@]}" "$@" < /dev/null; }
-dk() { timeout "$CMD_TIMEOUT" docker "$@" < /dev/null; }
-
-readonly EXPECTED_SERVICES="mysql wp-php wp-jobs wp-web app-php app-worker app-scheduler app-web gateway"
-ps_json="$(dc ps --format json 2>/dev/null || true)"
-not_running=""
-for s in $EXPECTED_SERVICES; do
-  printf '%s\n' "$ps_json" | jq -e --arg s "$s" 'select(.Service==$s and .State=="running")' >/dev/null 2>&1 || not_running+=" $s"
-done
-[[ -z "$not_running" ]] || ms_die "$EXIT_EXTERNAL" "testing 環境未啟動或服務未執行：${not_running# }；請先執行 scripts/cloud/bootstrap.sh --env=testing"
 
 results_dir="${MYSITE_RESULTS_DIR:-$root/.runtime/results}"
 mkdir -p "$results_dir" "$root/.runtime/evidence" || ms_die "$EXIT_EXTERNAL" "無法建立結果目錄"
 jsonl="$results_dir/governance.jsonl"
 evidence="$root/.runtime/evidence/resources-$ENV_NAME.json"
-
-tmp="$(mktemp -d)"
-trap 'rm -rf "$tmp"' EXIT
 
 now() { date -u +%FT%TZ; }
 fail=0
@@ -85,6 +67,31 @@ record() {
   printf '  %-4s  %-30s %s\n' "$st" "$t" "$msg"
   [[ "$st" == PASS ]] || fail=1
 }
+# 前置不足：記一行 FAIL（不把未執行當通過），exit 20
+prereq_fail() {
+  record prerequisite-testing-env FAIL "$1" "$(now)"
+  ms_die "$EXIT_EXTERNAL" "$1"
+}
+
+timeout 15 docker info >/dev/null 2>&1 || prereq_fail "Docker daemon 不可用"
+[[ -f "$root/.runtime/env/$ENV_NAME.env" ]] || prereq_fail "缺少 .runtime/env/$ENV_NAME.env；請先執行 scripts/cloud/bootstrap.sh --env=$ENV_NAME"
+ms_load_versions "$root"
+ms_compose_prepare "$root" "$ENV_NAME"
+project="$COMPOSE_PROJECT_NAME"
+
+dc() { timeout "$CMD_TIMEOUT" docker compose "${MS_COMPOSE_ARGS[@]}" "$@" < /dev/null; }
+dk() { timeout "$CMD_TIMEOUT" docker "$@" < /dev/null; }
+
+readonly EXPECTED_SERVICES="mysql wp-php wp-jobs wp-web app-php app-worker app-scheduler app-web gateway"
+ps_json="$(dc ps --format json 2>/dev/null || true)"
+not_running=""
+for s in $EXPECTED_SERVICES; do
+  printf '%s\n' "$ps_json" | jq -e --arg s "$s" 'select(.Service==$s and .State=="running")' >/dev/null 2>&1 || not_running+=" $s"
+done
+[[ -z "$not_running" ]] || prereq_fail "testing 環境未啟動或服務未執行：${not_running# }；請先執行 scripts/cloud/bootstrap.sh --env=$ENV_NAME"
+
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
 
 # Docker 架構名正規化：uname（x86_64、aarch64…）與 Docker／OCI（amd64、arm64…）對應到同一名稱
 norm_arch() {
