@@ -35,7 +35,10 @@ case "$cmd" in
     db="mysite_app_test${suffix}"
     ms_compose exec -T -e MYSQL_PWD="$(cat "$MYSITE_SECRETS_DIR/mysql_root_password")" mysql mysql -h 127.0.0.1 -uroot \
       -e "CREATE DATABASE IF NOT EXISTS \`${db}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci; GRANT ALL PRIVILEGES ON \`${db}\`.* TO 'mysite_app'@'%';" 2>/dev/null
-    ms_compose run --rm -T -u www-data -e MYSITE_TEST_DB="$db" -e HOME=/tmp tools php artisan test "$@"
+    # 第二道防護：容器環境本身就指向測試庫與非 DB 的快取／Session（見 docs/incidents/2026-11-05-test-wiped-dev-db.md）
+    ms_compose run --rm -T -u www-data -e MYSITE_TEST_DB="$db" -e DB_DATABASE="$db" -e APP_ENV=testing \
+      -e CACHE_STORE=array -e SESSION_DRIVER=array -e QUEUE_CONNECTION=sync -e MAIL_MAILER=array -e HOME=/tmp \
+      tools php artisan test "$@"
     ;;
   mysql-root) ms_compose exec -T -e MYSQL_PWD="$(cat "$MYSITE_SECRETS_DIR/mysql_root_password")" mysql mysql -h 127.0.0.1 -uroot -e "$1" ;;
   *) usage >&2; exit 10 ;;

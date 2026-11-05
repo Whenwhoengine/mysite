@@ -143,9 +143,9 @@ doctor_step() {
 phpunit_step() {
   ms_compose_prepare "$root" testing
   rm -f "$results/junit.xml" "$results/phpunit-tests.xml" "$results/coverage.xml" "$results/coverage.txt"
-  ms_compose run --rm -T -u www-data -e MYSITE_TEST_DB=mysite_app_test -e HOME=/tmp tools \
+  ms_compose run --rm -T -u www-data -e MYSITE_TEST_DB=mysite_app_test -e DB_DATABASE=mysite_app_test -e APP_ENV=testing -e CACHE_STORE=array -e SESSION_DRIVER=array -e QUEUE_CONNECTION=sync -e MAIL_MAILER=array -e HOME=/tmp tools \
     php vendor/bin/phpunit --list-tests-xml /opt/mysite/results/phpunit-tests.xml >/dev/null
-  ms_compose run --rm -T -u www-data -e MYSITE_TEST_DB=mysite_app_test -e HOME=/tmp tools \
+  ms_compose run --rm -T -u www-data -e MYSITE_TEST_DB=mysite_app_test -e DB_DATABASE=mysite_app_test -e APP_ENV=testing -e CACHE_STORE=array -e SESSION_DRIVER=array -e QUEUE_CONNECTION=sync -e MAIL_MAILER=array -e HOME=/tmp tools \
     php -d pcov.enabled=1 -d pcov.directory=/var/www/app/app vendor/bin/phpunit \
       --log-junit /opt/mysite/results/junit.xml \
       --coverage-clover /opt/mysite/results/coverage.xml \
