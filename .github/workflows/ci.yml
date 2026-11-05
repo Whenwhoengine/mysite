@@ -54,6 +54,8 @@ jobs:
   verify:
     name: 整合驗證（${{ matrix.scope }}）
     needs: static
+    # 靜態檢查失敗仍執行整合驗證，以取得完整失敗清單（整體結果仍為失敗）
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     strategy:
