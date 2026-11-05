@@ -19,7 +19,18 @@ use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
  */
 final class Sanitizer
 {
-    /** 整個元素（含內容）一律移除。 */
+    /**
+     * 只移除標籤、保留文字內容的容器元素（Gutenberg 外框、行內標記等）。
+     * 其餘未列出的元素（含 script、style、iframe、object 等）預設連內容一起移除。
+     */
+    private const BLOCKED = [
+        'div', 'span', 'section', 'article', 'header', 'footer', 'main', 'aside', 'nav', 'address',
+        'h1', 'h5', 'h6', 'b', 'i', 'u', 's', 'small', 'mark', 'sub', 'sup', 'abbr', 'time', 'del', 'ins', 'q',
+        'dl', 'dt', 'dd', 'center', 'font', 'label', 'details', 'summary', 'picture', 'kbd', 'samp', 'var',
+        'bdi', 'bdo', 'data', 'ruby', 'rt', 'rp', 'wbr', 'big', 'tt', 'strike', 'figure-caption',
+    ];
+
+    /** 明確列出一律連內容移除的元素（預設動作亦為移除；列出是為了讓設定一目了然）。 */
     private const DROPPED = [
         'script', 'style', 'iframe', 'frame', 'frameset', 'object', 'embed', 'applet', 'param',
         'form', 'input', 'button', 'textarea', 'select', 'option', 'optgroup', 'datalist', 'output',
@@ -42,7 +53,7 @@ final class Sanitizer
         $this->wpOrigin = self::origin($wpPublicUrl);
 
         $config = (new HtmlSanitizerConfig())
-            ->defaultAction(HtmlSanitizerAction::Block)
+            ->defaultAction(HtmlSanitizerAction::Drop)
             ->allowElement('p', ['class'])
             ->allowElement('h2', ['class'])
             ->allowElement('h3', ['class'])
@@ -77,6 +88,9 @@ final class Sanitizer
             ->withAttributeSanitizer(new ClassAttributeSanitizer())
             ->withMaxInputLength(max(20_000, $maxInputLength));
 
+        foreach (self::BLOCKED as $element) {
+            $config = $config->blockElement($element);
+        }
         foreach (self::DROPPED as $element) {
             $config = $config->dropElement($element);
         }
@@ -89,9 +103,9 @@ final class Sanitizer
      */
     public function sanitize(string $html, bool $preview = false): SafeContent
     {
-        $clean = $this->sanitizer->sanitize($html);
+        $clean = self::quietly(fn (): string => $this->sanitizer->sanitize($html));
 
-        return self::wrap(trim($clean) === '' ? '' : $this->postProcess($clean, $preview));
+        return self::wrap(trim($clean) === '' ? '' : self::quietly(fn (): string => $this->postProcess($clean, $preview)));
     }
 
     /** 圖片網址政策：https 任一 host，或 WP_PUBLIC_URL 的同一來源；預覽模式只允許後者。 */
@@ -182,6 +196,32 @@ final class Sanitizer
         }
 
         return $body->innerHTML;
+    }
+
+    /**
+     * 不受信任的 HTML 本來就常有結構錯誤；HTML5 解析器的 tree error 警告屬預期情況，不視為程式錯誤。
+     * 其他警告照常交給原本的錯誤處理器。
+     *
+     * @template T
+     *
+     * @param  callable(): T  $callback
+     * @return T
+     */
+    private static function quietly(callable $callback): mixed
+    {
+        $previous = null;
+        $previous = set_error_handler(static function (int $no, string $message, string $file = '', int $line = 0) use (&$previous): bool {
+            if (($no === E_WARNING || $no === E_NOTICE) && str_contains($message, 'HTMLDocument::createFromString(): tree error')) {
+                return true;
+            }
+
+            return is_callable($previous) ? (bool) $previous($no, $message, $file, $line) : false;
+        });
+        try {
+            return $callback();
+        } finally {
+            restore_error_handler();
+        }
     }
 
     private static function wrap(string $html): SafeContent

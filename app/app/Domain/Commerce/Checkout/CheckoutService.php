@@ -37,12 +37,15 @@ class CheckoutService
 
     public function placeOrder(CheckoutCommand $command): CheckoutResult
     {
-        $this->validate($command);
+        $this->validateTicket($command);
 
+        // 同一 Session 以同一冪等鍵重送：直接回傳既有訂單（即使購物車已清空）。
         $existing = $this->findExisting($command);
         if ($existing !== null) {
             return new CheckoutResult($existing, true, 0);
         }
+
+        $this->validateLines($command);
 
         try {
             [$order, $attempts] = TransactionRunner::run(fn (int $attempt) => $this->transact($command));
@@ -168,7 +171,15 @@ class CheckoutService
         return $order;
     }
 
-    private function validate(CheckoutCommand $command): void
+    private function validateTicket(CheckoutCommand $command): void
+    {
+        if (! CommerceSession::isValidKey($command->idempotencyKey) || ! CommerceSession::isValidToken($command->orderToken)
+            || preg_match('/^[a-f0-9]{64}$/', $command->sessionBindingHash) !== 1) {
+            throw new CheckoutRejected(['ticket' => 'invalid_ticket']);
+        }
+    }
+
+    private function validateLines(CheckoutCommand $command): void
     {
         if ($command->quantities === []) {
             throw new CheckoutRejected(['cart' => 'empty_cart']);
@@ -180,10 +191,6 @@ class CheckoutService
             if (! is_int($id) || $id < 1 || ! is_int($qty) || $qty < 1 || $qty > CommerceMode::maxLineQuantity()) {
                 throw new CheckoutRejected([$id => 'invalid_quantity']);
             }
-        }
-        if (! CommerceSession::isValidKey($command->idempotencyKey) || ! CommerceSession::isValidToken($command->orderToken)
-            || preg_match('/^[a-f0-9]{64}$/', $command->sessionBindingHash) !== 1) {
-            throw new CheckoutRejected(['ticket' => 'invalid_ticket']);
         }
         if ($command->buyerCode !== null && preg_match('/^[A-Z0-9-]{1,20}$/', $command->buyerCode) !== 1) {
             throw new CheckoutRejected(['buyer_code' => 'invalid_buyer_code']);

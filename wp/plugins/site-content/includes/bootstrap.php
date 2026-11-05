@@ -95,3 +95,35 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 		}
 	);
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ * M2／M4 內容工作包擴充（上方 M1 既有的健康檢查、診斷與 `wp site-content setup` 保留不變）。
+ * `wp site-content setup` 由 includes/cli.php 以 before_invoke hook 先執行資料表與能力同步，
+ * 再執行上方原有的服務帳號角色建立與成功訊息。
+ * ---------------------------------------------------------------------------
+ */
+require_once __DIR__ . '/support.php';
+require_once __DIR__ . '/content-types.php';
+require_once __DIR__ . '/setup.php';
+require_once __DIR__ . '/content-model.php';
+require_once __DIR__ . '/url-mapping.php';
+require_once __DIR__ . '/branding.php';
+require_once __DIR__ . '/acf.php';
+require_once __DIR__ . '/rest-public.php';
+require_once __DIR__ . '/outbox.php';
+require_once __DIR__ . '/preview.php';
+require_once __DIR__ . '/seed.php';
+
+SiteContent\Setup::init();
+SiteContent\Content_Types::init();
+SiteContent\Url_Mapping::init();
+SiteContent\Branding::init();
+SiteContent\Acf_Integration::init();
+SiteContent\Rest_Public::init();
+SiteContent\Outbox::init();
+SiteContent\Preview::init();
+
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	require_once __DIR__ . '/cli.php';
+}

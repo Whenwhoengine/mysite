@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\User;
+use App\Models\UserRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -41,5 +42,23 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /** 後臺管理員（測試用；正式帳號只由 mysite:admin:create 建立）。 */
+    public function admin(): static
+    {
+        return $this->afterMaking(static fn (User $user) => $user->forceFill(['role' => UserRole::Admin]));
+    }
+
+    /** 後臺唯讀人員（測試用）。 */
+    public function viewer(): static
+    {
+        return $this->afterMaking(static fn (User $user) => $user->forceFill(['role' => UserRole::Viewer]));
+    }
+
+    /** 已停用帳號（測試用）。 */
+    public function disabled(): static
+    {
+        return $this->afterMaking(static fn (User $user) => $user->forceFill(['disabled_at' => now()]));
     }
 }

@@ -124,7 +124,7 @@ final class WordPressRestClient
             }
 
             try {
-                return $this->decode($response);
+                return $this->decode($response, $private);
             } catch (UpstreamException $e) {
                 if ($e->isAvailabilityFailure()) {
                     $this->markUnavailable();
@@ -174,7 +174,7 @@ final class WordPressRestClient
     /**
      * @return array<string, mixed>
      */
-    private function decode(Response $response): array
+    private function decode(Response $response, bool $private): array
     {
         $status = $response->status();
         if ($status >= 300 && $status < 400) {
@@ -182,6 +182,10 @@ final class WordPressRestClient
         }
         if ($status === 404) {
             throw new UpstreamException('not_found', 404);
+        }
+        if ($private && $status === 403) {
+            // 預覽：WP 拒絕票券／快照（由 PreviewService 轉為 PREVIEW_INVALID）
+            throw new UpstreamException('forbidden', $status);
         }
         if ($status === 401 || $status === 403) {
             // 服務帳號、權限或 gateway 設定錯誤：記錄為設定錯誤，以 503 呈現
