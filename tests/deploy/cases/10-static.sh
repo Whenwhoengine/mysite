@@ -144,6 +144,20 @@ for svc in ("app-php", "app-worker", "app-scheduler"):
     chk(e["APP_DEBUG"] == "false" and e["SESSION_SECURE_COOKIE"] == "true", f"{svc} 正式設定錯誤")
     chk(e["RELEASE_ID"] == "r-cfg" and e["DEPLOY_STATUS_TOKEN_FILE"] == "/run/secrets/deploy_status_token", f"{svc} release／部署狀態權杖設定錯誤")
     chk(any((x if isinstance(x, str) else x.get("source")) == "deploy_status_token" for x in c["services"][svc].get("secrets", [])), f"{svc} 缺 deploy_status_token 秘密")
+# 金鑰圈（GAP-KEYRING-01）：只掛給需要的服務；事件與預覽用途分離；舊 APP_KEY 只給 Laravel
+rings = {"content_event_hmac_keyring": "CONTENT_EVENT_HMAC_KEYRING_FILE", "preview_signing_keyring": "PREVIEW_SIGNING_KEYRING_FILE"}
+def secret_names(svc):
+    return {(x if isinstance(x, str) else x.get("source")) for x in c["services"][svc].get("secrets", [])}
+for svc in ("app-php", "app-worker", "app-scheduler", "wp-php", "wp-jobs"):
+    e = c["services"][svc]["environment"]
+    for name, var in rings.items():
+        chk(name in secret_names(svc), f"{svc} 缺 {name} 秘密")
+        chk(e.get(var) == f"/run/secrets/{name}", f"{svc} 的 {var} 設定錯誤")
+    is_app = svc.startswith("app-")
+    chk(("app_previous_keys" in secret_names(svc)) == is_app, f"{svc} 的 app_previous_keys 掛載不正確（只給 Laravel）")
+    chk((e.get("APP_PREVIOUS_KEYS_FILE") == "/run/secrets/app_previous_keys") == is_app, f"{svc} 的 APP_PREVIOUS_KEYS_FILE 設定錯誤")
+for svc in ("mysql", "wp-web", "app-web", "gateway"):
+    chk(not (secret_names(svc) & (set(rings) | {"app_previous_keys"})), f"{svc} 不應取得金鑰圈或舊 APP_KEY")
 print("OK")
 PY
   # https 模式切換模板；缺映像變數必須拒絕

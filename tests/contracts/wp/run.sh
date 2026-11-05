@@ -12,7 +12,8 @@ usage() {
   MYSITE_APP_BASE     主站基底網址，預設 http://127.0.0.1:8080（testing 為 http://127.0.0.1:18080）
   MYSITE_RESULTS_DIR  結果目錄，預設 .runtime/results；每次執行先清空 wp-contract.jsonl
 
-群組：lint、api、security、roles、editor、events、preview、schedule（排程測試約需 2 分鐘）
+群組：lint、api、security、roles、editor、events、preview、schedule（排程測試約需 2 分鐘）、maintenance
+maintenance 群組會短暫開啟 CMS 維護模式（wp site-content maintenance on），每項結束與收尾時一律關閉。
 需求：環境已由 scripts/cloud/bootstrap.sh 建立並執行過 `wp site-content seed`；主機需 python3、docker。
 測試期間會暫停 wp-jobs 的自動投遞與對帳（開發用 option，最長 15 分鐘，結束時解除）。
 結束時（含失敗）不刪除任何內容：本次建立的文章、頁面、影片、Podcast 一律改回草稿（非公開），媒體附件保留；

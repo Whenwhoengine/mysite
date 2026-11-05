@@ -39,6 +39,17 @@
         <env force="true" name="QUEUE_CONNECTION" value="sync"/>
         <env force="true" name="SESSION_DRIVER" value="array"/>
         <env name="COMMERCE_MODE" value="disabled" force="true"/>
+        <!-- 金鑰圈與舊 APP_KEY 由各測試明確設定，不讀容器掛載的環境秘密檔（GAP-KEYRING-01） -->
+        <env name="CONTENT_EVENT_HMAC_KEYRING_FILE" value="" force="true"/>
+        <env name="PREVIEW_SIGNING_KEYRING_FILE" value="" force="true"/>
+        <env name="APP_PREVIOUS_KEYS_FILE" value="" force="true"/>
+        <!-- `php artisan test` 的父程序已依容器秘密檔匯出這些值，子程序會繼承（含 $_SERVER，Laravel env() 優先讀 $_SERVER）；一併清空 -->
+        <env name="CONTENT_EVENT_HMAC_KEYRING" value="" force="true"/>
+        <env name="PREVIEW_SIGNING_KEYRING" value="" force="true"/>
+        <env name="APP_PREVIOUS_KEYS" value="" force="true"/>
+        <server name="CONTENT_EVENT_HMAC_KEYRING" value="" force="true"/>
+        <server name="PREVIEW_SIGNING_KEYRING" value="" force="true"/>
+        <server name="APP_PREVIOUS_KEYS" value="" force="true"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

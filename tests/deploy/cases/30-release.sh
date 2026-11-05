@@ -242,6 +242,98 @@ r10_pull() {
   echo "OK: 固定 channel 取 asset、dry-run 不部署、新序號部署、同序號 no-op、404 退避、超大／異網域／竄改清單拒絕、channel 可暫停"
 }
 
+r11_cms_maintenance() {
+  new_host r11 staging; host_running; images_json "$H/A.json"; images_json "$H/B.json"
+  deploy_ok 1 "$H/A.json" || return 1
+  assert_file_no_grep 'site-content maintenance' "$STUB_LOG" "none 變更不得開 CMS 維護模式" || return 1
+  : > "$STUB_LOG"
+  deploy_ok 2 "$H/B.json" 'schema_change_class="expand"' || return 1
+  assert_file_no_grep 'site-content maintenance' "$STUB_LOG" "expand 變更不得開 CMS 維護模式" || return 1
+  local cls seq=3 prev=2 on off
+  for cls in contract breaking; do
+    : > "$STUB_LOG"
+    images_json "$H/I$seq.json"
+    envelope "$H/e$seq.json" staging "$seq" "$H/I$seq.json" "schema_change_class=\"$cls\"" "migration_plan_ref=\"plan-r11-$seq\""
+    rel "$H/e$seq.json" --approved-schema-plan="plan-r11-$seq"; assert_rc 0 $? "核准的 $cls 部署" || { tail -n 20 "$H/last.out"; return 1; }
+    on="compose[r-test-$prev] exec -T -u www-data wp-php wp site-content maintenance on --reason=release seq-$seq $cls"
+    off="compose[r-test-$seq] exec -T -u www-data wp-php wp site-content maintenance off"
+    assert_before "compose[r-test-$prev] exec -T app-php php artisan down" "$on" || return 1
+    assert_before "$on" "compose[r-test-$prev] stop app-worker app-scheduler wp-jobs" || return 1
+    assert_before "$on" "php artisan migrate --force" || return 1
+    assert_before "wp site-content setup" "=compose[r-test-$seq] up -d --wait --wait-timeout 300" || return 1
+    assert_before "compose[r-test-$seq] exec -T app-php php artisan up" "$off" || return 1
+    assert_before "=compose[r-test-$seq] up -d --wait --wait-timeout 300" "$off" || return 1
+    assert_before "$off" "exec app-web deploy-status" || return 1
+    [[ "$(grep -c 'site-content maintenance on' "$STUB_LOG")" == 1 && "$(grep -c 'site-content maintenance off' "$STUB_LOG")" == 1 ]] \
+      || fail "$cls：CMS 維護模式應開、關各一次" || return 1
+    [[ "$(state active.sequence)" == "$seq" && "$(state active.schema_change_class)" == "$cls" ]] || fail "active 應為 sequence $seq（$cls）" || return 1
+    prev=$seq; seq=$((seq + 1))
+  done
+  echo "OK: none／expand 不開 CMS 維護模式；contract／breaking 在 artisan down 後立即開啟（早於暫停寫入者與 migration），新版全部就緒且 artisan up 之後才關閉，再進 smoke"
+}
+
+r12_cms_maintenance_failures() {
+  new_host r12 staging; host_running; images_json "$H/A.json"
+  deploy_ok 1 "$H/A.json" || return 1
+  cdeploy() { # cdeploy <seq>：核准的 contract 部署（先清空 stub log）；回傳 release.sh 的 exit code
+    images_json "$H/I$1.json"
+    envelope "$H/e$1.json" staging "$1" "$H/I$1.json" 'schema_change_class="contract"' "migration_plan_ref=\"plan-r12-$1\""
+    : > "$STUB_LOG"
+    rel "$H/e$1.json" --approved-schema-plan="plan-r12-$1"
+  }
+  local on1='compose[r-test-1] exec -T -u www-data wp-php wp site-content maintenance on'
+  local off1='compose[r-test-1] exec -T -u www-data wp-php wp site-content maintenance off'
+  # (a) CMS 無法進維護：Laravel 解除維護，未暫停寫入者、未 migration、未換版
+  touch "$STUB_DIR/fail-wp-maintenance-on"
+  cdeploy 2; assert_rc 50 $? "CMS 維護模式開啟失敗應停止" || return 1
+  assert_file_grep 'WP_MAINTENANCE_FAILED' "$H/last.out" "應回報 WP_MAINTENANCE_FAILED" || return 1
+  assert_before "compose[r-test-1] exec -T app-php php artisan down" "$on1" || return 1
+  assert_before "$on1" "compose[r-test-1] exec -T app-php php artisan up" || return 1
+  assert_file_no_grep 'stop app-worker|artisan migrate|compose\[r-test-2\] (up|run)|maintenance off' "$STUB_LOG" "CMS 維護失敗後不得暫停寫入者、migration 或換版" || return 1
+  [[ "$(cenv RELEASE_ID)" == r-test-1 && "$(state active.sequence)" == 1 ]] || fail "(a) 現行版本不得改變" || return 1
+  rm -f "$STUB_DIR/fail-wp-maintenance-on"
+  # (b) migration 前失敗（MySQL 未就緒）：舊版恢復服務，CMS 維護模式一併解除
+  touch "$STUB_DIR/fail-up-r-test-3"
+  cdeploy 3; assert_rc 50 $? "MySQL 未就緒應停止" || return 1
+  assert_file_grep 'MYSQL_NOT_READY' "$H/last.out" "應回報 MYSQL_NOT_READY" || return 1
+  assert_before "$on1" "compose[r-test-3] up -d --wait --wait-timeout 300 mysql" || return 1
+  assert_before "compose[r-test-3] up -d --wait --wait-timeout 300 mysql" "$off1" || return 1
+  assert_file_grep 'compose\[r-test-1\] start app-worker app-scheduler wp-jobs' "$STUB_LOG" "應重啟寫入者" || return 1
+  assert_file_grep 'compose\[r-test-1\] exec -T app-php php artisan up' "$STUB_LOG" "應解除 Laravel 維護" || return 1
+  assert_file_no_grep 'artisan migrate' "$STUB_LOG" "MySQL 未就緒不得 migration" || return 1
+  rm -f "$STUB_DIR/fail-up-r-test-3"
+  # (c) contract migration 失敗：Laravel 與 CMS 都維持維護模式待人工處理
+  touch "$STUB_DIR/fail-migrate"
+  cdeploy 4; assert_rc 50 $? "migration 失敗應停止" || return 1
+  assert_file_grep 'MIGRATION_FAILED.*維持維護模式待人工處理' "$H/last.out" "應回報維持維護模式" || return 1
+  assert_file_grep 'site-content maintenance on' "$STUB_LOG" "應已開啟 CMS 維護模式" || return 1
+  assert_file_no_grep 'maintenance off|artisan up|start app-worker' "$STUB_LOG" "contract migration 失敗不得解除維護或重啟寫入者" || return 1
+  rm -f "$STUB_DIR/fail-migrate"
+  # (d) 換版後 CMS 無法退出維護：exit 50，不進 smoke、不記成功
+  touch "$STUB_DIR/fail-wp-maintenance-off"
+  cdeploy 5; assert_rc 50 $? "CMS 維護模式關閉失敗應停止" || return 1
+  assert_file_grep 'WP_MAINTENANCE_OFF_FAILED' "$H/last.out" "應回報 WP_MAINTENANCE_OFF_FAILED" || return 1
+  assert_file_no_grep 'exec app-web deploy-status' "$STUB_LOG" "CMS 未退出維護不得進 smoke" || return 1
+  [[ "$(cenv RELEASE_ID)" == r-test-5 && "$(state active.sequence)" == 1 && "$(state pending.status)" == failed ]] \
+    || fail "(d) 已換版但不得記為成功（active 維持 1、pending 記失敗）" || return 1
+  rm -f "$STUB_DIR/fail-wp-maintenance-off"
+  # (e) contract smoke 失敗（無法自動回到上一版）：Laravel 與 CMS 重新進維護模式待人工處理
+  touch "$STUB_DIR/smoke-mismatch"
+  cdeploy 6; assert_rc 50 $? "contract smoke 失敗應停在現場" || return 1
+  assert_file_grep 'SMOKE_FAILED_HOLD' "$H/last.out" "應回報 SMOKE_FAILED_HOLD" || return 1
+  assert_before "compose[r-test-6] exec -T -u www-data wp-php wp site-content maintenance off" "exec app-web deploy-status" || return 1
+  assert_before "exec app-web deploy-status" "compose[r-test-6] exec -T -u www-data wp-php wp site-content maintenance on --reason=release seq-6 smoke failed hold" || return 1
+  assert_before "exec app-web deploy-status" "compose[r-test-6] exec -T app-php php artisan down" || return 1
+  rm -f "$STUB_DIR/smoke-mismatch"
+  # (f) 排除後新的 contract 清單可正常部署，維護模式開、關各一次
+  cdeploy 7; assert_rc 0 $? "排除後的 contract 部署" || { tail -n 20 "$H/last.out"; return 1; }
+  [[ "$(grep -c 'site-content maintenance on' "$STUB_LOG")" == 1 && "$(grep -c 'site-content maintenance off' "$STUB_LOG")" == 1 ]] \
+    || fail "(f) CMS 維護模式應開、關各一次" || return 1
+  [[ "$(state active.sequence)" == 7 ]] || fail "(f) active 應為 sequence 7" || return 1
+  assert_file_no_grep 'down -v|migrate:fresh|migrate:rollback|prune|volume rm' "$STUB_LOG" "不得出現破壞性指令" || return 1
+  echo "OK: CMS 進維護失敗→舊版恢復且未換版；migration 前失敗→一併解除；contract migration 失敗→維持維護；退出失敗→exit 50 不記成功；smoke 失敗無法回復→重新進維護；之後可正常部署"
+}
+
 case_add R01_release_happy_path_order OPS-04,OPS-06 r01_happy
 case_add R02_deploy_lock_single_holder OPS-05 r02_lock
 case_add R03_retry_limit_enforced OPS-05 r03_retry_limit
@@ -252,3 +344,5 @@ case_add R07_smoke_failure_reverts_program_only OPS-11 r07_smoke_revert
 case_add R08_rollback_requires_new_sequence OPS-11 r08_rollback
 case_add R09_rollback_refuses_unsafe_targets OPS-11 r09_rollback_refused
 case_add R10_pull_release_fixed_channel_backoff OPS-03,OPS-05 r10_pull
+case_add R11_cms_maintenance_contract_only OPS-06 r11_cms_maintenance
+case_add R12_cms_maintenance_failure_paths OPS-06,OPS-11 r12_cms_maintenance_failures

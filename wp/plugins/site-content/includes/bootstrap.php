@@ -114,6 +114,8 @@ require_once __DIR__ . '/rest-public.php';
 require_once __DIR__ . '/outbox.php';
 require_once __DIR__ . '/preview.php';
 require_once __DIR__ . '/seed.php';
+require_once __DIR__ . '/maintenance.php'; // CMS 維護模式（GAP-CMS-MAINT-01）
+require_once __DIR__ . '/schedule.php'; // 排程補救（WP-07：補排遺失的發布事件、補發到期內容）
 
 SiteContent\Setup::init();
 SiteContent\Content_Types::init();
@@ -123,6 +125,7 @@ SiteContent\Acf_Integration::init();
 SiteContent\Rest_Public::init();
 SiteContent\Outbox::init();
 SiteContent\Preview::init();
+SiteContent\Maintenance::init();
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once __DIR__ . '/cli.php';

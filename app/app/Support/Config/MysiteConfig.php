@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Config;
 
+use App\Support\Secrets\KeyRing;
 use DateTimeZone;
 use RuntimeException;
 
@@ -85,6 +86,18 @@ final class MysiteConfig
 
         $preview = (array) ($mysite['preview'] ?? []);
         self::range($errors, 'PREVIEW_TTL_SECONDS', $preview['ttl'] ?? 0, 60, 900);
+
+        // 金鑰圈（GAP-KEYRING-01）：有設定就必須完全合法（恰好一把 active、key ID 與 64 hex 格式）；錯誤訊息不含金鑰
+        foreach (['CONTENT_EVENT_HMAC_KEYRING' => $content['event_keyring'] ?? null, 'PREVIEW_SIGNING_KEYRING' => $preview['signing_keyring'] ?? null] as $label => $compact) {
+            if ($compact === null || $compact === '') {
+                continue;
+            }
+            try {
+                KeyRing::fromCompact($label, (string) $compact);
+            } catch (RuntimeException $e) {
+                $errors[] = $e->getMessage();
+            }
+        }
 
         $mode = (string) (($mysite['commerce'] ?? [])['mode'] ?? '');
         if ($mode === 'real') {

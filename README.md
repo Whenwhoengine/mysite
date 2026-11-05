@@ -3,7 +3,7 @@
 
 個人影音內容網站：**WordPress** 負責編輯文章、影片、Podcast 與頁面；**Laravel 13** 負責公開網站與（模擬）商店；**MySQL 8.4** 分庫分帳號；全部以 Docker Compose 在雲端 Linux 建置、測試與部署。委託人只需瀏覽器，不需要在本機安裝任何開發工具。
 
-> 狀態：`CI_VERIFIED`——commit `dc1e25f` 在 GitHub Actions 乾淨環境通過內容站與模擬商店兩個範圍的全部測試（run 41968786436）。**尚未部署到任何公開網址**（需要常駐主機與網域）；開發環境只在 Claude 雲端 VM 的 loopback 執行。交付內容與限制見 `docs/交付報告.md`，即時進度見 `docs/state/status.json`。
+> 狀態：`CI_VERIFIED`——commit `529223a` 在 GitHub Actions 乾淨環境通過內容站與模擬商店兩個範圍的全部測試（run 41984011065），並已合併到 main。**尚未部署到任何公開網址**（需要常駐主機與網域）；開發環境只在 Claude 雲端 VM 的 loopback 執行。交付內容與限制見 `docs/交付報告v2.md`，即時進度見 `docs/state/status.json`。
 
 ## 目錄
 | 路徑 | 內容 |

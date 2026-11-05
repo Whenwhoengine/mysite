@@ -88,6 +88,8 @@ def main():
             continue
         if m["status"] == "NOT_RUN" and item.get("status") == "NOT_APPLICABLE" and item.get("note"):
             continue  # 已附理由的不適用項不被「本次未執行」覆蓋
+        if m["status"] == "NOT_RUN" and item.get("status") == "PASS" and item.get("evidence"):
+            continue  # 由其他流程（例如 sandbox 的 bootstrap-source 核對）取得的 PASS 證據，不被本次未涵蓋該項的執行覆蓋
         item["status"] = m["status"]
         item["evidence"] = sorted(set(m["evidence"]))
         item["tests"] = m["tests"][:20]

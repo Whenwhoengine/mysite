@@ -151,7 +151,8 @@ md_cfg_defaults() {
     [PULL_BACKOFF_BASE_SECONDS]="300"  # 暫定：拉取失敗退避起點
     [PULL_BACKOFF_MAX_SECONDS]="3600"  # 暫定：拉取失敗退避上限
     [PULL_TIMEOUT_SECONDS]="30"        # 暫定：單次 HTTPS 請求上限
-    [KEYRING_SUPPORT]="no" [APP_PREVIOUS_KEYS_SUPPORT]="no"
+    # 應用已支援金鑰圈與 APP_PREVIOUS_KEYS_FILE（GAP-KEYRING-01）；舊版發布可在主機設定改 no 讓輪替拒絕執行
+    [KEYRING_SUPPORT]="yes" [APP_PREVIOUS_KEYS_SUPPORT]="yes"
     [GHCR_AUTH]="none" [GHCR_USERNAME]=""
   )
 }
@@ -309,6 +310,8 @@ md_write_compose_env() {
     printf 'MYSITE_GATEWAY_MODE=%s\nMYSITE_HSTS_HEADER=%s\n' "${MD_CFG[MYSITE_GATEWAY_MODE]}" "${MD_CFG[MYSITE_HSTS_HEADER]}"
     printf 'COMMERCE_MODE=%s\nMAIL_MAILER=%s\n' "${MD_CFG[COMMERCE_MODE]}" "${MD_CFG[MAIL_MAILER]}"
     printf 'EDGE_SUBNET=%s\nBACKEND_SUBNET=%s\nDB_SUBNET=%s\n' "${MD_CFG[EDGE_SUBNET]}" "${MD_CFG[BACKEND_SUBNET]}" "${MD_CFG[DB_SUBNET]}"
+    # gateway 固定位址（主站與 CMS 只信任它轉送的 X-Forwarded-*）與 edge 動態分配範圍，皆由 EDGE_SUBNET 推導
+    printf 'GATEWAY_EDGE_IP=%s.10\nEDGE_IP_RANGE=%s.128/25\n' "${MD_CFG[EDGE_SUBNET]%.0/24}" "${MD_CFG[EDGE_SUBNET]%.0/24}"
     printf 'BASE_IMAGE_REGISTRY=%s\n' "${MD_CFG[BASE_IMAGE_REGISTRY]}"
     printf 'DEPLOY_ENVIRONMENT=%s\nDEPLOY_CHANNEL=%s\n' "$MD_ENV" "${MD_CFG[DEPLOY_CHANNEL]}"
     printf 'RELEASE_ID=%s\nMYSITE_RELEASE_SEQUENCE=%s\nMYSITE_SOURCE_COMMIT=%s\n' \
@@ -332,6 +335,24 @@ md_free_mb() { df -Pm "$1" 2>/dev/null | awk 'NR==2 {print $4}'; }
 md_secret_ok() {
   local f="$MD_SECRETS_DIR/$1" mode
   [[ -f "$f" && ! -L "$f" && -s "$f" ]] || return 1
+  mode="$(stat -c '%a' "$f")"
+  (( (8#$mode & 8#007) == 0 ))
+}
+
+# md_keyring_ok <名稱>：金鑰圈檔存在、權限正確且格式合法（每行 <k[0-9]{1,6}> <64 hex> <active|accept>、
+# key ID 不重複、恰好一把 active）；不輸出內容（GAP-KEYRING-01）
+md_keyring_ok() {
+  md_secret_ok "$1" || return 1
+  awk 'NF == 0 { next }
+       NF != 3 || $1 !~ /^k[0-9][0-9]?[0-9]?[0-9]?[0-9]?[0-9]?$/ || length($2) != 64 || $2 !~ /^[0-9a-f]+$/ || ($3 != "active" && $3 != "accept") || seen[$1]++ { bad = 1 }
+       $3 == "active" { n++ }
+       END { exit (bad || n != 1) ? 1 : 0 }' "$MD_SECRETS_DIR/$1"
+}
+
+# md_optional_secret_ok <名稱>：可為空的秘密檔（app_previous_keys）存在、為一般檔且其他使用者不可存取
+md_optional_secret_ok() {
+  local f="$MD_SECRETS_DIR/$1" mode
+  [[ -f "$f" && ! -L "$f" ]] || return 1
   mode="$(stat -c '%a' "$f")"
   (( (8#$mode & 8#007) == 0 ))
 }

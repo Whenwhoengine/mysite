@@ -66,6 +66,43 @@ def secret(name: str) -> str:
     return value
 
 
+def keyring(name: str) -> dict[str, tuple[str, str]] | None:
+    """讀取金鑰圈檔（name：content_event_hmac 或 preview_signing）；檔案不存在回傳 None（沿用單一金鑰）。
+
+    回傳 key_id → (金鑰, active|accept)；金鑰只在記憶體使用並加入遮罩清單（GAP-KEYRING-01）。
+    """
+    path = SECRETS_DIR / f"{name}_keyring"
+    if not path.exists():
+        return None
+    ring: dict[str, tuple[str, str]] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        parts = line.split()
+        if not parts:
+            continue
+        check(len(parts) == 3, f"{path.name} 格式不合法")
+        kid, key, state = parts
+        if key not in _SECRET_VALUES:
+            _SECRET_VALUES.append(key)
+        ring[kid] = (key, state)
+    return ring
+
+
+def signing_key(name: str, kid: str | None = None) -> tuple[str, str]:
+    """回傳 (key_id, 金鑰)：指定 kid 時取該把（active 或 accept），否則取 active。
+
+    沒有金鑰圈時以單一金鑰檔 `<name>_key` 視為 k1 active（事件的 key ID 實際由 CONTENT_EVENT_KEY_ID 決定，預設 k1）。
+    """
+    ring = keyring(name)
+    if ring is None:
+        return (kid or "k1", secret(f"{name}_key"))
+    if kid is not None:
+        check(kid in ring, f"金鑰圈沒有 key ID {kid}")
+        return (kid, ring[kid][0])
+    active = [(k, v[0]) for k, v in ring.items() if v[1] == "active"]
+    check(len(active) == 1, "金鑰圈必須恰好一把 active")
+    return active[0]
+
+
 def redact(text: str) -> str:
     out = str(text)
     for value in _SECRET_VALUES:
@@ -380,21 +417,29 @@ def ticket_parts(ticket: str) -> tuple[dict, dict, bytes]:
 
 
 def ticket_valid_signature(ticket: str) -> bool:
+    """依票券 header 的 kid（沒有 kid 時用 active key）以秘密檔驗證 HMAC。"""
     h, c, s = ticket.split(".")
-    expected = hmac.new(secret("preview_signing_key").encode(), f"{h}.{c}".encode(), hashlib.sha256).digest()
+    kid = json.loads(b64u_decode(h)).get("kid")
+    ring = keyring("preview_signing")
+    if ring is not None and kid is not None and kid not in ring:
+        return False
+    _, key = signing_key("preview_signing", kid if ring is not None else None)
+    expected = hmac.new(key.encode(), f"{h}.{c}".encode(), hashlib.sha256).digest()
     return hmac.compare_digest(expected, b64u_decode(s))
 
 
 def forge_ticket(claims: dict, header: dict | None = None, key: str | None = None) -> str:
+    """以 active 預覽金鑰（或指定金鑰）偽造測試票券；預設 header 不帶 kid（舊格式，接收端以 active key 驗證）。"""
     head = header or {"alg": "HS256", "typ": "mysite-preview"}
     h = b64u(json.dumps(head, separators=(",", ":")).encode())
     c = b64u(json.dumps(claims, separators=(",", ":")).encode())
-    k = (key if key is not None else secret("preview_signing_key")).encode()
+    k = (key if key is not None else signing_key("preview_signing")[1]).encode()
     return f"{h}.{c}.{b64u(hmac.new(k, f'{h}.{c}'.encode(), hashlib.sha256).digest())}"
 
 
-def event_signature(timestamp: str, event_id: str, body: bytes) -> str:
-    key = secret("content_event_hmac_key").encode()
+def event_signature(timestamp: str, event_id: str, body: bytes, key_id: str | None = None) -> str:
+    """以事件金鑰圈的 active key（或指定 key ID）計算 HMAC；沒有金鑰圈時用單一金鑰檔。"""
+    key = signing_key("content_event_hmac", key_id if keyring("content_event_hmac") is not None else None)[1].encode()
     return hmac.new(key, timestamp.encode() + b"\n" + event_id.encode() + b"\n" + body, hashlib.sha256).hexdigest()
 
 

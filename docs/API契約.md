@@ -175,3 +175,10 @@ claims：
 6. 已刪除內容的 `visibility` 回 `visible:false` 與最後一個 `content_version`。
 7. 只有「公開狀態相關」的變化才產生事件（發布、公開內容修改、撤下、刪除）；草稿之間的修改不發事件。
 8. 錯誤的 Application Password 會被 WordPress 視為匿名請求（核心認證順序），私密預覽端點仍回 403 `site_content_preview_invalid`。
+
+### 7.1 金鑰圈與 key ID 過渡（2026-11-05，GAP-KEYRING-01；皆為新增，不改 §4、§5 既有欄位語意）
+
+9. 事件 HMAC 與預覽簽章各自有一個金鑰圈（用途分離，不共用金鑰）。金鑰圈每把 key 有 key ID（格式 `k[0-9]{1,6}`）與狀態：`active`（發送端以它簽章，接收端也接受）或 `accept`（只供接收端驗證）。任何時刻恰好一把 `active`。沒有金鑰圈的部署沿用單一金鑰：事件以 `CONTENT_EVENT_KEY_ID`（預設 `k1`）、預覽以 `k1` 視為唯一一把 `active`。
+10. 內容事件（§4）：WP 一律以事件金鑰圈的 `active` key 簽章，並在既有的 `X-Mysite-Key-Id` 送出該 key 的 ID（標頭名稱不變）。Laravel 依 `X-Mysite-Key-Id` 在金鑰圈中找金鑰，`active` 或 `accept` 皆可驗證；key ID 不在金鑰圈（含已 retire 的舊 key）→ 401 `EVENT_SIGNATURE_INVALID`（即 §4 的「key ID 未知」）。`X-Mysite-Key-Id` 仍為必填，缺少時同 §4 回 401。
+11. 預覽票券（§5）：header 新增可選欄位 `kid`，WP 新簽發的票券一律帶 `active` 預覽金鑰的 ID：`{"alg":"HS256","typ":"mysite-preview","kid":"k2"}`。驗證端（Laravel `/preview/exchange`、WP 私密端點 `GET /preview/{type}/{id}`）依 `kid` 找金鑰（`active` 或 `accept`）；`kid` 不在金鑰圈、格式不合法、不是字串，或 header 出現 `alg`／`typ`／`kid` 以外的欄位 → Laravel 403 `PREVIEW_INVALID`、WP 403 `site_content_preview_invalid`。沒有 `kid` 的舊格式票券只以 `active` key 驗證（不嘗試 `accept` key）。
+12. 輪替三期（`scripts/ops/rotate-secrets.sh --kind=event-hmac|preview`）：add（新 key 以 `accept` 加入，接收端先認得）→ promote（新 key 改為 `active` 開始簽章，舊 key 改為 `accept`，在途事件與已核發票券仍可驗證）→ retire（舊 key 移出金鑰圈，之後以它簽的事件與票券一律被拒）。每期先重建接收端（Laravel）再重建發送端（WP）。舊 key 不無期限接受：promote 後須在期限內 retire（見 `docs/runbooks/秘密輪替.md`）。

@@ -4,6 +4,7 @@
 #   部署前備份（失敗即停）→ schema 相容判斷（none／expand 自動；contract／breaking 需核准）→
 #   維護模式＋暫停寫入者 → migration（Laravel migrate --force、WP 外掛 setup）→ 換版 →
 #   worker／scheduler 隨新映像重啟 → 退出維護 → smoke → 記錄 active。
+#   維護模式（只在 contract／breaking）＝Laravel `artisan down`＋CMS `wp site-content maintenance on`（GAP-CMS-MAINT-01）。
 # 不執行清單內任何指令；只把已驗證的 digest 填入既有 Compose 契約。不執行 down -v、migrate:fresh 或 prune。
 set -Eeuo pipefail
 umask 027
@@ -98,14 +99,21 @@ case "$rc" in
   4) ms_die "$EXIT_FORBIDDEN" "$(md_verify_message "$work/begin.json")" ;;
   *) ms_die "$EXIT_EXTERNAL" "無法寫入主機發布狀態（rc=$rc）" ;;
 esac
-maintenance_on=0; writers_stopped=0; switched=0
+maintenance_on=0; wp_maintenance_on=0; writers_stopped=0; switched=0
 current_env="$MD_COMPOSE_ENV"; next_env="$MD_STATE_DIR/compose.env.next"; prev_env="$MD_STATE_DIR/compose.env.prev"
+
+# CMS（WordPress）維護模式：狀態存在 WP 資料庫，經執行中的 wp-php 切換（wp-jobs 讀同一份狀態）
+wp_maintenance() { md_compose exec -T -u www-data wp-php wp site-content maintenance "$@"; }
 
 restore_old_service() {
   # 未換版前失敗：讓舊版恢復服務（只有原本就在執行時才動作）
   [[ -f "$current_env" ]] || return 0
   if (( writers_stopped )); then md_compose start app-worker app-scheduler wp-jobs >/dev/null 2>&1 || ms_warn "寫入者重啟失敗，請人工檢查"; fi
   if (( maintenance_on )); then md_compose exec -T app-php php artisan up >/dev/null 2>&1 || ms_warn "artisan up 失敗，請人工檢查"; fi
+  if (( wp_maintenance_on )); then
+    if wp_maintenance off >/dev/null 2>&1; then wp_maintenance_on=0
+    else ms_warn "CMS 維護模式解除失敗，請人工執行 wp site-content maintenance off 並確認"; fi
+  fi
 }
 
 fail() {
@@ -212,6 +220,14 @@ if [[ -f "$current_env" && -n "$(md_container app-php)" ]]; then
   if [[ "$cls" == contract || "$cls" == breaking ]]; then
     md_compose exec -T app-php php artisan down --retry=60 >/dev/null || fail MAINTENANCE_FAILED "$EXIT_DEPLOY_INCOMPLETE" "無法進入維護模式"
     maintenance_on=1
+    # CMS 同時進維護模式：擋下編輯者、管理員與 REST 寫入，公開讀取與 health 照常（主站可繼續讀取已發布內容）
+    if [[ -n "$(md_container wp-php)" ]]; then
+      wp_maintenance on --reason="release seq-${seq} ${cls}" >/dev/null \
+        || { restore_old_service; fail WP_MAINTENANCE_FAILED "$EXIT_DEPLOY_INCOMPLETE" "無法讓 CMS 進入維護模式；已讓舊版恢復服務（未換版）"; }
+      wp_maintenance_on=1
+    else
+      md_event WARN wp_maintenance_skipped "wp-php 未執行（CMS 目前不接受編輯），略過 CMS 維護模式"
+    fi
   fi
   md_compose stop app-worker app-scheduler wp-jobs >/dev/null || { restore_old_service; fail WRITER_STOP_FAILED "$EXIT_DEPLOY_INCOMPLETE" "無法暫停寫入者"; }
   writers_stopped=1
@@ -287,6 +303,11 @@ ms_wait_until 120 2 md_compose exec -T app-php php -r 'exit(0);' || switch_faile
 md_compose exec -T app-php php artisan up >/dev/null || fail MAINTENANCE_OFF_FAILED "$EXIT_DEPLOY_INCOMPLETE" "無法退出維護模式"
 maintenance_on=0
 md_compose up -d --wait --wait-timeout 300 >/dev/null || switch_failed
+# CMS 維護模式在同一退出階段關閉，但等新版 wp-php 就緒後才關（避免舊版 WP 程式對已變更的 schema 寫入）
+if (( wp_maintenance_on )); then
+  wp_maintenance off >/dev/null || fail WP_MAINTENANCE_OFF_FAILED "$EXIT_DEPLOY_INCOMPLETE" "無法讓 CMS 退出維護模式；請人工確認後執行 wp site-content maintenance off"
+  wp_maintenance_on=0
+fi
 
 # ---------------------------------------------------------------------------
 # 11. smoke（release ID＋HTTPS）
@@ -310,5 +331,6 @@ case "$src" in
       fail SMOKE_FAILED_REVERTED "$EXIT_TEST_FAIL" "smoke 失敗（rc=${src}），已回到上一版程式（資料未倒帶）"
     fi
     md_compose exec -T app-php php artisan down --retry=60 >/dev/null 2>&1 || true
+    wp_maintenance on --reason="release seq-${seq} smoke failed hold" >/dev/null 2>&1 || ms_warn "CMS 維護模式開啟失敗，請人工執行 wp site-content maintenance on"
     fail SMOKE_FAILED_HOLD "$EXIT_DEPLOY_INCOMPLETE" "smoke 失敗且無法自動回到上一版；已進維護模式待人工處理" ;;
 esac

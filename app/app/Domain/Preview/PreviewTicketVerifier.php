@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace App\Domain\Preview;
 
 use App\Domain\Content\ContentType;
+use App\Support\Secrets\KeyRing;
 
 /**
  * 預覽票券驗證（ADR-008、API-11）：
  * base64url(header).base64url(claims).base64url(HMAC-SHA256(key, header.claims))，無 padding。
- * header 固定 {"alg":"HS256","typ":"mysite-preview"}；驗 iss／aud／typ／exp、exp-iat ≤ min(PREVIEW_TTL, 900)。
+ * header 為 {"alg":"HS256","typ":"mysite-preview"}，或加上 key ID 的 {"alg":"HS256","typ":"mysite-preview","kid":"k2"}
+ * （契約 §7 擴充）；驗 iss／aud／typ／exp、exp-iat ≤ min(PREVIEW_TTL, 900)。
+ *
+ * 金鑰圈（GAP-KEYRING-01）：有 kid 時依 kid 找金鑰（active 或 accept）；kid 不在金鑰圈（含已 retire 的舊 key）→ unknown_kid；
+ * kid 格式不合法 → header；沒有 kid 的舊格式票券只以 active key 驗證。
  */
 final class PreviewTicketVerifier
 {
@@ -21,20 +26,38 @@ final class PreviewTicketVerifier
 
     public const HARD_MAX_TTL = 900;
 
+    /** 沒有金鑰圈時，單一預覽金鑰的 key ID（與 WP 端一致）。 */
+    public const DEFAULT_KEY_ID = 'k1';
+
+    private readonly KeyRing $keyRing;
+
     public function __construct(
-        private readonly string $key,
+        #[\SensitiveParameter] string $key,
         private readonly string $issuer,
         private readonly string $audience,
         private readonly int $ttl,
         private readonly int $maxTtl,
-    ) {}
+        ?KeyRing $keyRing = null,
+    ) {
+        $this->keyRing = $keyRing ?? KeyRing::single(self::DEFAULT_KEY_ID, $key);
+    }
+
+    public static function fromKeyRing(KeyRing $keyRing, string $issuer, string $audience, int $ttl, int $maxTtl): self
+    {
+        return new self('', $issuer, $audience, $ttl, $maxTtl, $keyRing);
+    }
+
+    public function keyRing(): KeyRing
+    {
+        return $this->keyRing;
+    }
 
     /**
      * @throws PreviewInvalidException
      */
-    public function verify(string $ticket, int $now): PreviewClaims
+    public function verify(#[\SensitiveParameter] string $ticket, int $now): PreviewClaims
     {
-        if ($this->key === '') {
+        if ($this->keyRing->activeKey() === '') {
             throw new PreviewInvalidException('signing_key_missing');
         }
         if (strlen($ticket) > self::MAX_LENGTH || preg_match('/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/D', $ticket) !== 1) {
@@ -42,13 +65,26 @@ final class PreviewTicketVerifier
         }
         [$h, $c, $s] = explode('.', $ticket);
 
-        $expected = self::b64url(hash_hmac('sha256', $h.'.'.$c, $this->key, true));
+        // 先只讀 header 的 kid 以選擇金鑰；其餘 header 欄位在驗簽通過後才檢查
+        $header = self::json($h);
+        $kid = null;
+        if ($header !== null && array_key_exists('kid', $header)) {
+            if (! is_string($header['kid']) || preg_match(KeyRing::KEY_ID_PATTERN, $header['kid']) !== 1) {
+                throw new PreviewInvalidException('header');
+            }
+            $kid = $header['kid'];
+        }
+        $key = $kid === null ? $this->keyRing->activeKey() : $this->keyRing->find($kid);
+        if ($key === null || $key === '') {
+            throw new PreviewInvalidException('unknown_kid');
+        }
+
+        $expected = self::b64url(hash_hmac('sha256', $h.'.'.$c, $key, true));
         if (! hash_equals($expected, $s)) {
             throw new PreviewInvalidException('signature');
         }
 
-        $header = self::json($h);
-        if ($header === null || count($header) !== 2 || ($header['alg'] ?? null) !== 'HS256' || ($header['typ'] ?? null) !== 'mysite-preview') {
+        if ($header === null || count($header) !== ($kid === null ? 2 : 3) || ($header['alg'] ?? null) !== 'HS256' || ($header['typ'] ?? null) !== 'mysite-preview') {
             throw new PreviewInvalidException('header');
         }
         $claims = self::json($c);
@@ -92,8 +128,8 @@ final class PreviewTicketVerifier
         );
     }
 
-    /** 測試與 WP 端共用的簽發格式（Laravel 端只在測試使用）。 */
-    public static function issue(array $claims, string $key, ?array $header = null): string
+    /** 測試與 WP 端共用的簽發格式（Laravel 端只在測試使用）；帶 kid 時把 ['kid' => …] 併入 header 傳入。 */
+    public static function issue(array $claims, #[\SensitiveParameter] string $key, ?array $header = null): string
     {
         $h = self::b64url((string) json_encode($header ?? ['alg' => 'HS256', 'typ' => 'mysite-preview']));
         $c = self::b64url((string) json_encode($claims));

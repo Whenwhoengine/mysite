@@ -32,8 +32,11 @@ return [
         'visibility_hard_limit' => 60,
         'body_ttl' => (int) env('CONTENT_BODY_CACHE_TTL_SECONDS', 300),
         'model_version' => 1,
+        // 沒有金鑰圈時使用的單一金鑰與 key ID（向後相容）
         'event_key_id' => env('CONTENT_EVENT_KEY_ID', 'k1'),
         'event_hmac_key' => env('CONTENT_EVENT_HMAC_KEY'),
+        // 金鑰圈（由 bootstrap/secrets.php 讀 CONTENT_EVENT_HMAC_KEYRING_FILE 後匯出的單行精簡格式）；有值時優先使用
+        'event_keyring' => env('CONTENT_EVENT_HMAC_KEYRING'),
         'event_clock_skew' => 300,
         'podcast_audio_allowed_hosts' => $csv(env('PODCAST_AUDIO_ALLOWED_HOSTS', '')),
     ],
@@ -42,6 +45,8 @@ return [
         'ttl' => (int) env('PREVIEW_TTL_SECONDS', 600),
         'max_ttl' => 900,
         'signing_key' => env('PREVIEW_SIGNING_KEY'),
+        // 金鑰圈（PREVIEW_SIGNING_KEYRING_FILE 匯出的單行精簡格式）；有值時優先使用，否則單一金鑰視為 k1 active
+        'signing_keyring' => env('PREVIEW_SIGNING_KEYRING'),
         'issuer' => 'mysite-cms',
         'audience' => 'mysite-app',
         'cookie' => 'mysite_preview',

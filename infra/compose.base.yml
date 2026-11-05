@@ -12,6 +12,8 @@ x-app-env: &app-env
   APP_FALLBACK_LOCALE: zh_TW
   APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Taipei}
   APP_KEY_FILE: /run/secrets/app_key
+  # APP_KEY 輪替過渡期的舊金鑰（可為空檔；Laravel 原生 APP_PREVIOUS_KEYS／app.previous_keys）
+  APP_PREVIOUS_KEYS_FILE: /run/secrets/app_previous_keys
   LOG_CHANNEL: stderr_json
   LOG_LEVEL: ${LOG_LEVEL:-info}
   DB_CONNECTION: mysql
@@ -39,6 +41,9 @@ x-app-env: &app-env
   CONTENT_EVENT_KEY_ID: ${CONTENT_EVENT_KEY_ID:-k1}
   CONTENT_EVENT_HMAC_KEY_FILE: /run/secrets/content_event_hmac_key
   PREVIEW_SIGNING_KEY_FILE: /run/secrets/preview_signing_key
+  # 金鑰圈（GAP-KEYRING-01）：有金鑰圈時優先於單一金鑰；事件與預覽用途分離
+  CONTENT_EVENT_HMAC_KEYRING_FILE: /run/secrets/content_event_hmac_keyring
+  PREVIEW_SIGNING_KEYRING_FILE: /run/secrets/preview_signing_keyring
   DIAGNOSTICS_TOKEN_FILE: /run/secrets/diagnostics_token
   DEPLOY_STATUS_TOKEN_FILE: /run/secrets/deploy_status_token
   CONTENT_CONNECT_TIMEOUT_SECONDS: ${CONTENT_CONNECT_TIMEOUT_SECONDS:-2}
@@ -51,7 +56,8 @@ x-app-env: &app-env
   SIMULATION_DATA_RETENTION_DAYS: ${SIMULATION_DATA_RETENTION_DAYS:-30}
   CART_RETENTION_DAYS: ${CART_RETENTION_DAYS:-7}
   AUDIT_RETENTION_DAYS: ${AUDIT_RETENTION_DAYS:-90}
-  TRUSTED_PROXIES: ${EDGE_SUBNET:-172.30.10.0/24}
+  # 只信任 gateway 的固定位址（不信任整個 edge 子網：子網內的 Docker bridge 位址可能代表主機本機或 docker-proxy 轉入的連線）
+  TRUSTED_PROXIES: ${GATEWAY_EDGE_IP:-172.30.10.10}
   DEPLOY_ENVIRONMENT: ${DEPLOY_ENVIRONMENT:-}
   DEPLOY_CHANNEL: ${DEPLOY_CHANNEL:-}
   RELEASE_ID: ${RELEASE_ID:-unreleased}
@@ -59,9 +65,12 @@ x-app-env: &app-env
 
 x-app-secrets: &app-secrets
   - app_key
+  - app_previous_keys
   - app_db_password
   - content_event_hmac_key
   - preview_signing_key
+  - content_event_hmac_keyring
+  - preview_signing_keyring
   - wp_service_app_password
   - internal_ca_cert
   - diagnostics_token
@@ -83,6 +92,8 @@ x-wp-env: &wp-env
   CONTENT_EVENT_KEY_ID: ${CONTENT_EVENT_KEY_ID:-k1}
   CONTENT_EVENT_HMAC_KEY_FILE: /run/secrets/content_event_hmac_key
   PREVIEW_SIGNING_KEY_FILE: /run/secrets/preview_signing_key
+  CONTENT_EVENT_HMAC_KEYRING_FILE: /run/secrets/content_event_hmac_keyring
+  PREVIEW_SIGNING_KEYRING_FILE: /run/secrets/preview_signing_keyring
   PREVIEW_TTL_SECONDS: ${PREVIEW_TTL_SECONDS:-600}
   PODCAST_AUDIO_ALLOWED_HOSTS: ${PODCAST_AUDIO_ALLOWED_HOSTS:-}
   DIAGNOSTICS_TOKEN_FILE: /run/secrets/diagnostics_token
@@ -93,6 +104,8 @@ x-wp-secrets: &wp-secrets
   - wp_salts
   - content_event_hmac_key
   - preview_signing_key
+  - content_event_hmac_keyring
+  - preview_signing_keyring
   - diagnostics_token
 
 services:
@@ -168,6 +181,7 @@ services:
     restart: unless-stopped
     environment:
       EDGE_SUBNET: ${EDGE_SUBNET:-172.30.10.0/24}
+      GATEWAY_EDGE_IP: ${GATEWAY_EDGE_IP:-172.30.10.10}
     secrets: [wp_internal_tls_cert, wp_internal_tls_key]
     volumes:
       - wp-uploads:/var/www/wp/wp-content/uploads:ro
@@ -246,7 +260,10 @@ services:
       CMS_HOST: ${CMS_HOST:-_}
       MYSITE_HSTS_HEADER: ${MYSITE_HSTS_HEADER:-}
       MYSITE_LOGIN_RATE: ${MYSITE_LOGIN_RATE:-10r/m}
-    networks: [edge]
+    networks:
+      edge:
+        # 固定位址：主站與 CMS 只信任這個位址轉送的 X-Forwarded-*（動態分配範圍見 edge 網路的 ip_range）
+        ipv4_address: ${GATEWAY_EDGE_IP:-172.30.10.10}
     depends_on:
       app-web: { condition: service_healthy }
       wp-web: { condition: service_healthy }
@@ -268,7 +285,8 @@ services:
 networks:
   edge:
     ipam:
-      config: [{ subnet: "${EDGE_SUBNET:-172.30.10.0/24}" }]
+      # 動態位址只從後半段分配，前半段保留給固定位址（gateway），避免啟動順序造成位址衝突
+      config: [{ subnet: "${EDGE_SUBNET:-172.30.10.0/24}", ip_range: "${EDGE_IP_RANGE:-172.30.10.128/25}" }]
   backend:
     internal: true
     ipam:
@@ -298,6 +316,13 @@ secrets:
     file: ${MYSITE_SECRETS_DIR}/content_event_hmac_key
   preview_signing_key:
     file: ${MYSITE_SECRETS_DIR}/preview_signing_key
+  # 金鑰圈與舊 APP_KEY：bootstrap／bootstrap-host 首次建立（ms_ensure_derived_secrets 冪等補建）；輪替由 scripts/ops/rotate-secrets.sh 改寫
+  content_event_hmac_keyring:
+    file: ${MYSITE_SECRETS_DIR}/content_event_hmac_keyring
+  preview_signing_keyring:
+    file: ${MYSITE_SECRETS_DIR}/preview_signing_keyring
+  app_previous_keys:
+    file: ${MYSITE_SECRETS_DIR}/app_previous_keys
   wp_service_app_password:
     file: ${MYSITE_SECRETS_DIR}/wp_service_app_password
   internal_ca_cert:

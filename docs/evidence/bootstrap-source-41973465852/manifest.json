@@ -1,0 +1,8 @@
+{
+  "repository": "Whenwhoengine/mysite",
+  "source_commit": "aad927e64cf9be00261d2d7dae1faaf95d5bce6b",
+  "run_id": "41973465852",
+  "workflow": "sandbox",
+  "arch": "x86_64",
+  "note": "只含第一方 lockfile 與清單；不含 vendor、node_modules、秘密"
+}

@@ -5,8 +5,11 @@ declare(strict_types=1);
 /*
  * 在 Laravel 啟動前讀取 *_FILE 秘密（ADR-006）。
  * 秘密不合法時：staging／production 拒絕啟動；development／testing 也拒絕（避免落入示範值）。
+ * 金鑰圈（CONTENT_EVENT_HMAC_KEYRING_FILE、PREVIEW_SIGNING_KEYRING_FILE）格式錯誤同樣拒絕啟動；
+ * APP_PREVIOUS_KEYS_FILE 可不存在或為空（GAP-KEYRING-01，見 docs/設定目錄.md）。
  */
 
+require_once __DIR__.'/../app/Support/Secrets/KeyRing.php';
 require_once __DIR__.'/../app/Support/Secrets/SecretFiles.php';
 
 if (! defined('MYSITE_SECRETS_LOADED')) {
