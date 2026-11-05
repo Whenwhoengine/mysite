@@ -50,18 +50,40 @@ if ms_has_proxy_ca; then
               -e SSL_CERT_FILE=/etc/ssl/certs/mysite-proxy-ca.crt -e NODE_EXTRA_CA_CERTS=/etc/ssl/certs/mysite-proxy-ca.crt)
 fi
 
+# 取得掃描工具映像：先用本機已有的；否則依序向各來源下載（每個來源最多 3 次、間隔遞增，因 registry 偶有限流）。
+# 成功時輸出完整參照；全部失敗回傳 1（呼叫端記 FAIL，不當成沒有弱點）。
+pull_image() {
+  local ref="$1"; shift
+  local reg attempt
+  for reg in "$@"; do
+    docker image inspect "${reg}/${ref}" >/dev/null 2>&1 && { printf '%s\n' "${reg}/${ref}"; return 0; }
+  done
+  for reg in "$@"; do
+    for attempt in 1 2 3; do
+      if timeout 300 docker pull -q "${reg}/${ref}" >/dev/null 2>>"$out/pull.err"; then
+        printf '%s\n' "${reg}/${ref}"; return 0
+      fi
+      sleep $(( attempt * 15 ))
+    done
+  done
+  return 1
+}
+
 printf 'GOV-02 弱點掃描：\n'
 # --- 映像（Trivy）
 mapfile -t images < <(ms_compose config --images 2>/dev/null | grep -E '^mysite/' | sort -u)
+trivy_ref="$(pull_image "$TRIVY_IMAGE_REF" docker.io)" || trivy_ref=""
 if (( ${#images[@]} == 0 )); then
   record image-scan FAIL "找不到 testing 映像"
+elif [[ -z "$trivy_ref" ]]; then
+  record image-scan FAIL "無法取得 Trivy 映像（重試後仍失敗，明細 .runtime/results/scan/pull.err）；映像未掃描"
 else
   bad=() scanned=0
   for img in "${images[@]}"; do
     name="${img#mysite/}"; name="${name%%:*}"
     rm -f "$out/trivy-${name}.json"
     timeout 900 docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v mysite-trivy-cache:/root/.cache/ -v "$out:/out" "${proxy_args[@]}" \
-      "docker.io/${TRIVY_IMAGE_REF}" image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 \
+      "$trivy_ref" image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 \
       --no-progress --format json --output "/out/trivy-${name}.json" "$img" >"$out/trivy-${name}.log" 2>&1
     rc=$?
     if [[ -s "$out/trivy-${name}.json" ]] && jq -e '.Results' "$out/trivy-${name}.json" >/dev/null 2>&1; then
@@ -80,8 +102,19 @@ else
 fi
 
 # --- Composer（只看正式依賴；dev 依賴另由 dependency-audit.yml 每週報告）
-if timeout 300 docker run --rm -v "$root/app:/app:ro" -w /app -e COMPOSER_HOME=/tmp/c "${proxy_args[@]}" \
-    "${registry}/${COMPOSER_IMAGE_REF}" audit --locked --no-dev --format=json >"$out/composer-audit.json" 2>"$out/composer-audit.err"; then
+# 優先用本次已建置、內含同版 Composer 的 tools 映像，避免再向 registry 下載而遇到限流
+composer_run=()
+prefix="${MYSITE_IMAGE_PREFIX:-mysite}" tag="${MYSITE_IMAGE_TAG:-local}"
+for img in "${prefix}/laravel-test:${tag}" "${prefix}/laravel-dev:${tag}"; do
+  if docker image inspect "$img" >/dev/null 2>&1; then composer_run=(--entrypoint composer "$img"); break; fi
+done
+if (( ${#composer_run[@]} == 0 )); then
+  ref="$(pull_image "$COMPOSER_IMAGE_REF" "$registry" docker.io/library)" && composer_run=("$ref")
+fi
+if (( ${#composer_run[@]} == 0 )); then
+  record composer-audit FAIL "無法取得含 Composer 的映像（重試後仍失敗）；Composer 依賴未稽核"
+elif timeout 300 docker run --rm -v "$root/app:/app:ro" -w /app -e COMPOSER_HOME=/tmp/c "${proxy_args[@]}" \
+    "${composer_run[@]}" audit --locked --no-dev --format=json >"$out/composer-audit.json" 2>"$out/composer-audit.err"; then
   record composer-audit PASS "composer audit --locked --no-dev：0 筆公告"
 else
   rc=$?
@@ -90,7 +123,10 @@ else
 fi
 
 # --- npm（前端建置依賴；正式產物只有編譯後的靜態檔）
-if timeout 300 docker run --rm -v "$root/app:/app:ro" -w /app "${proxy_args[@]}" "${registry}/${NODE_IMAGE_REF}" \
+node_ref="$(pull_image "$NODE_IMAGE_REF" "$registry" docker.io/library)" || node_ref=""
+if [[ -z "$node_ref" ]]; then
+  record npm-audit FAIL "無法取得 Node 映像（重試後仍失敗）；npm 依賴未稽核"
+elif timeout 300 docker run --rm -v "$root/app:/app:ro" -w /app "${proxy_args[@]}" "$node_ref" \
     npm audit --omit=dev --audit-level=high --json >"$out/npm-audit.json" 2>"$out/npm-audit.err"; then
   record npm-audit PASS "npm audit --omit=dev：無 high 以上"
 else
