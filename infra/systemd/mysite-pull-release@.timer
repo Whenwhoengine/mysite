@@ -1,0 +1,13 @@
+# 約每 5 分鐘查核一次 channel（v5 §14.6-1）；pull-release.sh 另有指數退避與 GitHub 限流處理。
+[Unit]
+Description=mysite 定期拉取發布清單（%i）
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=5min
+RandomizedDelaySec=30s
+AccuracySec=30s
+Unit=mysite-pull-release@%i.service
+
+[Install]
+WantedBy=timers.target

@@ -169,7 +169,7 @@ final class Sanitizer
                 /** @var Element $el */
                 foreach ($attributes as $attr => $max) {
                     $value = $el->getAttribute($attr);
-                    if ($value !== null && (preg_match('/^\d{1,6}$/', $value) !== 1 || (int) $value > $max)) {
+                    if ($value !== null && (preg_match('/^\d{1,6}$/D', $value) !== 1 || (int) $value > $max)) {
                         $el->removeAttribute($attr);
                     }
                 }

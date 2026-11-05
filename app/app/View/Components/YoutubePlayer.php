@@ -16,7 +16,7 @@ use Illuminate\View\View;
  */
 final class YoutubePlayer extends Component
 {
-    public const ID_PATTERN = '/^[A-Za-z0-9_-]{11}$/';
+    public const ID_PATTERN = '/^[A-Za-z0-9_-]{11}$/D';
 
     public readonly ?string $videoId;
 

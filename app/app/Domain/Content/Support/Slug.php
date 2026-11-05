@@ -15,20 +15,20 @@ final class Slug
         if ($decoded === '' || ! mb_check_encoding($decoded, 'UTF-8')) {
             return null;
         }
-        if (preg_match('/^[a-z0-9-]{1,190}$/', $decoded) === 1) {
+        if (preg_match('/^[a-z0-9-]{1,190}$/D', $decoded) === 1) {
             return $decoded;
         }
         // 已編碼形式直接傳入（例如 %e4%b8%ad）
-        if (preg_match('/^[%a-z0-9-]{1,200}$/', $decoded) === 1 && rawurldecode($decoded) !== $decoded) {
+        if (preg_match('/^[%a-z0-9-]{1,200}$/D', $decoded) === 1 && rawurldecode($decoded) !== $decoded) {
             return mb_check_encoding(rawurldecode($decoded), 'UTF-8') ? $decoded : null;
         }
         // 純 ASCII 只能符合第一條規則；其餘（含大寫、底線、斜線、空白等）一律不存在
-        if (preg_match('/^[\x00-\x7f]*$/', $decoded) === 1 || preg_match('/[A-Z\s\/\\\\?#&=+_.%]/', $decoded) === 1) {
+        if (preg_match('/^[\x00-\x7f]*$/D', $decoded) === 1 || preg_match('/[A-Z\s\/\\\\?#&=+_.%]/', $decoded) === 1) {
             return null;
         }
         $encoded = strtolower(rawurlencode($decoded));
 
-        return preg_match('/^[%a-z0-9-]{1,200}$/', $encoded) === 1 ? $encoded : null;
+        return preg_match('/^[%a-z0-9-]{1,200}$/D', $encoded) === 1 ? $encoded : null;
     }
 
     /** API 形式 → 顯示／產生網址用的解碼字串。 */

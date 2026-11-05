@@ -14,15 +14,15 @@ final class ClassAttributeSanitizer implements AttributeSanitizerInterface
 {
     /** @var list<string> */
     private const PATTERNS = [
-        '/^wp-block-[a-z0-9-]{1,60}$/',
-        '/^wp-image-\d{1,12}$/',
-        '/^has-text-align-(left|center|right)$/',
-        '/^align(left|right|center|wide|full|none)$/',
-        '/^is-style-[a-z0-9-]{1,40}$/',
-        '/^size-(thumbnail|medium|medium_large|large|full)$/',
-        '/^is-(type|provider)-[a-z0-9-]{1,40}$/',
-        '/^has-fixed-layout$/',
-        '/^language-[a-z0-9+#-]{1,30}$/',
+        '/^wp-block-[a-z0-9-]{1,60}$/D',
+        '/^wp-image-\d{1,12}$/D',
+        '/^has-text-align-(left|center|right)$/D',
+        '/^align(left|right|center|wide|full|none)$/D',
+        '/^is-style-[a-z0-9-]{1,40}$/D',
+        '/^size-(thumbnail|medium|medium_large|large|full)$/D',
+        '/^is-(type|provider)-[a-z0-9-]{1,40}$/D',
+        '/^has-fixed-layout$/D',
+        '/^language-[a-z0-9+#-]{1,30}$/D',
     ];
 
     public function getSupportedElements(): ?array

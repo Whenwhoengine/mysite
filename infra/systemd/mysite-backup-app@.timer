@@ -1,0 +1,12 @@
+# 每小時；小時備 48 小時、日備 30 天（v5 §15.2）
+[Unit]
+Description=mysite 備份排程 Laravel DB＋刪除紀錄（每小時）（%i）
+
+[Timer]
+OnCalendar=*-*-* *:17:00 UTC
+RandomizedDelaySec=300
+Persistent=true
+Unit=mysite-backup-app@%i.service
+
+[Install]
+WantedBy=timers.target

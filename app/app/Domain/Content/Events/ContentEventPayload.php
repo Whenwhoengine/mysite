@@ -16,7 +16,7 @@ final readonly class ContentEventPayload
 
     public const STATUSES = ['publish', 'draft', 'pending', 'private', 'future', 'trash', 'deleted'];
 
-    public const UUID_V4 = '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/';
+    public const UUID_V4 = '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/D';
 
     public function __construct(
         public string $eventId,
@@ -53,7 +53,7 @@ final readonly class ContentEventPayload
             || ! is_int($contentId) || $contentId < 1
             || ! is_int($version) || $version < 0
             || ! in_array($status, self::STATUSES, true)
-            || ! is_string($occurred) || preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $occurred) !== 1) {
+            || ! is_string($occurred) || preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/D', $occurred) !== 1) {
             return null;
         }
         $time = CarbonImmutable::createFromFormat('Y-m-d\TH:i:s\Z', $occurred, 'UTC');

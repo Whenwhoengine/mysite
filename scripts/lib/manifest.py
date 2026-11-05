@@ -667,6 +667,22 @@ def cmd_validate_payload(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_validate_images(args: argparse.Namespace) -> int:
+    """檢查 images JSON（CI 產生候選版時用）：只允許五個固定服務、核准 registry／名稱、@sha256 digest。"""
+    try:
+        with open(args.images_json, "rb") as fh:
+            images = strict_json_loads(fh.read(65536), "images")
+        if not isinstance(images, dict) or sorted(images) != sorted(IMAGE_NAMES):
+            raise Reject("UNKNOWN_SERVICE", "images 必須恰好包含：" + ", ".join(IMAGE_NAMES))
+        for name in IMAGE_NAMES:
+            validate_image_ref(name, images[name], args.image_repository)
+    except Reject as exc:
+        _emit({"result": "REJECT", "code": exc.code, "message": exc.message})
+        return EXIT_REJECT
+    _emit({"result": "VALID", "code": "OK", "message": "images 通過"})
+    return 0
+
+
 def cmd_make_payload(args: argparse.Namespace) -> int:
     with open(args.images_json, "rb") as fh:
         images = strict_json_loads(fh.read(65536), "images")
@@ -902,6 +918,11 @@ def build_parser() -> argparse.ArgumentParser:
     vp.add_argument("--image-repository", default=DEFAULT_IMAGE_REPOSITORY)
     vp.add_argument("--mysql-major")
     vp.set_defaults(func=cmd_validate_payload)
+
+    vi = sub.add_parser("validate-images", help="只檢查 images JSON")
+    vi.add_argument("--images-json", required=True)
+    vi.add_argument("--image-repository", default=DEFAULT_IMAGE_REPOSITORY)
+    vi.set_defaults(func=cmd_validate_images)
 
     m = sub.add_parser("make-payload", help="產生 payload（UTF-8 JSON）")
     m.add_argument("--environment", required=True, choices=ENVIRONMENTS)

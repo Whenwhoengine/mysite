@@ -38,7 +38,7 @@ final class PreviewTicketVerifier
         if ($this->key === '') {
             throw new PreviewInvalidException('signing_key_missing');
         }
-        if (strlen($ticket) > self::MAX_LENGTH || preg_match('/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/', $ticket) !== 1) {
+        if (strlen($ticket) > self::MAX_LENGTH || preg_match('/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/D', $ticket) !== 1) {
             throw new PreviewInvalidException('format');
         }
         [$h, $c, $s] = explode('.', $ticket);
@@ -72,8 +72,8 @@ final class PreviewTicketVerifier
             }
         }
         if ($ctype === null || $claims['cid'] < 1 || $claims['sub'] < 1
-            || ! is_string($claims['sid'] ?? null) || preg_match('/^[0-9a-f]{32}$/', $claims['sid']) !== 1
-            || ! is_string($claims['jti'] ?? null) || preg_match('/^[0-9a-f]{32}$/', $claims['jti']) !== 1) {
+            || ! is_string($claims['sid'] ?? null) || preg_match('/^[0-9a-f]{32}$/D', $claims['sid']) !== 1
+            || ! is_string($claims['jti'] ?? null) || preg_match('/^[0-9a-f]{32}$/D', $claims['jti']) !== 1) {
             throw new PreviewInvalidException('claims');
         }
         $lifetime = $claims['exp'] - $claims['iat'];

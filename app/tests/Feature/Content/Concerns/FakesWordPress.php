@@ -26,6 +26,11 @@ trait FakesWordPress
     /** @var list<string> 依序記錄送往 WP 的請求（路徑＋查詢字串） */
     protected array $wpCalls = [];
 
+    /** @var array<string, mixed> 目前的假路由（可在同一測試中替換） */
+    protected array $wpRoutes = [];
+
+    private bool $wpFakeInstalled = false;
+
     protected function configureContent(): void
     {
         $ca = storage_path('framework/testing/mysite-test-ca.pem');
@@ -35,6 +40,7 @@ trait FakesWordPress
         file_put_contents($ca, "-----BEGIN CERTIFICATE-----\nTEST\n-----END CERTIFICATE-----\n");
 
         config([
+            'app.debug' => false,
             'app.url' => 'http://mysite.localhost:8080',
             'mysite.wp_public_url' => 'http://cms.mysite.localhost:8081',
             'mysite.site_name' => 'mysite',
@@ -75,7 +81,13 @@ trait FakesWordPress
      */
     protected function fakeWordPress(array $routes): void
     {
-        Http::fake(function (HttpRequest $request) use ($routes) {
+        // Controller 實例會被路由快取（連同其注入的 HTTP client），因此只安裝一次 fake，之後只替換路由表
+        $this->wpRoutes = $routes;
+        if ($this->wpFakeInstalled) {
+            return;
+        }
+        $this->wpFakeInstalled = true;
+        Http::fake(function (HttpRequest $request) {
             $url = $request->url();
             $path = (string) parse_url($url, PHP_URL_PATH);
             foreach (['/wp-json/site-content/v1'] as $prefix) {
@@ -85,7 +97,7 @@ trait FakesWordPress
             }
             $query = (string) parse_url($url, PHP_URL_QUERY);
             $this->wpCalls[] = $path.($query !== '' ? '?'.$query : '');
-            foreach ($routes as $pattern => $response) {
+            foreach ($this->wpRoutes as $pattern => $response) {
                 if (Str::is($pattern, $path)) {
                     $value = is_callable($response) && ! is_array($response) ? $response($request) : $response;
 
@@ -95,6 +107,14 @@ trait FakesWordPress
 
             return Http::response(['code' => 'rest_no_route', 'message' => 'No route', 'data' => ['status' => 404]], 404);
         });
+    }
+
+    /** 丟棄先前的 Http::fake 設定與紀錄（Laravel 的 fake 會累加，迴圈測試需先重設）。 */
+    protected function resetHttpFake(): void
+    {
+        $this->app->forgetInstance(\Illuminate\Http\Client\Factory::class);
+        Http::clearResolvedInstance(\Illuminate\Http\Client\Factory::class);
+        Http::preventStrayRequests();
     }
 
     /** @return list<string> */

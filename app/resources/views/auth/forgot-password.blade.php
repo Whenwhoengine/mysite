@@ -3,7 +3,7 @@
 @section('title', '忘記密碼')
 
 @section('content')
-<p>輸入後臺帳號的 email，我們會寄出重設連結。開發與測試環境的郵件只寫入捕捉器（log），不會實際寄出。</p>
+<p>輸入後臺帳號的 email，我們會寄出重設連結。開發與測試環境的郵件只寫入郵件捕捉器（log），不會實際寄出。</p>
 <form class="form" method="post" action="{{ route('password.email') }}">
     @csrf
     <div class="field">

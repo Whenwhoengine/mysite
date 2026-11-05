@@ -1,0 +1,20 @@
+# mysite：拉取固定 channel 的已簽章發布清單，驗證後交給 release.sh／rollback.sh（v5 §14.6）。
+# 由 mysite-pull-release@<env>.timer 約每 5 分鐘觸發；失敗（exit 40／50）讓 unit 呈 failed 供告警。
+[Unit]
+Description=mysite 拉取並套用已簽章發布清單（%i）
+Documentation=file:///srv/mysite/platform/docs/runbooks/部署與回復.md
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+ConditionPathExists=/srv/mysite/environments/%i/config/deploy.env
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash /srv/mysite/platform/scripts/deploy/pull-release.sh --env=%i
+# 暫定：含部署前備份、拉映像與 migration 的上限 2 小時
+TimeoutStartSec=2h
+UMask=0027
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+Nice=5

@@ -106,7 +106,7 @@ final class ContentMapper
             $this->unsupported('type');
         }
         $apiSlug = $this->string($raw, 'slug');
-        if ($apiSlug === '' || preg_match('/^[%a-z0-9-]{1,200}$/', $apiSlug) !== 1) {
+        if ($apiSlug === '' || preg_match('/^[%a-z0-9-]{1,200}$/D', $apiSlug) !== 1) {
             if (! $preview || $apiSlug !== '') {
                 $this->unsupported('slug');
             }
@@ -215,8 +215,8 @@ final class ContentMapper
             if ($label === '' || mb_strlen($label) > 60) {
                 continue;
             }
-            $isRelative = preg_match('#^/(?!/)[^\s\\\\]*$#', $url) === 1;
-            $isHttps = preg_match('#^https://[^\s/\\\\@]+(/[^\s\\\\]*)?$#i', $url) === 1;
+            $isRelative = preg_match('#^/(?!/)[^\s\\\\]*$#D', $url) === 1;
+            $isHttps = preg_match('#^https://[^\s/\\\\@]+(/[^\s\\\\]*)?$#iD', $url) === 1;
             if ($external ? ! $isHttps : ! $isRelative) {
                 continue;
             }
@@ -236,7 +236,7 @@ final class ContentMapper
         $links = [];
         foreach ((array) ($data['social_links'] ?? []) as $link) {
             if (is_array($link) && is_string($link['label'] ?? null) && is_string($link['url'] ?? null)
-                && preg_match('#^https://[^\s/\\\\@]+(/[^\s\\\\]*)?$#i', $link['url']) === 1) {
+                && preg_match('#^https://[^\s/\\\\@]+(/[^\s\\\\]*)?$#iD', $link['url']) === 1) {
                 $links[] = ['label' => trim($link['label']), 'url' => $link['url']];
             }
         }
@@ -265,7 +265,7 @@ final class ContentMapper
             if (! is_array($raw) || ! is_int($raw['id'] ?? null) || ! is_string($raw['slug'] ?? null) || ! is_string($raw['name'] ?? null)) {
                 $this->unsupported($field);
             }
-            if (preg_match('/^[%a-z0-9-]{1,200}$/', $raw['slug']) !== 1) {
+            if (preg_match('/^[%a-z0-9-]{1,200}$/D', $raw['slug']) !== 1) {
                 continue;
             }
             $terms[] = new Term($raw['id'], Slug::fromApi($raw['slug']), $raw['slug'], trim($raw['name']), $withCount && is_int($raw['count'] ?? null) ? $raw['count'] : null);
@@ -358,7 +358,7 @@ final class ContentMapper
     private function time(array $raw, string $key): CarbonImmutable
     {
         $value = $raw[$key] ?? null;
-        if (! is_string($value) || preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $value) !== 1) {
+        if (! is_string($value) || preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/D', $value) !== 1) {
             $this->unsupported($key);
         }
         $time = CarbonImmutable::createFromFormat('Y-m-d\TH:i:s\Z', $value, 'UTC');

@@ -1,0 +1,105 @@
+# mysite dependency-audit：每週與手動稽核依賴與映像（v5 §14.1、§16.1，GOV-02）。
+# 只產生報告與 artifact；不部署、不改依賴、不購買或開啟任何付費服務。
+# 注意：排程只在本檔合併到預設分支後才生效（未合併前不宣稱已排程）。
+name: dependency-audit
+
+on:
+  schedule:
+    - cron: "37 18 * * 0"   # 每週一 Asia/Taipei 02:37（UTC 週日 18:37）
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-audit
+  cancel-in-progress: true
+
+env:
+  MYSITE_BASE_IMAGE_REGISTRY: public.ecr.aws/docker/library
+
+jobs:
+  audit:
+    name: Composer／npm／映像稽核
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: composer audit（依 composer.lock；含 dev 與 no-dev 兩份報告）
+        id: composer
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          set -a; source infra/versions.env; set +a
+          mkdir -p .runtime/results/audit
+          rc=0
+          docker run --rm -v "$PWD/app:/app:ro" -w /app -e COMPOSER_HOME=/tmp/c "${MYSITE_BASE_IMAGE_REGISTRY}/${COMPOSER_IMAGE_REF}" \
+            audit --locked --no-dev --format=json > .runtime/results/audit/composer-no-dev.json || rc=$?
+          docker run --rm -v "$PWD/app:/app:ro" -w /app -e COMPOSER_HOME=/tmp/c "${MYSITE_BASE_IMAGE_REGISTRY}/${COMPOSER_IMAGE_REF}" \
+            audit --locked --format=plain > .runtime/results/audit/composer-all.txt || true
+          echo "composer audit（no-dev）exit=${rc}" >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"
+      - name: npm audit --omit=dev（高風險以上）
+        id: npm
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          set -a; source infra/versions.env; set +a
+          rc=0
+          docker run --rm -v "$PWD/app:/app:ro" -w /app "${MYSITE_BASE_IMAGE_REGISTRY}/${NODE_IMAGE_REF}" \
+            npm audit --omit=dev --audit-level=high --json > .runtime/results/audit/npm-omit-dev.json || rc=$?
+          echo "npm audit（omit dev, high）exit=${rc}" >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"
+      - name: 映像掃描（channel 目前部署的 digest；尚無部署則掃描基底映像）
+        id: images
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          set -a; source infra/versions.env; set +a
+          refs=()
+          for env in staging production; do
+            d="$(mktemp -d)"
+            if gh release download "channel-${env}" --repo "$GITHUB_REPOSITORY" --pattern release-envelope.json --dir "$d" >/dev/null 2>&1; then
+              # 只讀映像參照做掃描（非部署用途）；部署端一律以公鑰驗簽
+              while IFS= read -r r; do refs+=("$r"); done < <(jq -r '.payload_base64' "$d/release-envelope.json" | base64 -d | jq -r '.images[]' | grep -E '^ghcr\.io/whenwhoengine/mysite/[a-z-]+@sha256:[0-9a-f]{64}$')
+            fi
+            rm -rf "$d"
+          done
+          if [ "${#refs[@]}" -eq 0 ]; then
+            refs=("${MYSITE_BASE_IMAGE_REGISTRY}/${PHP_FPM_IMAGE_REF}" "${MYSITE_BASE_IMAGE_REGISTRY}/${NGINX_IMAGE_REF}" "${MYSITE_BASE_IMAGE_REGISTRY}/${MYSQL_IMAGE_REF}")
+          fi
+          rc=0
+          for r in $(printf '%s\n' "${refs[@]}" | sort -u); do
+            name="$(printf '%s' "$r" | tr '/:@' '___' | cut -c1-120)"
+            docker run --rm -e TRIVY_USERNAME -e TRIVY_PASSWORD "docker.io/${TRIVY_IMAGE_REF}" image --scanners vuln \
+              --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress --format table "$r" \
+              > ".runtime/results/audit/trivy-${name}.txt" 2>&1 || rc=1
+          done
+          echo "映像掃描 exit=${rc}（${#refs[@]} 個映像）" >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"
+      - name: 上傳稽核報告
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dependency-audit-${{ github.run_id }}
+          path: .runtime/results/audit/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: 彙整結果（任一稽核發現問題 → workflow 失敗，供告警；不自動修改）
+        env:
+          COMPOSER: ${{ steps.composer.outcome }}
+          NPM: ${{ steps.npm.outcome }}
+          IMAGES: ${{ steps.images.outcome }}
+        run: |
+          echo "composer=${COMPOSER} npm=${NPM} images=${IMAGES}"
+          [ "$COMPOSER" = success ] && [ "$NPM" = success ] && [ "$IMAGES" = success ]

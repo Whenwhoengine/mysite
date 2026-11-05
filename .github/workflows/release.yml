@@ -1,0 +1,151 @@
+# mysite release：只對「main 上已通過 CI 的 commit」建置 release 映像、掃描、推送 GHCR，
+# 輸出 digest 與來源 commit，並產生未簽章候選版（與環境無關）作為 artifact（v5 §14.1、§14.4）。
+# 簽章與部署由 deploy-staging.yml／deploy-production.yml 在受保護的 environment 中進行。
+name: release
+
+on:
+  workflow_run:
+    workflows: ["ci"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+env:
+  MYSITE_BASE_IMAGE_REGISTRY: public.ecr.aws/docker/library
+
+jobs:
+  gate:
+    name: 確認來源為 main 已驗證 commit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      sha: ${{ steps.pick.outputs.sha }}
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    steps:
+      - name: 選定 commit 並確認 CI 已成功
+        id: pick
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+          DISPATCH_REF: ${{ github.ref }}
+          DISPATCH_SHA: ${{ github.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            if [ "$DISPATCH_REF" != "refs/heads/main" ]; then
+              echo "::error::release 只能從 main 手動執行"; exit 1
+            fi
+            sha="$DISPATCH_SHA"
+            ok="$(gh run list --repo "$REPO" --workflow ci.yml --commit "$sha" --event push --status success --json databaseId --jq 'length')"
+            if [ "${ok:-0}" -lt 1 ]; then
+              echo "::error::commit ${sha} 在 main 上沒有成功的 ci 執行；不建置 release"; exit 1
+            fi
+          else
+            sha="$RUN_SHA"
+          fi
+          if ! printf '%s' "$sha" | grep -Eq '^[0-9a-f]{40}$'; then echo "::error::commit 格式不合法"; exit 1; fi
+          echo "sha=${sha}" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: 建置、掃描、推送映像（唯一具 packages:write 的 job）
+    needs: gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      images: ${{ steps.push.outputs.images }}
+    steps:
+      - name: Checkout 已驗證 commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.gate.outputs.sha }}
+          persist-credentials: false
+      - name: 建置 release 映像（scripts/lib/build.sh）
+        run: bash scripts/lib/release-ci.sh build --tag=release
+      - name: 映像弱點掃描（HIGH／CRITICAL 已有修補即阻擋）
+        run: |
+          set -euo pipefail
+          set -a; source infra/versions.env; set +a
+          mkdir -p .runtime/results/release-scan
+          for name in laravel wordpress app-web wp-web gateway; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "docker.io/${TRIVY_IMAGE_REF}" image \
+              --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --no-progress \
+              --format table "mysite/${name}:release" | tee ".runtime/results/release-scan/${name}.txt"
+          done
+      - name: 登入 GHCR
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: 推送並取得 digest
+        id: push
+        env:
+          SOURCE_SHA: ${{ needs.gate.outputs.sha }}
+        run: |
+          set -euo pipefail
+          bash scripts/lib/release-ci.sh push-images --tag=release --commit="$SOURCE_SHA" --out=images.json
+          echo "images=$(jq -c . images.json)" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Release 映像（來源 commit \`${SOURCE_SHA}\`）"
+            jq -r 'to_entries[] | "- \(.key): `\(.value)`"' images.json
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: 上傳掃描報告
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-scan-${{ github.run_id }}
+          path: .runtime/results/release-scan/
+          retention-days: 30
+          if-no-files-found: warn
+
+  candidate:
+    name: 產生未簽章候選版
+    needs: [gate, build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout 已驗證 commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.gate.outputs.sha }}
+          persist-credentials: false
+      - name: 候選版 JSON（images＋來源 commit＋驗證 run）
+        env:
+          IMAGES: ${{ needs.build.outputs.images }}
+          SOURCE_SHA: ${{ needs.gate.outputs.sha }}
+          RUN_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          mkdir -p candidate
+          printf '%s\n' "$IMAGES" > candidate/images.json
+          rid="$(bash scripts/lib/release-ci.sh candidate --images=candidate/images.json --commit="$SOURCE_SHA" --run-id="$RUN_ID" --out=candidate/release-candidate.json)"
+          echo "候選版 ${rid}：請以 deploy-staging.yml 指定 release_run_id=${{ github.run_id }} 部署" >> "$GITHUB_STEP_SUMMARY"
+      - name: 上傳候選版（不含秘密）
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-candidate
+          path: candidate/release-candidate.json
+          retention-days: 30
+          if-no-files-found: error

@@ -35,13 +35,13 @@ final class EventSignatureVerifier
         if (! hash_equals($this->keyId, $keyId)) {
             return 'unknown_key_id';
         }
-        if (preg_match('/^\d{1,12}$/', $timestamp) !== 1) {
+        if (preg_match('/^\d{1,12}$/D', $timestamp) !== 1) {
             return 'timestamp_format';
         }
         if (abs($now - (int) $timestamp) > $this->clockSkewSeconds) {
             return 'timestamp_skew';
         }
-        if (preg_match('/^[0-9a-f]{64}$/', $signature) !== 1) {
+        if (preg_match('/^[0-9a-f]{64}$/D', $signature) !== 1) {
             return 'signature_format';
         }
         if (! hash_equals(self::sign($this->key, $timestamp, $eventId, $rawBody), $signature)) {

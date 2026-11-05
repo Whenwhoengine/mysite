@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\DB;
  */
 final class PreviewService
 {
-    public const COOKIE_TOKEN_PATTERN = '/^[0-9a-f]{64}$/';
+    public const COOKIE_TOKEN_PATTERN = '/^[0-9a-f]{64}$/D';
 
     public function __construct(
         private readonly PreviewTicketVerifier $verifier,

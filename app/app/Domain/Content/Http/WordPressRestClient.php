@@ -93,7 +93,7 @@ final class WordPressRestClient
      */
     private function request(string $base, string $path, array $query, array $headers, bool $private): array
     {
-        if (preg_match('#^/[a-z0-9/_-]{0,200}$#', $path) !== 1 || str_contains($path, '//')) {
+        if (preg_match('#^/[a-z0-9/_-]{0,200}$#D', $path) !== 1 || str_contains($path, '//')) {
             throw new UpstreamException('url_blocked', null, new \InvalidArgumentException('path'));
         }
         $url = rtrim($base, '/').$path;

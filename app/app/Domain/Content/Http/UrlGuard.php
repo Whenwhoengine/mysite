@@ -106,7 +106,7 @@ final class UrlGuard
             return $host;
         }
         // 例如 2852039166（= 169.254.169.254）、0xa9fea9fe、0251.0376.0251.0376
-        if (preg_match('/^(0x[0-9a-f]+|\d+)(\.(0x[0-9a-f]+|\d+)){0,3}$/i', $host) === 1) {
+        if (preg_match('/^(0x[0-9a-f]+|\d+)(\.(0x[0-9a-f]+|\d+)){0,3}$/iD', $host) === 1) {
             $long = ip2long($host);
             if ($long === false) {
                 $parts = explode('.', $host);

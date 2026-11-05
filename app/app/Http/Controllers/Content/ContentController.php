@@ -207,7 +207,7 @@ final class ContentController extends Controller
         if ($raw === null) {
             return 1;
         }
-        if (! is_string($raw) || preg_match('/^[1-9]\d{0,3}$/', $raw) !== 1 || (int) $raw > 1000) {
+        if (! is_string($raw) || preg_match('/^[1-9]\d{0,3}$/D', $raw) !== 1 || (int) $raw > 1000) {
             throw new MysiteException(ErrorCode::ContentNotFound, 'page_param');
         }
 
