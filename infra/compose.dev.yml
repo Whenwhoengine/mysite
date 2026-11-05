@@ -53,5 +53,6 @@ services:
 
   tools:
     volumes:
+      - ../scripts:/opt/mysite/scripts:ro
       - ../app:/var/www/app
       - ../tests:/opt/mysite/tests:ro

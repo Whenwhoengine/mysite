@@ -259,6 +259,10 @@ ms_wait_until 120 2 ms_compose exec -T app-php php -r 'exit(@fsockopen("127.0.0.
 artisan() { ms_compose exec -T -u www-data app-php php artisan "$@"; }
 artisan migrate --force --no-interaction
 
+# 首位 Laravel 管理員（development／testing）：密碼經 stdin 寫入容器內 0600 暫存檔，命令列不出現明文；已存在則 no-op
+ms_compose exec -T -u www-data app-php sh -c 'umask 077; f=$(mktemp); cat > "$f"; php artisan mysite:admin:create --email=admin@mysite.invalid --name="示例管理員" --role=admin --password-file="$f" --no-interaction; rc=$?; rm -f "$f"; exit $rc' \
+  < "$secrets_dir/app_admin_password" || ms_die "$EXIT_TEST_FAIL" "建立 Laravel 管理員失敗"
+
 # ---------------------------------------------------------------------------
 # 7. 合成示例資料（只限 development／testing；可重跑不重複）
 # ---------------------------------------------------------------------------

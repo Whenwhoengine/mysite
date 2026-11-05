@@ -1,25 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use RuntimeException;
 
+/**
+ * 預設 seeder：只在 development／testing 載入合成示例資料；不建立任何固定帳密
+ * （管理員一律以 `php artisan mysite:admin:create --password-file=` 建立）。
+ */
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        if (! app()->environment(['development', 'testing'])) {
+            throw new RuntimeException('正式／staging 環境不得執行示例 seed。');
+        }
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        $this->call(DevelopmentSeeder::class);
     }
 }

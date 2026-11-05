@@ -23,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
                 'app.debug' => (bool) config('app.debug'),
                 'app.url' => (string) config('app.url'),
                 'session.secure' => (bool) config('session.secure'),
+                'session.encrypt' => (bool) config('session.encrypt'),
                 'database.default' => (string) config('database.default'),
                 'db.username' => (string) config('database.connections.mysql.username'),
             ]);

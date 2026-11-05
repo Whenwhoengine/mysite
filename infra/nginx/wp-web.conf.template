@@ -2,6 +2,16 @@
 #  8080：容器內一般 HTTP（Laravel 公開唯讀 REST、健康檢查）；不信任 X-Forwarded-*。
 #  8081：只接受 gateway（edge 子網 ${EDGE_SUBNET}）；信任其 X-Forwarded-Proto。
 #  8443：容器內 TLS（測試／主機 CA 簽發），供帶服務憑證的預覽讀取；HTTPS=on。
+# 上游未提供時才補預設安全標頭（空值即不送出）
+map $upstream_http_referrer_policy $mysite_referrer_policy {
+    "" "strict-origin-when-cross-origin";
+    default "";
+}
+map $upstream_http_x_frame_options $mysite_frame_options {
+    "" "SAMEORIGIN";
+    default "";
+}
+
 map $http_x_forwarded_proto $mysite_gateway_https {
     default "";
     https on;

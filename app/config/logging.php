@@ -52,6 +52,17 @@ return [
 
     'channels' => [
 
+        // 郵件捕捉器（正式郵件服務未核准前）：獨立檔案、權限 0640、只保留 2 天；
+        // 重設密碼信含一次性連結，不得混入一般應用 log（商店工作包回報第 1 點）
+        'mail_capture' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/mail-capture.log'),
+            'level' => 'debug',
+            'days' => 2,
+            'permission' => 0640,
+            'replace_placeholders' => true,
+        ],
+
         // 結構化 JSON log 到 stderr（容器收集）；遮罩秘密（DAT-02）
         'stderr_json' => [
             'driver' => 'monolog',

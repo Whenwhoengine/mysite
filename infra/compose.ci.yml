@@ -17,5 +17,6 @@ services:
 
   tools:
     volumes:
+      - ../scripts:/opt/mysite/scripts:ro
       - ../tests:/opt/mysite/tests:ro
       - ../.runtime/results:/opt/mysite/results

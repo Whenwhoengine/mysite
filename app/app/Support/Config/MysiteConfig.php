@@ -107,6 +107,9 @@ final class MysiteConfig
         if ($isProdLike && ! ($framework['session.secure'] ?? false)) {
             $errors[] = 'staging／production 必須 SESSION_SECURE_COOKIE=true';
         }
+        if ($isProdLike && ! ($framework['session.encrypt'] ?? false)) {
+            $errors[] = 'staging／production 必須 SESSION_ENCRYPT=true（Session 內含訂單查詢 token 明文）';
+        }
         if ($isProdLike) {
             foreach (['event_hmac_key' => 'CONTENT_EVENT_HMAC_KEY', 'service_app_password' => 'CONTENT_SERVICE_APP_PASSWORD'] as $k => $label) {
                 if (empty($content[$k])) {
