@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Domain\Commerce\Casts\MoneyCast;
+use App\Domain\Commerce\Money;
 use Database\Factories\ProductVariantFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $product_id
  * @property string $sku
  * @property string $name
- * @property \App\Domain\Commerce\Money $price
+ * @property Money $price
  * @property int $stock
  * @property bool $is_active
  * @property bool $is_default

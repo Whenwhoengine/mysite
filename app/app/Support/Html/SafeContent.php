@@ -13,9 +13,7 @@ namespace App\Support\Html;
  */
 final class SafeContent
 {
-    private function __construct(private readonly string $html)
-    {
-    }
+    private function __construct(private readonly string $html) {}
 
     /** 只供 rich-content 元件輸出使用。 */
     public function html(): string

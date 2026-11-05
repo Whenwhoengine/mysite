@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+# 測試替身（只在 tests/deploy 使用）：模擬 docker CLI，記錄呼叫順序到 $STUB_LOG。
+# 行為由 $STUB_DIR 下的旗標檔控制（fail-pull、fail-migrate、fail-restic-backup…）。不含任何真實秘密。
+set -uo pipefail
+: "${STUB_DIR:?}" "${STUB_LOG:?}"
+flag() { [[ -e "$STUB_DIR/$1" ]]; }
+envval() { # envval <env-file> <KEY>
+  grep -E "^$2=" "$1" 2>/dev/null | tail -n 1 | cut -d= -f2-
+}
+compose_envfile=""
+log() { printf '%s\n' "$*" >> "$STUB_LOG"; }
+
+cmd="${1:-}"; shift || true
+case "$cmd" in
+  info)
+    flag docker-down && exit 1
+    if [[ "$*" == *DockerRootDir* ]]; then printf '%s\n' "$STUB_DIR"; fi
+    exit 0 ;;
+  version) printf '27.3.1\n'; exit 0 ;;
+  login) cat >/dev/null; log "login"; exit 0 ;;
+  pull)
+    ref="${*: -1}"; log "pull $ref"
+    flag slow-pull && { touch "$STUB_DIR/pull-started"; sleep 3; }
+    flag fail-pull && exit 1
+    exit 0 ;;
+  image)
+    sub="${1:-}"; ref="${*: -1}"
+    if [[ "$sub" == inspect ]]; then
+      if [[ "$ref" == *@sha256:* ]]; then
+        if flag digest-mismatch; then printf '%s@sha256:%064d\n' "${ref%@*}" 0; else printf '%s\n' "$ref"; fi
+        exit 0
+      fi
+      [[ -e "$STUB_DIR/images/${ref//\//_}" ]] && exit 0
+      exit 1
+    fi
+    exit 0 ;;
+  tag|push) log "$cmd $*"; exit 0 ;;
+  volume)
+    sub="${1:-}"; name="${*: -1}"
+    case "$sub" in
+      inspect) [[ -e "$STUB_DIR/volumes/$name" ]] && exit 0; exit 1 ;;
+      create) mkdir -p "$STUB_DIR/volumes"; touch "$STUB_DIR/volumes/$name"; echo "$name"; exit 0 ;;
+      ls) exit 0 ;;
+      rm) log "volume rm $*"; exit 0 ;;
+    esac
+    exit 0 ;;
+  network) log "network $*"; exit 0 ;;
+  ps)
+    svc=""; for a in "$@"; do [[ "$a" == label=com.docker.compose.service=* ]] && svc="${a#label=com.docker.compose.service=}"; done
+    if [[ -n "$svc" && -e "$STUB_DIR/running/$svc" ]]; then printf 'cid-%s\n' "$svc"; fi
+    exit 0 ;;
+  rm|stop|start|restart) log "$cmd $*"; exit 0 ;;
+  run) log "run $*"; flag fail-run && exit 1; printf 'cid-run\n'; exit 0 ;;
+  exec)
+    args=("$@"); i=0; cid=""
+    while (( i < ${#args[@]} )); do
+      a="${args[$i]}"
+      case "$a" in
+        -i|-T|-it) ;;
+        -u|-e|-w) i=$((i+1)) ;;
+        -*) ;;
+        *) cid="$a"; i=$((i+1)); break ;;
+      esac
+      i=$((i+1))
+    done
+    rest=("${args[@]:$i}")
+    joined="${rest[*]}"
+    case "$cid" in
+      cid-mysql)
+        if [[ "$joined" == *mysqldump* ]]; then
+          log "exec mysql mysqldump ${rest[*]: -2}"
+          flag fail-dump && exit 2
+          printf -- '-- MySQL dump (stub)\nCREATE TABLE t (id int);\nINSERT INTO t VALUES (1);\n-- Dump completed on 2026-11-05 00:00:00\n'
+          exit 0
+        fi
+        if [[ "$joined" == *'-uroot'* ]]; then
+          sql="$(cat)"; masked="$(printf '%s' "$sql" | sed -E "s/IDENTIFIED BY '[^']*'/IDENTIFIED BY '***'/g")"
+          printf '%s\n' "$masked" >> "$STUB_DIR/sql.log"; log "exec mysql root-sql"
+          flag fail-sql && exit 1
+          exit 0
+        fi
+        if [[ "$joined" == *'MYSQL_PWD="$(cat)"'* ]]; then
+          cat >/dev/null
+          n=0; [[ -f "$STUB_DIR/login-count" ]] && n="$(cat "$STUB_DIR/login-count")"; n=$((n+1)); echo "$n" > "$STUB_DIR/login-count"
+          log "exec mysql login-check #$n"
+          if [[ -f "$STUB_DIR/fail-login-after" ]] && (( n > $(cat "$STUB_DIR/fail-login-after") )); then exit 1; fi
+          exit 0
+        fi
+        last="${rest[*]: -1}"
+        case "$last" in
+          *information_schema*) printf '3\t10\n' ;;
+          *"SHOW TABLES LIKE 'data_deletion_log'"*) printf 'data_deletion_log\n' ;;
+          *"GROUP BY post_status"*) printf 'draft\t1\npublish\t2\n' ;;
+          *) printf '1\n' ;;
+        esac
+        log "exec mysql query"
+        exit 0 ;;
+      cid-wp-php)
+        if [[ "$joined" == *tar*-cf* ]]; then
+          log "exec wp-php tar"
+          d="$(mktemp -d)"; mkdir -p "$d/2026"; printf 'x' > "$d/2026/a.jpg"; tar -C "$d" -cf - .; rm -rf "$d"; exit 0
+        fi
+        log "exec wp-php ${rest[*]}"; exit 0 ;;
+      cid-app-web)
+        cat >/dev/null
+        log "exec app-web deploy-status"
+        if flag smoke-down; then printf 'down\n503'; exit 0; fi
+        rid="$(envval "$STUB_HOST_ENV_DIR/state/compose.env" RELEASE_ID)"
+        flag smoke-mismatch && rid="some-other-release"
+        printf '{"release_id":"%s","environment":"%s","status":"active"}\n200' "$rid" "$(envval "$STUB_HOST_ENV_DIR/state/compose.env" DEPLOY_ENVIRONMENT)"
+        exit 0 ;;
+      *) log "exec $cid ${rest[*]}"; exit 0 ;;
+    esac ;;
+  compose)
+    args=("$@"); i=0
+    while (( i < ${#args[@]} )); do
+      case "${args[$i]}" in
+        --project-name|--project-directory|-f|-p) i=$((i+2)) ;;
+        --env-file) compose_envfile="${args[$((i+1))]}"; i=$((i+2)) ;;
+        version) printf '2.29.7\n'; exit 0 ;;
+        *) break ;;
+      esac
+    done
+    rest=("${args[@]:$i}")
+    rel="$(envval "$compose_envfile" RELEASE_ID)"
+    joined="${rest[*]}"
+    log "compose[$rel] $joined"
+    case "$joined" in
+      up*) flag fail-up && exit 1; [[ -e "$STUB_DIR/fail-up-$rel" ]] && exit 1; exit 0 ;;
+      *"artisan migrate"*) flag fail-migrate && exit 1; exit 0 ;;
+      *"artisan migrate:status"*) exit 0 ;;
+      *"wp core is-installed"*) flag wp-not-installed && exit 1; exit 0 ;;
+      *"application-password list"*) printf '11111111-1111-1111-1111-111111111111\n'; exit 0 ;;
+      *"application-password create"*) printf 'abcd efgh ijkl mnop qrst uvwx\n'; exit 0 ;;
+      *) exit 0 ;;
+    esac ;;
+  *) log "docker $cmd $*"; exit 0 ;;
+esac

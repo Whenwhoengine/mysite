@@ -17,9 +17,7 @@ use Illuminate\Support\Facades\Log;
  */
 final class ContentEventApplier
 {
-    public function __construct(private readonly ContentCache $cache)
-    {
-    }
+    public function __construct(private readonly ContentCache $cache) {}
 
     public function apply(int $receiptId): void
     {

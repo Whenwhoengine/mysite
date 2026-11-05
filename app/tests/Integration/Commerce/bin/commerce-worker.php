@@ -19,6 +19,7 @@ use App\Domain\Commerce\Exceptions\CheckoutRejected;
 use App\Domain\Commerce\Notifications\SimulatedOrderNotifier;
 use App\Domain\Commerce\Orders\OrderCancellationService;
 use App\Models\Order;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -41,7 +42,7 @@ foreach ([
 $root = dirname(__DIR__, 4);
 require $root.'/vendor/autoload.php';
 $app = require $root.'/bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 if (DB::connection()->getDatabaseName() !== $db || DB::selectOne('select database() as d')->d !== $db) {
     fwrite(STDERR, "worker：實際連線不是測試庫，拒絕執行\n");
     exit(3);

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# 測試替身：模擬 curl（GitHub Releases API、部署狀態、HTTPS 冒煙）。只在 tests/deploy 使用。
+set -uo pipefail
+: "${STUB_DIR:?}" "${STUB_LOG:?}"
+out=""; fmt=""; hdr=""; url=""; cfg_stdin=0
+args=("$@"); i=0
+while (( i < ${#args[@]} )); do
+  a="${args[$i]}"
+  case "$a" in
+    -o) out="${args[$((i+1))]}"; i=$((i+1)) ;;
+    -w) fmt="${args[$((i+1))]}"; i=$((i+1)) ;;
+    -D) hdr="${args[$((i+1))]}"; i=$((i+1)) ;;
+    -K) [[ "${args[$((i+1))]}" == - ]] && cfg_stdin=1; i=$((i+1)) ;;
+    -H|--max-time|--max-filesize|--max-redirs|--proto|--proto-redir|--resolve|-u) i=$((i+1)) ;;
+    -*) ;;
+    *) url="$a" ;;
+  esac
+  i=$((i+1))
+done
+(( cfg_stdin )) && cat > "$STUB_DIR/curl-last-config" && chmod 600 "$STUB_DIR/curl-last-config"
+printf 'curl %s\n' "$url" >> "$STUB_LOG"
+code=200; body=""; eff="$url"; redirect=""
+case "$url" in
+  https://api.github.com/repos/*/releases/tags/*)
+    code="$(cat "$STUB_DIR/meta.code" 2>/dev/null || echo 200)"; body="$(cat "$STUB_DIR/meta.json" 2>/dev/null)" ;;
+  https://api.github.com/repos/*/releases/assets/*)
+    body="$(cat "$STUB_DIR/asset.json")"; eff="$(cat "$STUB_DIR/asset.effective" 2>/dev/null || echo https://release-assets.githubusercontent.com/github-production-release-asset/1/x)" ;;
+  https://*/internal/deploy-status)
+    rid="$(grep -E '^RELEASE_ID=' "$STUB_HOST_ENV_DIR/state/compose.env" | cut -d= -f2-)"
+    [[ -e "$STUB_DIR/smoke-mismatch" ]] && rid="some-other-release"
+    body="{\"release_id\":\"$rid\",\"environment\":\"$(grep -E '^DEPLOY_ENVIRONMENT=' "$STUB_HOST_ENV_DIR/state/compose.env" | cut -d= -f2-)\",\"status\":\"active\"}"
+    [[ -e "$STUB_DIR/smoke-down" ]] && code=503 ;;
+  http://*) code=301; host="${url#http://}"; host="${host%%/*}"; redirect="https://${host}/" ;;
+  https://*) [[ -e "$STUB_DIR/smoke-down" ]] && code=503 ;;
+esac
+if [[ -n "$out" ]]; then printf '%s' "$body" > "$out"; else printf '%s' "$body"; fi
+[[ -n "$hdr" ]] && printf 'HTTP/2 %s\r\n' "$code" > "$hdr"
+size="${#body}"
+f="${fmt//'%{http_code}'/$code}"; f="${f//'%{url_effective}'/$eff}"; f="${f//'%{size_download}'/$size}"; f="${f//'%{redirect_url}'/$redirect}"
+printf '%b' "$f"
+exit 0

@@ -11,6 +11,5 @@ final readonly class PodcastInfo
         public ?string $audioUrl,
         public ?string $audioMime,
         public ?int $durationSeconds,
-    ) {
-    }
+    ) {}
 }

@@ -20,8 +20,7 @@ final readonly class PageMeta
         public string $ogType = 'website',
         public ?string $ogImage = null,
         public ?string $ogImageAlt = null,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, scalar|null>  $query

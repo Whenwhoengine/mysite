@@ -11,6 +11,5 @@ final readonly class MenuItem
         public string $label,
         public string $url,
         public bool $external,
-    ) {
-    }
+    ) {}
 }

@@ -36,7 +36,7 @@ while IFS= read -r -d '' file; do
   rel="${file#"$views"/}"
   # 只允許 rich-content 元件內的唯一一處 {!! $content->html() !!}
   if [[ "$rel" == "$allowed" ]]; then
-    count="$(grep -c '{!!' "$file" || true)"
+    count="$(grep -o '{!!' "$file" | wc -l | tr -d ' ')"
     if [[ "$count" -ne 1 ]] || ! grep -Eq '\{!![[:space:]]*\$content->html\(\)[[:space:]]*!!\}' "$file"; then
       printf '違規：%s 只能有一處 {!! $content->html() !!}\n' "$rel"
       violations=$((violations + 1))

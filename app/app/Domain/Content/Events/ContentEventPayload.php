@@ -26,8 +26,7 @@ final readonly class ContentEventPayload
         public int $contentVersion,
         public string $status,
         public CarbonImmutable $occurredAt,
-    ) {
-    }
+    ) {}
 
     public static function parse(string $raw): ?self
     {

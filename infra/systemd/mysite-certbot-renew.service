@@ -2,7 +2,7 @@
 # 憑證 21 天內到期仍未續上 → unit failed 供告警。
 [Unit]
 Description=mysite TLS 憑證續期與 gateway 重新載入
-Documentation=file:///srv/mysite/platform/docs/runbooks/主機開通.md
+Documentation=https://github.com/Whenwhoengine/mysite/blob/main/docs/runbooks/%%E4%%B8%%BB%%E6%%A9%%9F%%E9%%96%%8B%%E9%%80%%9A.md
 After=network-online.target docker.service
 Wants=network-online.target
 Requires=docker.service

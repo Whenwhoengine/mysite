@@ -2,7 +2,7 @@
 # 由 mysite-pull-release@<env>.timer 約每 5 分鐘觸發；失敗（exit 40／50）讓 unit 呈 failed 供告警。
 [Unit]
 Description=mysite 拉取並套用已簽章發布清單（%i）
-Documentation=file:///srv/mysite/platform/docs/runbooks/部署與回復.md
+Documentation=https://github.com/Whenwhoengine/mysite/blob/main/docs/runbooks/%%E9%%83%%A8%%E7%%BD%%B2%%E8%%88%%87%%E5%%9B%%9E%%E5%%BE%%A9.md
 After=network-online.target docker.service
 Wants=network-online.target
 Requires=docker.service

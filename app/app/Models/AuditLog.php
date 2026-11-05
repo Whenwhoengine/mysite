@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use LogicException;
 
@@ -18,7 +19,7 @@ use LogicException;
  * @property string|null $target_id
  * @property array<string, mixed>|null $metadata
  * @property string|null $ip_prefix
- * @property \Carbon\CarbonImmutable $created_at
+ * @property CarbonImmutable $created_at
  */
 class AuditLog extends Model
 {

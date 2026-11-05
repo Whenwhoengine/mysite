@@ -10,7 +10,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\Commerce\Concerns\InteractsWithCommerce;
-use Tests\Feature\Commerce\CommerceTestCase;
 
 /** COM-01：功能旗標。disabled 時頁面與寫入全部 404 COMMERCE_DISABLED；real 不能收款。 */
 final class CommerceFlagTest extends CommerceTestCase

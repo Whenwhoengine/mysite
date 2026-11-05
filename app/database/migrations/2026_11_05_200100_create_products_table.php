@@ -26,7 +26,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        DB::statement("ALTER TABLE products ADD CONSTRAINT chk_products_price_nonnegative CHECK (price >= 0)");
+        DB::statement('ALTER TABLE products ADD CONSTRAINT chk_products_price_nonnegative CHECK (price >= 0)');
         DB::statement("ALTER TABLE products ADD CONSTRAINT chk_products_status CHECK (status IN ('draft','active','archived'))");
     }
 

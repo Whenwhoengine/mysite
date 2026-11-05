@@ -38,8 +38,7 @@ final readonly class ContentItem
         public bool $isPreview = false,
         public ?string $snapshotId = null,
         public ?int $revisionId = null,
-    ) {
-    }
+    ) {}
 
     /** 主站相對路徑。 */
     public function path(): string

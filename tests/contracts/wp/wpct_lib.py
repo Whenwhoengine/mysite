@@ -71,7 +71,7 @@ def redact(text: str) -> str:
         if len(value) >= 6:
             out = out.replace(value, "***")
     out = re.sub(r"[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}", "<ticket>", out)
-    out = re.sub(r"(?i)(authorization|cookie|x-wp-nonce|_wpnonce)([=: ]+)[^\s&,;]+", r"\1\2***", out)
+    out = re.sub(r"(?i)(authorization|cookie|x-wp-nonce|_wpnonce)(\s*[=:]\s*)[^\s&,;]+", r"\1\2***", out)
     out = re.sub(r"wordpress_(logged_in|sec)_[0-9a-f]+=[^;\s]+", "wordpress_\\1_***=***", out)
     return out[:2000]
 
@@ -156,6 +156,9 @@ class Response:
     def header(self, name: str) -> str:
         values = self.headers.get(name.lower(), [])
         return values[-1] if values else ""
+
+    def header_all(self, name: str) -> list[str]:
+        return [v.strip() for v in self.headers.get(name.lower(), [])]
 
     @property
     def text(self) -> str:
@@ -324,7 +327,9 @@ def internal_get(url: str, auth: str = "service", ticket: str | None = None, pas
         for line in block.splitlines():
             if ":" in line:
                 k, v = line.split(":", 1)
-                headers[k.strip().lower()] = v.strip()
+                key = k.strip().lower()
+                # 重複標頭以「, 」串接（例如 Nginx 與 PHP 各送一次）。
+                headers[key] = (headers[key] + ", " + v.strip()) if key in headers else v.strip()
     body = out.split("HEADERS-END", 1)[1].lstrip("\r\n") if "HEADERS-END" in out else ""
     return InternalResponse(status, headers, body)
 

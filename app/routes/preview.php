@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Preview\PreviewController;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /*
  * 草稿預覽（契約 §5）：票券交換 → preview session cookie（path /preview）→ 顯示快照。
@@ -12,9 +15,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('preview')
     ->withoutMiddleware([
-        \Illuminate\Session\Middleware\StartSession::class,
-        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-        \Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class,
+        StartSession::class,
+        ShareErrorsFromSession::class,
+        PreventRequestForgery::class,
     ])
     ->group(function (): void {
         Route::get('/exchange', [PreviewController::class, 'exchange'])->middleware('throttle:preview-exchange')->name('preview.exchange');

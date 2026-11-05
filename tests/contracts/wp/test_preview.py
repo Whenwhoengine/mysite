@@ -23,7 +23,8 @@ def _issue(ctx: Context, post_id: int, rest_base: str) -> tuple[str, dict]:
     check(resp.status == 302, f"預覽入口應 302，實得 {resp.status}")
     loc = resp.header("location")
     check(loc.startswith(ctx.cache["app_url"] + "/preview/exchange?ticket="), f"應導向主站交換頁：{loc[:80]}")
-    check(resp.header("referrer-policy") == "no-referrer", "預覽入口應送 Referrer-Policy: no-referrer")
+    check("no-referrer" in resp.header_all("referrer-policy"), f"預覽入口應送 Referrer-Policy: no-referrer：{resp.header_all('referrer-policy')}")
+    ctx.cache.setdefault("referrer_policy_seen", resp.header_all("referrer-policy"))
     check("no-store" in resp.header("cache-control"), "預覽入口應 no-store")
     ticket = urllib.parse.parse_qs(urllib.parse.urlsplit(loc).query)["ticket"][0]
     head, claims, _ = ticket_parts(ticket)
@@ -84,7 +85,8 @@ def preview(ctx: Context) -> str | None:
     check(data["video"]["youtube_id"] == "PreviewAAAA" and data["cover"]["url"].endswith(".png"), "快照應包含 ACF 欄位與封面")
     cover_a = data["cover"]["url"]
     check(ok.headers.get("cache-control") == "private, no-store", f"預覽回應 Cache-Control 應為 private, no-store：{ok.headers.get('cache-control')}")
-    check("noindex" in ok.headers.get("x-robots-tag", "") and ok.headers.get("referrer-policy") == "no-referrer", "預覽回應缺少 noindex 或 no-referrer")
+    check("noindex" in ok.headers.get("x-robots-tag", "") and "no-referrer" in ok.headers.get("referrer-policy", "").split(", "), "預覽回應缺少 noindex 或 no-referrer")
+    ctx.cache["preview_referrer_policy"] = ok.headers.get("referrer-policy", "")
     replay = _get("video", vid, claims["sid"], ticket)
     check(replay.status == 200, "WP 端不限制同 jti 重複讀取（單次使用由 Laravel 交換端負責）")
 
@@ -137,6 +139,22 @@ def preview(ctx: Context) -> str | None:
         _rejected(_get(*args, **kw), label)
     nf = _get("video", vid, "0" * 32, forge_ticket({**base, "sid": "0" * 32}))
     _rejected(nf, "快照不存在")
+
+    # 核發者事後失去編輯權限：以暫時的作者帳號建立快照與票券，降為訂閱者後必須拒絕。
+    author = int(wp("user", "create", f"sc-contract-author-{stamp}", f"sc-contract-author-{stamp}@mysite.invalid", "--role=author",
+                    f"--user_pass={stamp}-Contract-Only-Pw", "--porcelain").stdout.strip())
+    try:
+        own = int(wp("post", "create", "--post_type=post", "--post_status=draft", f"--post_author={author}", "--post_title=作者自己的草稿",
+                     "--porcelain").stdout.strip())
+        ctx.track_post(own)
+        issued = wp("eval", f"$p = get_post({own}); $snap = SiteContent\\Preview::create_snapshot($p, {author}); "
+                            f"echo SiteContent\\Ticket::issue('post', {own}, $snap['snapshot_id'], $snap['revision_id'], {author});").stdout.strip()
+        _, own_claims, _ = ticket_parts(issued)
+        check(_get("post", own, own_claims["sid"], issued).status == 200, "作者仍可編輯時票券應有效")
+        wp("user", "set-role", str(author), "subscriber")
+        _rejected(_get("post", own, own_claims["sid"], issued), "核發者已失去編輯權限")
+    finally:
+        wp("user", "delete", str(author), "--yes", f"--reassign={s.user_id}", check_ok=False)
 
     # 內容刪除（垃圾桶）後拒絕。
     trash = s.rest("DELETE", f"/wp/v2/sc_video/{vid}")

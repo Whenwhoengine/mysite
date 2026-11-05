@@ -6,6 +6,7 @@ namespace Tests\Unit\Commerce;
 
 use App\Domain\Audit\IpMinimizer;
 use App\Domain\Audit\MetadataRedactor;
+use App\Models\OrderStatus;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -59,7 +60,7 @@ final class AuditRedactionTest extends TestCase
             'deep' => ['a' => ['b' => ['c' => ['d' => ['e' => 'x']]]]],
             'many' => array_fill(0, 80, 1),
             'float' => 1.5,
-            'enum' => \App\Models\OrderStatus::Placed,
+            'enum' => OrderStatus::Placed,
             'obj' => new \stdClass,
         ]);
         $this->assertSame(201, mb_strlen($out['long']));

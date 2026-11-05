@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# 測試替身：記錄 systemctl 呼叫，不動真實 systemd。只在 tests/deploy 使用。
+printf 'systemctl %s\n' "$*" >> "${STUB_LOG:?}"
+exit 0

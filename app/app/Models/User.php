@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Carbon\CarbonImmutable;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -19,8 +20,8 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string $name
  * @property string $email
  * @property UserRole|null $role
- * @property \Carbon\CarbonImmutable|null $disabled_at
- * @property \Carbon\CarbonImmutable|null $two_factor_confirmed_at
+ * @property CarbonImmutable|null $disabled_at
+ * @property CarbonImmutable|null $two_factor_confirmed_at
  */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'])]

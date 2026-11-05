@@ -33,8 +33,7 @@ final class ContentRepository
         private readonly WordPressRestClient $client,
         private readonly ContentMapper $mapper,
         private readonly ContentCache $cache,
-    ) {
-    }
+    ) {}
 
     public function list(ContentType $type, int $page = 1, int $perPage = self::DEFAULT_PER_PAGE, ?string $categoryApiSlug = null, ?string $tagApiSlug = null): ContentPage
     {

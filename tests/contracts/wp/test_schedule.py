@@ -13,7 +13,8 @@ def wp07(ctx: Context) -> str | None:
     s = ctx.editor_session()
     tz = wp("option", "get", "timezone_string").stdout.strip()
     check(tz == "Asia/Taipei", f"站台時區應為 Asia/Taipei：{tz}")
-    due_utc = datetime.now(timezone.utc).replace(microsecond=0) + timedelta(seconds=20)
+    # WordPress 對不足 60 秒的未來時間會直接發布，因此排在 70 秒後。
+    due_utc = datetime.now(timezone.utc).replace(microsecond=0) + timedelta(seconds=70)
     local = (due_utc + timedelta(hours=8)).strftime("%Y-%m-%dT%H:%M:%S")
     created = s.rest("POST", "/wp/v2/posts", {"title": "契約測試排程文章 sc-contract-schedule", "status": "future", "date": local,
                                                "content": "<!-- wp:paragraph --><p>排程正文</p><!-- /wp:paragraph -->"})

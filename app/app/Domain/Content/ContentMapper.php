@@ -33,9 +33,7 @@ final class ContentMapper
 
     public const MODEL_VERSION = 1;
 
-    public function __construct(private readonly Sanitizer $sanitizer)
-    {
-    }
+    public function __construct(private readonly Sanitizer $sanitizer) {}
 
     /**
      * 驗證共同回應結構，回傳 data。

@@ -16,9 +16,7 @@ use XMLWriter;
  */
 final class FeedController extends Controller
 {
-    public function __construct(private readonly ContentQueryService $content)
-    {
-    }
+    public function __construct(private readonly ContentQueryService $content) {}
 
     public function feed(): Response
     {
@@ -27,7 +25,7 @@ final class FeedController extends Controller
         $siteName = $site?->name ?? (string) config('mysite.site_name');
         $base = rtrim((string) config('app.url'), '/');
 
-        $xml = new XMLWriter();
+        $xml = new XMLWriter;
         $xml->openMemory();
         $xml->startDocument('1.0', 'UTF-8');
         $xml->startElement('rss');
@@ -79,7 +77,7 @@ final class FeedController extends Controller
     public function sitemap(): Response
     {
         $base = rtrim((string) config('app.url'), '/');
-        $xml = new XMLWriter();
+        $xml = new XMLWriter;
         $xml->openMemory();
         $xml->startDocument('1.0', 'UTF-8');
         $xml->startElement('urlset');

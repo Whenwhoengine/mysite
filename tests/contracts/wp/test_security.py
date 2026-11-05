@@ -125,3 +125,41 @@ def frontend(ctx: Context) -> str | None:
     admin_redirect = http_request(CMS_BASE, "GET", "/wp-admin/", host_header=cms_host())
     check(admin_redirect.status == 302 and "wp-login.php" in admin_redirect.header("location"), "未登入 wp-admin 應導向 wp-login")
     return None
+
+
+@contract("brand_settings_https_only", ["API-05"], "security")
+def brand_settings(ctx: Context) -> str | None:
+    import re
+    import urllib.parse
+    original = wp("option", "get", "site_content_brand", "--format=json", check_ok=False).stdout.strip()
+    admin = ctx.admin_session()
+    try:
+        page = admin.request("GET", "/wp-admin/options-general.php?page=mysite-brand")
+        check(page.status == 200, f"品牌設定頁應 200，實得 {page.status}")
+        nonce = re.search(r"name=\"_wpnonce\" value=\"([0-9a-f]{10})\"", page.text)
+        check(nonce is not None, "品牌設定頁缺少 nonce")
+        form = {
+            "option_page": "site_content_brand_group", "action": "update", "_wpnonce": nonce.group(1),
+            "_wp_http_referer": "/wp-admin/options-general.php?page=mysite-brand",
+            "site_content_brand[author_bio]": "<b>契約測試</b>作者介紹",
+            "site_content_brand[social_links]": "安全連結|https://example.com/contract\n不安全|http://example.com/x\n腳本|javascript:alert(1)\n沒有名稱|https://example.org/",
+            "site_content_brand[logo_id]": "0", "site_content_brand[is_sample]": "1",
+        }
+        resp = admin.request("POST", "/wp-admin/options.php", {"Content-Type": "application/x-www-form-urlencoded"},
+                             urllib.parse.urlencode(form).encode())
+        check(resp.status in (302, 303), f"儲存品牌設定應導回設定頁，實得 {resp.status}")
+        site = public_get("/site").json()["data"]
+        check(site["social_links"] == [{"label": "安全連結", "url": "https://example.com/contract"},
+                                       {"label": "沒有名稱", "url": "https://example.org/"}] or
+              site["social_links"] == [{"label": "安全連結", "url": "https://example.com/contract"}],
+              f"只應保留 https 社群連結：{site['social_links']}")
+        check(all(not l["url"].startswith(("http:", "javascript:")) for l in site["social_links"]), "不得出現非 https 連結")
+        check(site["author_bio"] == "契約測試作者介紹" and "<" not in site["author_bio"], f"作者介紹應為純文字：{site['author_bio']}")
+        editor = ctx.editor_session()
+        denied = editor.request("POST", "/wp-admin/options.php", {"Content-Type": "application/x-www-form-urlencoded"},
+                                urllib.parse.urlencode({**form, "site_content_brand[author_bio]": "編輯者竄改"}).encode())
+        check(denied.status in (403, 302) and public_get("/site").json()["data"]["author_bio"] == "契約測試作者介紹", "編輯者不得修改品牌設定")
+    finally:
+        if original and original != "false":
+            wp("option", "update", "site_content_brand", original, "--format=json", check_ok=False)
+    return None

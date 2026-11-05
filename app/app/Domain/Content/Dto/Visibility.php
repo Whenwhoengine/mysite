@@ -14,6 +14,5 @@ final readonly class Visibility
         public int $id,
         public bool $visible,
         public int $contentVersion,
-    ) {
-    }
+    ) {}
 }

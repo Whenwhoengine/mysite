@@ -141,10 +141,30 @@ function mysite_validate_upload( $file ) {
 	}
 	$reason = mysite_upload_rejection( (string) ( $file['name'] ?? '' ), (string) ( $file['tmp_name'] ?? '' ), (int) ( $file['size'] ?? 0 ) );
 	if ( null !== $reason ) {
-		$file['error'] = $reason;
+		$file['error']                    = $reason;
+		$GLOBALS['mysite_upload_rejected'] = true;
 	}
 	return $file;
 }
+
+/**
+ * 被白名單拒絕的上傳屬於用戶端錯誤：REST 回 400（核心預設為 500 rest_upload_sideload_error）。
+ */
+add_filter(
+	'rest_request_after_callbacks',
+	static function ( $response ) {
+		if ( ! empty( $GLOBALS['mysite_upload_rejected'] ) && is_wp_error( $response ) ) {
+			foreach ( $response->get_error_codes() as $code ) {
+				$data = $response->get_error_data( $code );
+				$data = is_array( $data ) ? $data : array();
+				$data['status'] = 400;
+				$response->add_data( $data, $code );
+			}
+		}
+		return $response;
+	},
+	10
+);
 
 /**
  * 回傳拒絕原因；合格回 null。

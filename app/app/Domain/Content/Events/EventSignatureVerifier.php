@@ -16,8 +16,7 @@ final class EventSignatureVerifier
         private readonly string $keyId,
         private readonly string $key,
         private readonly int $clockSkewSeconds,
-    ) {
-    }
+    ) {}
 
     public function isConfigured(): bool
     {

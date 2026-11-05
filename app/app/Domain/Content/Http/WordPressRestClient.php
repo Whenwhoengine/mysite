@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Content\Http;
 
+use GuzzleHttp\Exception\TransferException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\PendingRequest;
@@ -33,8 +34,7 @@ final class WordPressRestClient
         private readonly HttpFactory $http,
         private readonly UrlGuard $guard,
         private readonly array $config,
-    ) {
-    }
+    ) {}
 
     /**
      * 公開讀取（容器內固定 WP 來源）。
@@ -236,7 +236,7 @@ final class WordPressRestClient
             || str_contains($message, 'Could not resolve')
             || str_contains($message, 'cURL error 6:')
             || str_contains($message, 'cURL error 7:');
-        if (! $connectPhase && ($e instanceof ConnectionException || $e instanceof \GuzzleHttp\Exception\TransferException)
+        if (! $connectPhase && ($e instanceof ConnectionException || $e instanceof TransferException)
             && (str_contains($message, 'timed out') || str_contains($message, 'cURL error 28:'))) {
             return new UpstreamException('timeout', null, $e);
         }

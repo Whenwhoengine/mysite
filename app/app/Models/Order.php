@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Domain\Commerce\Casts\MoneyCast;
+use App\Domain\Commerce\Money;
+use Carbon\CarbonImmutable;
 use Database\Factories\OrderFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,15 +19,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $token_hash
  * @property OrderStatus $status
  * @property string $currency
- * @property \App\Domain\Commerce\Money $subtotal
- * @property \App\Domain\Commerce\Money $total
+ * @property Money $subtotal
+ * @property Money $total
  * @property int $item_count
  * @property string|null $idempotency_key
  * @property string|null $session_binding_hash
  * @property string|null $buyer_code
- * @property \Carbon\CarbonImmutable $placed_at
- * @property \Carbon\CarbonImmutable|null $cancelled_at
- * @property \Carbon\CarbonImmutable|null $anonymized_at
+ * @property CarbonImmutable $placed_at
+ * @property CarbonImmutable|null $cancelled_at
+ * @property CarbonImmutable|null $anonymized_at
  */
 class Order extends Model
 {

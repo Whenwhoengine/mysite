@@ -82,7 +82,7 @@ case "$rc" in
   *) ms_die "$EXIT_EXTERNAL" "無法寫入主機發布狀態（rc=$rc）" ;;
 esac
 
-current_env="$MD_COMPOSE_ENV"; prev_env="$MD_STATE_DIR/compose.env.prev"; switched=0
+current_env="$MD_COMPOSE_ENV"; prev_env="$MD_STATE_DIR/compose.env.prev"
 fail() {
   local code="$1" ex="$2" msg="$3"
   trap - ERR
@@ -115,7 +115,7 @@ md_state_step --step switch
 md_write_compose_env "$MD_STATE_DIR/compose.env.next"
 [[ -f "$current_env" ]] && cp -p "$current_env" "$prev_env"
 mv -f "$MD_STATE_DIR/compose.env.next" "$current_env"
-switched=1
+
 
 back_to_before() {
   [[ -f "$prev_env" ]] || return 1

@@ -11,7 +11,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\Commerce\Concerns\InteractsWithCommerce;
-use Tests\Feature\Commerce\CommerceTestCase;
 
 /** Session 購物車：數量／行數上限、篡改欄位無效、改價提示（COM-03）。 */
 final class CartTest extends CommerceTestCase

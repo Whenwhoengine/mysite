@@ -17,6 +17,5 @@ final readonly class SiteInfo
         public array $socialLinks,
         public ?Image $logo,
         public bool $isSample,
-    ) {
-    }
+    ) {}
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property array<string, mixed>|null $criteria
  * @property string $reason
  * @property int $affected_rows
- * @property \Carbon\CarbonImmutable $executed_at
+ * @property CarbonImmutable $executed_at
  */
 class DataDeletionLog extends Model
 {

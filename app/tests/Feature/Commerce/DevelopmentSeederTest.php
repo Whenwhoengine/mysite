@@ -13,7 +13,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
-use Tests\Feature\Commerce\CommerceTestCase;
 
 /** 合成示例資料：只在 development／testing、可重跑、不建管理員。 */
 final class DevelopmentSeederTest extends CommerceTestCase

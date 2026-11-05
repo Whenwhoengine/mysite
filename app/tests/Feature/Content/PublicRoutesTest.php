@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Content;
 
+use App\Providers\ContentServiceProvider;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request as HttpRequest;
+use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Sleep;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\Content\Concerns\FakesWordPress;
@@ -92,7 +95,7 @@ final class PublicRoutesTest extends TestCase
     public function upstream_outage_shows_503_without_internal_details(): void
     {
         Http::fake(fn () => throw new ConnectionException('cURL error 7: Failed to connect to wp-web port 8080: Connection refused'));
-        \Illuminate\Support\Sleep::fake();
+        Sleep::fake();
 
         $response = $this->get('/')->assertStatus(503);
 
@@ -320,7 +323,7 @@ final class PublicRoutesTest extends TestCase
     {
         $this->fakeWordPress(['/search' => self::listEnvelope([]), '/menus/*' => ['data' => ['location' => 'primary', 'items' => []], 'meta' => self::meta()], '/site' => Http::response('', 404)]);
 
-        for ($i = 0; $i < \App\Providers\ContentServiceProvider::SEARCH_PER_MINUTE; $i++) {
+        for ($i = 0; $i < ContentServiceProvider::SEARCH_PER_MINUTE; $i++) {
             $this->get('/search?q=x'.$i)->assertOk();
         }
         $this->get('/search?q=again')->assertStatus(429)->assertSee('操作過於頻繁')->assertHeader('Retry-After');
@@ -343,7 +346,7 @@ final class PublicRoutesTest extends TestCase
             '/menus/footer' => Http::response('', 500),
             '/site' => Http::response('', 500),
         ]);
-        \Illuminate\Support\Sleep::fake();
+        Sleep::fake();
 
         $response = $this->get('/articles/sample-article')->assertOk();
         foreach (['/articles', '/videos', '/podcasts', '/search'] as $href) {
@@ -360,7 +363,7 @@ final class PublicRoutesTest extends TestCase
     #[Group('UI-03')]
     public function session_expired_and_server_error_pages_are_friendly(): void
     {
-        Route::middleware('web')->post('/__test/expired', fn () => throw new \Illuminate\Session\TokenMismatchException());
+        Route::middleware('web')->post('/__test/expired', fn () => throw new TokenMismatchException);
         Route::middleware('web')->get('/__test/boom', fn () => throw new \RuntimeException('secret detail /var/www/app'));
         $this->fakeWordPress(['/menus/*' => ['data' => ['location' => 'primary', 'items' => []], 'meta' => self::meta()], '/site' => Http::response('', 404)]);
 

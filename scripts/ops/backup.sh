@@ -64,7 +64,7 @@ case "$run_dir" in
   "$MD_HOST_ROOT/backup-staging/$env_name/snapshot-all"|"$MD_HOST_ROOT/backup-staging/$env_name/snapshot-wp"|"$MD_HOST_ROOT/backup-staging/$env_name/snapshot-app") ;;
   *) ms_die "$EXIT_FORBIDDEN" "暫存路徑異常" ;;
 esac
-cleanup() { [[ -d "$run_dir" ]] && rm -rf -- "$run_dir"; }
+cleanup() { if [[ -d "$run_dir" ]]; then rm -rf -- "$run_dir"; fi; }
 trap cleanup EXIT
 cleanup
 mkdir -m 0700 "$run_dir" "$run_dir/db" "$run_dir/deploy"

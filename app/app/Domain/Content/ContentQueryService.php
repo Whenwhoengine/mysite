@@ -12,6 +12,7 @@ use App\Domain\Content\Dto\Term;
 use App\Domain\Content\Support\Slug;
 use App\Support\Errors\ErrorCode;
 use App\Support\Errors\MysiteException;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -31,9 +32,7 @@ final class ContentQueryService
     /** sitemap 每個型別最多讀取的列表頁數（每頁 50 筆；暫定值，見完工報告）。 */
     public const SITEMAP_MAX_PAGES = 20;
 
-    public function __construct(private readonly ContentRepository $repository)
-    {
-    }
+    public function __construct(private readonly ContentRepository $repository) {}
 
     /**
      * @return array{posts: ContentPage, videos: ContentPage, podcasts: ContentPage, featured: ?ContentItem}
@@ -160,7 +159,7 @@ final class ContentQueryService
     /**
      * sitemap：只有主站公開網址（列表與詳情、有公開內容的分類／標籤）。
      *
-     * @return list<array{path: string, lastmod: ?\Carbon\CarbonImmutable}>
+     * @return list<array{path: string, lastmod: ?CarbonImmutable}>
      */
     public function sitemapEntries(): array
     {

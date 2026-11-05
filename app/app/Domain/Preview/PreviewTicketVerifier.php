@@ -27,8 +27,7 @@ final class PreviewTicketVerifier
         private readonly string $audience,
         private readonly int $ttl,
         private readonly int $maxTtl,
-    ) {
-    }
+    ) {}
 
     /**
      * @throws PreviewInvalidException

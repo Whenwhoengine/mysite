@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Whenwhoengine/mysite/docs/schemas/release-payload.schema.json",
+  "title": "mysite 發布清單 payload（schema_version 1）",
+  "description": "規劃書 v5 §14.5–14.6。payload 是 UTF-8 JSON 的原始位元組，由 envelope（$defs.envelope）以 Ed25519 簽章包裝。主機端實際驗證以 scripts/lib/manifest.py 為準（含本文件無法表達的規則：expires_at−created_at ≤ 24 小時且不得過期、created_at 不得超前主機時間 5 分鐘、environment／channel／mysql_major 必須等於主機設定、digest 不在撤銷清單、sequence 單調遞增、contract／breaking 必附 migration_plan_ref、回復清單 schema_change_class 必為 none）。清單不得含任何秘密。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project",
+    "environment",
+    "channel",
+    "sequence",
+    "release_id",
+    "source_commit",
+    "created_at",
+    "expires_at",
+    "platform_contract",
+    "images",
+    "infrastructure",
+    "schema_change_class",
+    "migration_plan_ref",
+    "verification_run_id",
+    "previous_verified_release",
+    "rollback_target_release"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "project": {
+      "const": "Whenwhoengine/mysite"
+    },
+    "environment": {
+      "enum": [
+        "staging",
+        "production"
+      ]
+    },
+    "channel": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,31}$",
+      "description": "部署 channel 名稱，必須等於主機 DEPLOY_CHANNEL；不使用「最新任何 release」"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740992,
+      "description": "單一環境單調遞增；相同序號且內容相同＝已套用 no-op，較小＝拒絕；回復也必須用新的更大序號"
+    },
+    "release_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,79}$",
+      "description": "發布識別（Laravel /internal/deploy-status 回報值）"
+    },
+    "source_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "created_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+      "description": "UTC RFC3339（秒，Z 結尾）"
+    },
+    "expires_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+      "description": "UTC RFC3339（秒，Z 結尾）"
+    },
+    "platform_contract": {
+      "enum": [
+        1
+      ],
+      "description": "主機 Compose／部署契約版本；不支援即拒絕"
+    },
+    "images": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "laravel",
+        "wordpress",
+        "app-web",
+        "wp-web",
+        "gateway"
+      ],
+      "properties": {
+        "laravel": {
+          "type": "string",
+          "description": "laravel 映像：ghcr.io/whenwhoengine/mysite/laravel@sha256:<64 hex>（不得帶 tag；主機設定 IMAGE_REPOSITORY 可改核准的 GHCR 路徑）",
+          "pattern": "^ghcr\\.io/[a-z0-9]+([._-][a-z0-9]+)*(/[a-z0-9]+([._-][a-z0-9]+)*)*/laravel@sha256:[0-9a-f]{64}$"
+        },
+        "wordpress": {
+          "type": "string",
+          "description": "wordpress 映像：ghcr.io/whenwhoengine/mysite/wordpress@sha256:<64 hex>（不得帶 tag；主機設定 IMAGE_REPOSITORY 可改核准的 GHCR 路徑）",
+          "pattern": "^ghcr\\.io/[a-z0-9]+([._-][a-z0-9]+)*(/[a-z0-9]+([._-][a-z0-9]+)*)*/wordpress@sha256:[0-9a-f]{64}$"
+        },
+        "app-web": {
+          "type": "string",
+          "description": "app-web 映像：ghcr.io/whenwhoengine/mysite/app-web@sha256:<64 hex>（不得帶 tag；主機設定 IMAGE_REPOSITORY 可改核准的 GHCR 路徑）",
+          "pattern": "^ghcr\\.io/[a-z0-9]+([._-][a-z0-9]+)*(/[a-z0-9]+([._-][a-z0-9]+)*)*/app-web@sha256:[0-9a-f]{64}$"
+        },
+        "wp-web": {
+          "type": "string",
+          "description": "wp-web 映像：ghcr.io/whenwhoengine/mysite/wp-web@sha256:<64 hex>（不得帶 tag；主機設定 IMAGE_REPOSITORY 可改核准的 GHCR 路徑）",
+          "pattern": "^ghcr\\.io/[a-z0-9]+([._-][a-z0-9]+)*(/[a-z0-9]+([._-][a-z0-9]+)*)*/wp-web@sha256:[0-9a-f]{64}$"
+        },
+        "gateway": {
+          "type": "string",
+          "description": "gateway 映像：ghcr.io/whenwhoengine/mysite/gateway@sha256:<64 hex>（不得帶 tag；主機設定 IMAGE_REPOSITORY 可改核准的 GHCR 路徑）",
+          "pattern": "^ghcr\\.io/[a-z0-9]+([._-][a-z0-9]+)*(/[a-z0-9]+([._-][a-z0-9]+)*)*/gateway@sha256:[0-9a-f]{64}$"
+        }
+      },
+      "description": "只允許五個固定服務；不得新增服務、shell、mounts 或 entrypoint"
+    },
+    "infrastructure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mysql_major"
+      ],
+      "properties": {
+        "mysql_major": {
+          "type": "string",
+          "pattern": "^[0-9]{1,2}\\.[0-9]{1,2}$",
+          "description": "必須等於主機平台 MySQL 大版本；清單不能更換 MySQL"
+        }
+      }
+    },
+    "schema_change_class": {
+      "enum": [
+        "none",
+        "expand",
+        "contract",
+        "breaking"
+      ],
+      "description": "none／expand 主機自動執行；contract／breaking 需主機端 --approved-schema-plan 與 migration_plan_ref 相符"
+    },
+    "migration_plan_ref": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/#-]{2,199}$"
+    },
+    "verification_run_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$",
+      "description": "產生這批映像的 release.yml run（run_id-attempt）"
+    },
+    "previous_verified_release": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,79}$"
+        }
+      ]
+    },
+    "rollback_target_release": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,79}$"
+        }
+      ],
+      "description": "非 null 表示程式回復：images 必須等於主機歷史中該 release 的 digest，且之後只有 none／expand 變更"
+    }
+  },
+  "$defs": {
+    "envelope": {
+      "title": "mysite 發布清單 envelope",
+      "description": "主機先限制大小（64 KiB）與嚴格解析 envelope，依 key_id 選信任公鑰，以 openssl pkeyutl -verify -pubin -rawin 驗證 signature 對 payload 原始位元組的簽章，通過後才解析 payload。",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "payload_base64",
+        "signature_base64",
+        "key_id",
+        "signature_algorithm"
+      ],
+      "properties": {
+        "payload_base64": {
+          "type": "string",
+          "contentEncoding": "base64",
+          "description": "payload 原始 UTF-8 位元組的標準 base64（不得重新排版後再簽）"
+        },
+        "signature_base64": {
+          "type": "string",
+          "contentEncoding": "base64",
+          "description": "Ed25519 簽章（64 bytes）的標準 base64"
+        },
+        "key_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{2,63}$",
+          "description": "以環境名稱開頭（staging-…／production-…）；主機信任目錄 <key_id>.pem"
+        },
+        "signature_algorithm": {
+          "const": "ed25519"
+        }
+      }
+    }
+  }
+}

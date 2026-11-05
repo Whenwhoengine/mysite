@@ -13,9 +13,7 @@ use Illuminate\View\View;
  */
 final class RichContent extends Component
 {
-    public function __construct(public SafeContent $content)
-    {
-    }
+    public function __construct(public SafeContent $content) {}
 
     public function render(): View
     {

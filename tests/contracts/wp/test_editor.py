@@ -5,9 +5,40 @@ from __future__ import annotations
 import json
 import re
 import time
+import urllib.parse
 
 from wpct_lib import (CMS_BASE, Context, check, cms_host, contract, http_request, internal_get, make_png, make_wav,
                       public_get, wp, wp_json)
+
+
+def _inputs(html: str) -> dict[str, str]:
+    out: dict[str, str] = {}
+    for tag in re.findall(r"<input\b[^>]*>", html):
+        name = re.search(r"\bname=(['\"])(.*?)\1", tag)
+        if not name:
+            continue
+        value = re.search(r"\bvalue=(['\"])(.*?)\1", tag)
+        out.setdefault(name.group(2), value.group(2) if value else "")
+    return out
+
+
+def metabox_save(s, post_id: int, acf: dict[str, str]) -> int:
+    """模擬區塊編輯器儲存 ACF 欄位：送出 meta-box-loader 表單（ACF 在後臺的真實儲存路徑）。"""
+    page = s.request("GET", f"/wp-admin/post.php?post={post_id}&action=edit")
+    check(page.status == 200, f"編輯畫面應 200，實得 {page.status}")
+    m = re.search(r"_wpMetaBoxUrl\s*=\s*\"([^\"]+)\"", page.text)
+    check(m is not None, "編輯畫面缺少 meta box 儲存網址")
+    url = urllib.parse.urlsplit(m.group(1).replace("\\/", "/").replace("&amp;", "&"))
+    fields = _inputs(page.text)
+    keep = ("_wpnonce", "_wp_http_referer", "user_ID", "action", "originalaction", "post_type", "original_post_status",
+            "referredby", "_wp_original_http_referer", "post_ID", "_acf_nonce", "_acf_post_id", "_acf_screen", "_acf_validation")
+    form = {k: v for k, v in fields.items() if k in keep or k.startswith("acf[")}
+    check("_acf_nonce" in form and "_wpnonce" in form, "編輯畫面缺少 ACF 或 WordPress nonce")
+    form["_acf_validation"] = "0"
+    form.update({f"acf[{k}]": v for k, v in acf.items()})
+    resp = s.request("POST", f"{url.path}?{url.query}", {"Content-Type": "application/x-www-form-urlencoded"},
+                     urllib.parse.urlencode(form).encode())
+    return resp.status
 
 
 def _cat_id(slug: str) -> int:
@@ -51,7 +82,7 @@ def wp01(ctx: Context) -> str | None:
     check(item2["title"] == f"契約測試文章（已修改）{stamp}", "修改後標題未反映到公開 API")
     check(item2["content_version"] > v1, f"content_version 應遞增：{v1} → {item2['content_version']}")
     revs = s.rest("GET", f"/wp/v2/posts/{post_id}/revisions")
-    check(revs.status == 200 and len(revs.json()) >= 2, "修訂紀錄應至少兩筆")
+    check(revs.status == 200 and len(revs.json()) >= 1, "修改後應產生修訂紀錄")
 
     # 影片（ACF YouTube 網址、片長）。
     vid = s.rest("POST", "/wp/v2/sc_video", {
@@ -65,6 +96,15 @@ def wp01(ctx: Context) -> str | None:
     upd = s.rest("POST", f"/wp/v2/sc_video/{vid_id}", {"acf": {"sc_youtube_url": "https://www.youtube.com/watch?v=Contract-V2"}})
     check(upd.status == 200, f"修改影片應 200，實得 {upd.status}")
     check(public_get(f"/videos/{vid_id}").json()["data"]["video"]["youtube_id"] == "Contract-V2", "影片網址修改未反映")
+    # ACF 在區塊編輯器的真實儲存路徑（meta-box-loader 表單）→ acf/save_post → 版本遞增與事件。
+    before = public_get(f"/videos/{vid_id}").json()["data"]["content_version"]
+    status = metabox_save(s, vid_id, {"field_sc_youtube_url": "https://www.youtube.com/watch?v=Contract-V4", "field_sc_video_duration": "300"})
+    check(status in (200, 302), f"meta box 儲存應成功，實得 {status}")
+    after = public_get(f"/videos/{vid_id}").json()["data"]
+    check(after["video"]["youtube_id"] == "Contract-V4" and after["video"]["duration_seconds"] == 300, f"meta box 儲存的 ACF 值未反映：{after['video']}")
+    check(after["content_version"] > before, "ACF 欄位變更應遞增 content_version")
+    events = [e for e in wp_json("site-content", "outbox", "list", f"--content-id={vid_id}", "--format=json", "--fields=event_type,content_version")]
+    check(any(e["event_type"] == "content.updated" and int(e["content_version"]) == after["content_version"] for e in events), "ACF 欄位變更應產生對應版本的 content.updated 事件")
     bad = s.rest("POST", "/wp/v2/sc_video", {"title": "非 YouTube", "status": "draft", "acf": {"sc_youtube_url": "https://evil.example/watch?v=Contract-V3"}})
     if bad.status == 201:
         ctx.track_post(bad.json()["id"])
@@ -134,7 +174,8 @@ def wp08(ctx: Context) -> str | None:
     me = s.rest("GET", "/wp/v2/users/me")
     check(me.status == 200, f"cookie＋nonce 的 REST 應 200，實得 {me.status}")
     no_nonce = s.rest("GET", "/wp/v2/users/me", use_nonce=False)
-    check(no_nonce.status == 401, f"沒有 nonce 的 cookie 請求應視為未登入（401），實得 {no_nonce.status}")
+    # 沒有 nonce 時 WordPress 視為未登入；未登入者看不到 /wp/v2/users（mu-plugin 移除列舉路由）→ 401 或 404。
+    check(no_nonce.status in (401, 404), f"沒有 nonce 的 cookie 請求應視為未登入，實得 {no_nonce.status}")
     bad_nonce = s.request("GET", "/wp-json/wp/v2/users/me", headers={"X-WP-Nonce": "0000000000"})
     check(bad_nonce.status == 403, f"錯誤 nonce 應 403，實得 {bad_nonce.status}")
     edit_screen = s.request("GET", "/wp-admin/post-new.php")

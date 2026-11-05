@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Domain\Commerce\Casts\MoneyCast;
+use App\Domain\Commerce\Money;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use LogicException;
@@ -19,9 +20,9 @@ use LogicException;
  * @property string $product_title
  * @property string $variant_name
  * @property string $sku
- * @property \App\Domain\Commerce\Money $unit_price
+ * @property Money $unit_price
  * @property int $quantity
- * @property \App\Domain\Commerce\Money $line_total
+ * @property Money $line_total
  */
 class OrderItem extends Model
 {

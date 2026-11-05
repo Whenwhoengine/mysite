@@ -81,7 +81,7 @@ md_docker_ok || ms_die "$EXIT_EXTERNAL" "Docker daemon 不可用"
 md_lock "$MD_STATE_DIR/deploy.lock" 10 || ms_die "$EXIT_DEPLOY_INCOMPLETE" "LOCK_BUSY：部署或其他輪替進行中"
 
 rot_dir="$MD_SECRETS_DIR/.rotation"
-mkdir -p -m 0700 "$rot_dir"
+mkdir -p "$rot_dir" && chmod 0700 "$rot_dir"
 record() {
   python3 -I -c 'import json,sys,datetime
 rec={"at":datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),"environment":sys.argv[1],"kind":sys.argv[2],
@@ -93,7 +93,7 @@ open(sys.argv[7],"a",encoding="utf-8").write(json.dumps(rec,ensure_ascii=False,s
 finish_fail() { record "$1" "$2"; ms_die "$3" "$1：$2"; }
 
 save_prev() { install -m 0600 "$MD_SECRETS_DIR/$1" "$rot_dir/$1.prev"; }
-restore_prev() { [[ -f "$rot_dir/$1.prev" ]] && md_write_secret "$1" < "$rot_dir/$1.prev"; }
+restore_prev() { if [[ -f "$rot_dir/$1.prev" ]]; then md_write_secret "$1" < "$rot_dir/$1.prev"; fi; }
 drop_prev() { rm -f -- "$rot_dir/$1.prev"; }
 
 recreate() {

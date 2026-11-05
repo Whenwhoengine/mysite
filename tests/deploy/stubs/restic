@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# 測試替身：模擬 restic（以目錄複製模擬 snapshot）。只在 tests/deploy 使用。
+set -uo pipefail
+: "${STUB_DIR:?}" "${STUB_LOG:?}"
+[[ -s "${RESTIC_PASSWORD_FILE:-}" && -s "${RESTIC_REPOSITORY_FILE:-}" ]] || { echo "stub restic: 缺密碼或 repository 檔" >&2; exit 1; }
+repo="$STUB_DIR/restic-repo"; mkdir -p "$repo"
+cmd="${1:-}"; shift || true
+printf 'restic %s\n' "$cmd" >> "$STUB_LOG"
+case "$cmd" in
+  backup)
+    [[ -e "$STUB_DIR/fail-restic-backup" ]] && { echo "stub: backup failed" >&2; exit 1; }
+    src="${*: -1}"; id="$(openssl rand -hex 32)"; mkdir -p "$repo/$id"; cp -a "$src/." "$repo/$id/"; printf '%s\n' "$src" > "$repo/$id.path"
+    printf '{"message_type":"status","percent_done":1}\n{"message_type":"summary","snapshot_id":"%s","total_bytes_processed":1}\n' "$id" ;;
+  check) [[ -e "$STUB_DIR/fail-restic-check" ]] && exit 1; exit 0 ;;
+  dump)
+    id="$1"; path="$2"; base="$(cat "$repo/$id.path")"; cat "$repo/$id/${path#"$base"/}" ;;
+  forget|cat|init) exit 0 ;;
+  snapshots) printf '[]\n' ;;
+  version) printf 'restic 0.19.1 (stub)\n' ;;
+  *) exit 0 ;;
+esac

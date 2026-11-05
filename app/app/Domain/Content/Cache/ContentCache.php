@@ -27,8 +27,7 @@ final class ContentCache
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly array $config,
-    ) {
-    }
+    ) {}
 
     public function leaseSeconds(): int
     {

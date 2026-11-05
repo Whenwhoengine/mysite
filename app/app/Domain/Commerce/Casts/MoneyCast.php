@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Commerce\Casts;
 
+use App\Domain\Commerce\Exceptions\MoneyException;
 use App\Domain\Commerce\Money;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
@@ -33,7 +34,7 @@ final class MoneyCast implements CastsAttributes
         }
         if (! $value instanceof Money && ! is_string($value)) {
             // int 容易與「元」混淆、float 會失真：寫入 DB 只接受 Money 或十進位字串。
-            throw new \App\Domain\Commerce\Exceptions\MoneyException('金額欄位只接受 Money 或十進位字串');
+            throw new MoneyException('金額欄位只接受 Money 或十進位字串');
         }
         $currency = (string) ($attributes['currency'] ?? config('mysite.commerce.currency', 'TWD'));
 

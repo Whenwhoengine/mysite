@@ -13,6 +13,7 @@ use App\Domain\Preview\PreviewTicketVerifier;
 use App\Support\Html\Sanitizer;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
@@ -35,7 +36,7 @@ class ContentServiceProvider extends ServiceProvider
         $this->app->singleton(UrlGuard::class, fn (Application $app): UrlGuard => new UrlGuard((array) config('mysite.content.allowed_hosts', [])));
 
         $this->app->bind(WordPressRestClient::class, fn (Application $app): WordPressRestClient => new WordPressRestClient(
-            $app->make(\Illuminate\Http\Client\Factory::class),
+            $app->make(Factory::class),
             $app->make(UrlGuard::class),
             (array) config('mysite.content'),
         ));

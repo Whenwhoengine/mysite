@@ -23,7 +23,6 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
 use Tests\Feature\Commerce\Concerns\InteractsWithCommerce;
-use Tests\Feature\Commerce\CommerceTestCase;
 
 /** 模擬結帳（COM-03、COM-05、COM-06、COM-07、COM-09、COM-11）。併發部分見 tests/Integration/Commerce。 */
 final class CheckoutTest extends CommerceTestCase
@@ -273,7 +272,7 @@ final class CheckoutTest extends CommerceTestCase
         $variant = $this->variant('10.00', 3);
         $service = new class(app(SimulatedOrderNotifier::class)) extends CheckoutService
         {
-            protected function beforeCommit(\App\Models\Order $order): void
+            protected function beforeCommit(Order $order): void
             {
                 throw new RuntimeException('故意失敗');
             }

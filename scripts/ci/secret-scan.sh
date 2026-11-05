@@ -26,13 +26,15 @@ patterns=(
   '(PASSWORD|SECRET|TOKEN|HMAC_KEY|SIGNING_KEY)[A-Z_]*=[^[:space:]$<{/"\x27(][^[:space:]]{11,}'
   '[A-Za-z0-9]{4} [A-Za-z0-9]{4} [A-Za-z0-9]{4} [A-Za-z0-9]{4} [A-Za-z0-9]{4} [A-Za-z0-9]{4}'
 )
+allow_file="$root/scripts/ci/secret-scan.allow"
+[[ -f "$allow_file" ]] || allow_file=/dev/null
 found=0
 for f in "${files[@]}"; do
   [[ -f "$f" ]] || continue
-  case "$f" in *.lock|*package-lock.json|docs/規劃書v5.md|docs/執行契約.md|scripts/ci/secret-scan.sh) continue ;; esac
+  case "$f" in *.lock|*package-lock.json|docs/規劃書v5.md|docs/執行契約.md|scripts/ci/secret-scan.sh|scripts/ci/secret-scan.allow) continue ;; esac
   file -b --mime "$f" 2>/dev/null | grep -q 'charset=binary' && continue
   for re in "${patterns[@]}"; do
-    if grep -nEq -- "$re" "$f"; then
+    if grep -nE -- "$re" "$f" | grep -vFf <(grep -vE '^(#|$)' "$allow_file") | grep -q .; then
       echo "可能的秘密：$f（規則：${re:0:40}…）"; found=1
     fi
   done

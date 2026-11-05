@@ -14,8 +14,7 @@ final readonly class Taxonomies
     public function __construct(
         public array $categories,
         public array $tags,
-    ) {
-    }
+    ) {}
 
     public function find(string $kind, string $apiSlug): ?Term
     {

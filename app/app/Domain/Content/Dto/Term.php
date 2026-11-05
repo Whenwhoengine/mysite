@@ -13,6 +13,5 @@ final readonly class Term
         public string $apiSlug,
         public string $name,
         public ?int $count = null,
-    ) {
-    }
+    ) {}
 }

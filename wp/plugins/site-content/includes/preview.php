@@ -141,6 +141,20 @@ final class Preview {
 		add_action( 'admin_post_nopriv_' . self::ACTION, array( self::class, 'handle_logged_out' ) );
 		add_action( 'rest_api_init', array( self::class, 'register_route' ) );
 		add_filter( 'rest_post_dispatch', array( self::class, 'headers' ), 100, 3 );
+		add_filter( 'rest_send_nocache_headers', array( self::class, 'skip_core_nocache' ), 100 );
+	}
+
+	/**
+	 * 預覽端點自行送出契約規定的 `Cache-Control: private, no-store`，不讓核心的 nocache 標頭覆寫。
+	 *
+	 * @param mixed $send 核心預設值。
+	 * @return mixed
+	 */
+	public static function skip_core_nocache( $send ) {
+		$uri   = (string) wp_parse_url( (string) ( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_PATH ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		$route = isset( $_GET['rest_route'] ) ? (string) wp_unslash( $_GET['rest_route'] ) : ''; // phpcs:ignore WordPress.Security
+		$path  = '/' . Support::REST_NS . '/preview/';
+		return ( str_contains( $uri, '/wp-json' . $path ) || str_starts_with( $route, $path ) ) ? false : $send;
 	}
 
 	public static function nonce_action( int $post_id ): string {

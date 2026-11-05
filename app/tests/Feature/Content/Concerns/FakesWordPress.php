@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace Tests\Feature\Content\Concerns;
 
 use App\Domain\Content\Events\EventSignatureVerifier;
+use App\Domain\Content\Http\UrlGuard;
 use App\Domain\Preview\PreviewTicketVerifier;
+use App\Support\Html\Sanitizer;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Illuminate\Testing\TestResponse;
 
 /**
  * 依 docs/API契約.md 產生 WP site-content/v1 假回應（只用於測試；正式 Controller 不含假資料）。
@@ -67,8 +72,8 @@ trait FakesWordPress
             'mysite.preview.max_ttl' => 900,
             'cache.default' => 'array',
         ]);
-        $this->app->forgetInstance(\App\Domain\Content\Http\UrlGuard::class);
-        $this->app->forgetInstance(\App\Support\Html\Sanitizer::class);
+        $this->app->forgetInstance(UrlGuard::class);
+        $this->app->forgetInstance(Sanitizer::class);
         $this->wpCalls = [];
         Http::preventStrayRequests();
         $this->withoutVite();
@@ -112,8 +117,8 @@ trait FakesWordPress
     /** 丟棄先前的 Http::fake 設定與紀錄（Laravel 的 fake 會累加，迴圈測試需先重設）。 */
     protected function resetHttpFake(): void
     {
-        $this->app->forgetInstance(\Illuminate\Http\Client\Factory::class);
-        Http::clearResolvedInstance(\Illuminate\Http\Client\Factory::class);
+        $this->app->forgetInstance(Factory::class);
+        Http::clearResolvedInstance(Factory::class);
         Http::preventStrayRequests();
     }
 
@@ -196,7 +201,7 @@ trait FakesWordPress
         $this->fakeWordPress([
             '/'.$endpoint => function (HttpRequest $r) use ($item, &$visible, &$down) {
                 if ($down) {
-                    throw new \Illuminate\Http\Client\ConnectionException('cURL error 7: Failed to connect to wp-web port 8080');
+                    throw new ConnectionException('cURL error 7: Failed to connect to wp-web port 8080');
                 }
                 if (($r->data()['slug'] ?? null) === $item['slug'] && $visible) {
                     return self::listEnvelope([$item], 1, 1);
@@ -206,7 +211,7 @@ trait FakesWordPress
             },
             '/content/*/*/visibility' => function () use ($item, &$visible, &$version, &$down) {
                 if ($down) {
-                    throw new \Illuminate\Http\Client\ConnectionException('cURL error 7: Failed to connect to wp-web port 8080');
+                    throw new ConnectionException('cURL error 7: Failed to connect to wp-web port 8080');
                 }
 
                 return self::visibilityEnvelope($item['type'], $item['id'], $visible, $version);
@@ -244,7 +249,7 @@ trait FakesWordPress
     }
 
     /** 送出原始 body 的事件請求（不經 JSON 重新編碼）。 */
-    protected function postEvent(string $body, array $headers): \Illuminate\Testing\TestResponse
+    protected function postEvent(string $body, array $headers): TestResponse
     {
         $server = [];
         foreach ($headers as $name => $value) {

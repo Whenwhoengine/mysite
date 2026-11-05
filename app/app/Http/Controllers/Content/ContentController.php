@@ -25,8 +25,7 @@ final class ContentController extends Controller
     public function __construct(
         private readonly ContentQueryService $content,
         private readonly Sanitizer $sanitizer,
-    ) {
-    }
+    ) {}
 
     public function home(): Response
     {

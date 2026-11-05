@@ -14,7 +14,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\Commerce\Concerns\InteractsWithCommerce;
-use Tests\Feature\Commerce\CommerceTestCase;
 
 /** COM-08：取消只允許 placed → cancelled；重送不重複補庫存；不刪明細。 */
 final class OrderCancelTest extends CommerceTestCase

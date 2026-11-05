@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# 測試替身：回報時間已同步。只在 tests/deploy 使用。
+[[ "$*" == *NTPSynchronized* ]] && { echo yes; exit 0; }
+exit 0

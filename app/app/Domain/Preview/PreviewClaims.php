@@ -20,6 +20,5 @@ final readonly class PreviewClaims
         public int $exp,
         public string $jti,
         public int $sub,
-    ) {
-    }
+    ) {}
 }

@@ -5,7 +5,10 @@ declare(strict_types=1);
 use App\Domain\Content\ContentType;
 use App\Http\Controllers\Content\ContentController;
 use App\Http\Controllers\Content\FeedController;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /*
  * 內容站公開路由（內容工作包）。全部為 GET、資料來自 WordPress REST；
@@ -13,9 +16,9 @@ use Illuminate\Support\Facades\Route;
  */
 
 $stateless = [
-    \Illuminate\Session\Middleware\StartSession::class,
-    \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-    \Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class,
+    StartSession::class,
+    ShareErrorsFromSession::class,
+    PreventRequestForgery::class,
 ];
 $slug = '[^/]{1,200}';
 

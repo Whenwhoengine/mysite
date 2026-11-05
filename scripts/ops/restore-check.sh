@@ -65,17 +65,16 @@ work="$(mktemp -d "$MD_BACKUP_STAGING/restorecheck.XXXXXXXX")"
 created_resources=0
 
 cleanup() {
-  local rc=$?
+  local rc=$? ids=()
+  set +e
   if (( created_resources )); then
-    local ids
-    # shellcheck disable=SC2086 # ids 為 docker 回傳的十六進位 ID 清單
-    ids="$(docker ps -aq --filter "label=com.docker.compose.project=$project" 2>/dev/null || true)"
-    [[ -n "$ids" ]] && docker rm -f -v $ids >/dev/null 2>&1
-    ids="$(docker volume ls -q --filter "label=com.docker.compose.project=$project" 2>/dev/null || true)"
-    [[ -n "$ids" ]] && docker volume rm $ids >/dev/null 2>&1
-    ids="$(docker network ls -q --filter "label=com.docker.compose.project=$project" 2>/dev/null || true)"
-    [[ -n "$ids" ]] && docker network rm $ids >/dev/null 2>&1
-    if [[ -n "$(docker ps -aq --filter "label=com.docker.compose.project=$project" 2>/dev/null)" ]]; then
+    mapfile -t ids < <(docker ps -aq --filter "label=com.docker.compose.project=$project" 2>/dev/null)
+    (( ${#ids[@]} )) && docker rm -f -v "${ids[@]}" >/dev/null 2>&1
+    mapfile -t ids < <(docker volume ls -q --filter "label=com.docker.compose.project=$project" 2>/dev/null)
+    (( ${#ids[@]} )) && docker volume rm "${ids[@]}" >/dev/null 2>&1
+    mapfile -t ids < <(docker network ls -q --filter "label=com.docker.compose.project=$project" 2>/dev/null)
+    (( ${#ids[@]} )) && docker network rm "${ids[@]}" >/dev/null 2>&1
+    if [[ -n "$(docker ps -aq --filter "label=com.docker.compose.project=$project" 2>/dev/null)$(docker volume ls -q --filter "label=com.docker.compose.project=$project" 2>/dev/null)" ]]; then
       ms_err "隔離資源未完全清除：project ${project}（請以 label 精確清理）"
     fi
   fi

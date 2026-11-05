@@ -16,8 +16,7 @@ final readonly class ContentPage
         public int $perPage,
         public int $total,
         public int $totalPages,
-    ) {
-    }
+    ) {}
 
     public function isEmpty(): bool
     {

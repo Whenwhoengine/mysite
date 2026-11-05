@@ -14,11 +14,16 @@
         </section>
         <nav class="site-footer__nav" aria-label="頁尾選單">
             <ul class="site-footer__links">
+                @php $footerUrls = array_map(static fn ($m) => $m->url, $footerMenu); @endphp
                 @foreach ($footerMenu as $menuItem)
-                    <li><a href="{{ $menuItem->url }}" @if ($menuItem->external) rel="noopener noreferrer" @endif>{{ $menuItem->label }}</a></li>
+                    <li><a href="{{ $menuItem->url }}" @if ($menuItem->external) rel="noopener noreferrer" @endif>{{ $menuItem->label }}@if ($menuItem->external)<x-icon name="external" class="icon--inline" /><span class="visually-hidden">（外部網站）</span>@endif</a></li>
                 @endforeach
-                <li><a href="{{ url('/search') }}">搜尋</a></li>
-                <li><a href="{{ url('/feed.xml') }}"><x-icon name="rss" class="icon--inline" />RSS</a></li>
+                @if (! in_array('/search', $footerUrls, true))
+                    <li><a href="{{ url('/search') }}">搜尋</a></li>
+                @endif
+                @if (! in_array('/feed.xml', $footerUrls, true))
+                    <li><a href="{{ url('/feed.xml') }}"><x-icon name="rss" class="icon--inline" />RSS</a></li>
+                @endif
             </ul>
             @if ($site !== null && $site->socialLinks !== [])
                 <ul class="site-footer__social" aria-label="社群連結">

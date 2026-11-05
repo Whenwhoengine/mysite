@@ -12,6 +12,5 @@ final readonly class Image
         public string $alt,
         public ?int $width,
         public ?int $height,
-    ) {
-    }
+    ) {}
 }

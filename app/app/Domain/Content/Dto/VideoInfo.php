@@ -11,6 +11,5 @@ final readonly class VideoInfo
         public ?string $youtubeId,
         public ?string $youtubeUrl,
         public ?int $durationSeconds,
-    ) {
-    }
+    ) {}
 }

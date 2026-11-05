@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Content;
 
 use App\Domain\Content\Http\UpstreamException;
+use App\Domain\Content\Http\UrlGuard;
 use App\Domain\Content\Http\WordPressRestClient;
 use App\Support\Errors\ErrorCode;
 use Illuminate\Http\Client\ConnectionException;
@@ -235,7 +236,7 @@ final class WordPressRestClientTest extends TestCase
             'file:///etc' => ['wp-web'],
         ] as $base => $allowed) {
             config(['mysite.content.api_base_url' => $base, 'mysite.content.allowed_hosts' => $allowed]);
-            $this->app->forgetInstance(\App\Domain\Content\Http\UrlGuard::class);
+            $this->app->forgetInstance(UrlGuard::class);
 
             $e = $this->capture(fn () => $this->client()->getPublic('/posts'));
 
@@ -282,7 +283,7 @@ final class WordPressRestClientTest extends TestCase
             'mysite.content.timeout' => 1,
             'mysite.content.connect_timeout' => 1,
         ]);
-        $this->app->forgetInstance(\App\Domain\Content\Http\UrlGuard::class);
+        $this->app->forgetInstance(UrlGuard::class);
 
         $started = microtime(true);
         $e = $this->capture(fn () => $this->client()->getPublic('/posts'));
@@ -307,7 +308,7 @@ final class WordPressRestClientTest extends TestCase
             'mysite.content.api_base_url' => "http://127.0.0.1:{$port}/wp-json/site-content/v1",
             'mysite.content.allowed_hosts' => ['127.0.0.1'],
         ]);
-        $this->app->forgetInstance(\App\Domain\Content\Http\UrlGuard::class);
+        $this->app->forgetInstance(UrlGuard::class);
 
         $e = $this->capture(fn () => $this->client()->getPublic('/posts'));
 

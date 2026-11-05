@@ -9,6 +9,7 @@ use App\Domain\Preview\PreviewService;
 use App\Http\Controllers\Controller;
 use App\Support\Errors\ErrorCode;
 use App\Support\Errors\ErrorRenderer;
+use Carbon\CarbonImmutable;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -86,7 +87,7 @@ final class PreviewController extends Controller implements HasMiddleware
 
         return response()->view('preview.show', [
             'item' => $item,
-            'expiresAt' => \Carbon\CarbonImmutable::createFromTimestampUTC($context->claims->exp),
+            'expiresAt' => CarbonImmutable::createFromTimestampUTC($context->claims->exp),
             'revision' => $context->claims->rev,
         ]);
     }

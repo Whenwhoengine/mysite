@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Content\Events;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -18,10 +19,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $content_id
  * @property int $content_version
  * @property string $status
- * @property \Carbon\CarbonImmutable $occurred_at
+ * @property CarbonImmutable $occurred_at
  * @property string $state
  * @property int $received_count
- * @property ?\Carbon\CarbonImmutable $processed_at
+ * @property ?CarbonImmutable $processed_at
  * @property ?string $last_error
  */
 final class ContentEventReceipt extends Model

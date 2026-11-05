@@ -33,8 +33,7 @@ final class PreviewService
         private readonly WordPressRestClient $client,
         private readonly ContentMapper $mapper,
         private readonly Encrypter $encrypter,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array{token: string, expires_at: CarbonImmutable}

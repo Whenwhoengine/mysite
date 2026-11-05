@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Commerce;
 
 use App\Domain\Audit\AuditLogger;
+use App\Domain\Commerce\Retention\RetentionService;
 use App\Models\AuditLog;
 use App\Models\DataDeletionLog;
 use App\Models\Order;
@@ -15,7 +16,6 @@ use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\Commerce\Concerns\InteractsWithCommerce;
-use Tests\Feature\Commerce\CommerceTestCase;
 
 /** COM-12、DAT-06：模擬資料到期匿名化／刪除、刪除紀錄與還原後重套。 */
 final class RetentionTest extends CommerceTestCase
@@ -153,7 +153,7 @@ final class RetentionTest extends CommerceTestCase
         $this->assertSame(90, (int) config('mysite.retention.audit_days'));
         Carbon::setTestNow(now()->addDays(31));
         try {
-            $this->assertSame(0, app(\App\Domain\Commerce\Retention\RetentionService::class)->apply(true)['orders']);
+            $this->assertSame(0, app(RetentionService::class)->apply(true)['orders']);
         } finally {
             Carbon::setTestNow();
         }

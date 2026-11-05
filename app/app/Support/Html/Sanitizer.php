@@ -52,7 +52,7 @@ final class Sanitizer
         $this->appHost = self::host($appUrl);
         $this->wpOrigin = self::origin($wpPublicUrl);
 
-        $config = (new HtmlSanitizerConfig())
+        $config = (new HtmlSanitizerConfig)
             ->defaultAction(HtmlSanitizerAction::Drop)
             ->allowElement('p', ['class'])
             ->allowElement('h2', ['class'])
@@ -85,7 +85,7 @@ final class Sanitizer
             ->allowRelativeLinks(true)
             ->allowMediaSchemes(['http', 'https'])
             ->allowRelativeMedias(false)
-            ->withAttributeSanitizer(new ClassAttributeSanitizer())
+            ->withAttributeSanitizer(new ClassAttributeSanitizer)
             ->withMaxInputLength(max(20_000, $maxInputLength));
 
         foreach (self::BLOCKED as $element) {

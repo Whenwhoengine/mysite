@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Domain\Commerce\Casts\MoneyCast;
+use App\Domain\Commerce\Money;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string $slug
  * @property string $title
  * @property string|null $description
- * @property \App\Domain\Commerce\Money $price
+ * @property Money $price
  * @property ProductStatus $status
  * @property string|null $cover_url
  * @property bool $is_sample
