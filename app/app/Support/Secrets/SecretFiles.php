@@ -23,6 +23,8 @@ final class SecretFiles
         'CONTENT_SERVICE_APP_PASSWORD',
         'DIAGNOSTICS_TOKEN',
         'DEPLOY_STATUS_TOKEN',
+        // APP_KEY 輪替過渡期的舊金鑰（逗號分隔，Laravel 原生 app.previous_keys），只在輪替時提供
+        'APP_PREVIOUS_KEYS',
     ];
 
     /** staging／production 必須全部具備。 */

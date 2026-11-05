@@ -29,6 +29,8 @@ return Application::configure(basePath: dirname(__DIR__))
             headers: Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_HOST | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO,
         );
         $middleware->prepend(AssignRequestId::class);
+        // 維護模式期間健康檢查與部署狀態仍須可用（部署流程依此判斷換版結果）
+        $middleware->preventRequestsDuringMaintenance(except: ['healthz', 'readyz', 'internal/deploy-status']);
         $middleware->group('internal', [
             InternalOnly::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,

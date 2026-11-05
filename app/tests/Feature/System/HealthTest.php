@@ -68,4 +68,19 @@ final class HealthTest extends TestCase
         $this->get('/internal/diagnostics/php', ['X-Mysite-Diagnostics-Token' => 'expected-token', 'X-Forwarded-For' => '198.51.100.7'])
             ->assertNotFound();
     }
+
+    #[Group('OPS-06')]
+    #[Test]
+    public function health_and_deploy_status_stay_available_during_maintenance(): void
+    {
+        config(['mysite.deploy.status_token' => 'deploy-status-token-value']);
+        $this->app->maintenanceMode()->activate([]);
+        try {
+            $this->get('/healthz')->assertOk();
+            $this->getJson('/internal/deploy-status', ['Authorization' => 'Bearer deploy-status-token-value'])->assertOk();
+            $this->get('/articles')->assertStatus(503);
+        } finally {
+            $this->app->maintenanceMode()->deactivate();
+        }
+    }
 }

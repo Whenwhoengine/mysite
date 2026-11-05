@@ -230,6 +230,9 @@ CMD ["php-fpm"]
 # Web 層：Nginx（Laravel 靜態入口、WP 靜態入口、gateway）
 # ---------------------------------------------------------------------------
 FROM ${BASE_IMAGE_REGISTRY}/${NGINX_IMAGE_REF} AS web-base
+ARG SOURCE_COMMIT=unknown
+LABEL org.opencontainers.image.source="https://github.com/Whenwhoengine/mysite" \
+      org.opencontainers.image.revision="${SOURCE_COMMIT}"
 RUN rm -f /etc/nginx/conf.d/default.conf
 COPY infra/nginx/common/ /etc/nginx/snippets/
 
