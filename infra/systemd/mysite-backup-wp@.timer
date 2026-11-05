@@ -1,0 +1,12 @@
+# 每日 Asia/Taipei 03:27（UTC 19:27）；日備保留 30 天、月備最多 12 個月（v5 §15.2）
+[Unit]
+Description=mysite 備份排程 WordPress DB＋uploads（每日）（%i）
+
+[Timer]
+OnCalendar=*-*-* 19:27:00 UTC
+RandomizedDelaySec=600
+Persistent=true
+Unit=mysite-backup-wp@%i.service
+
+[Install]
+WantedBy=timers.target

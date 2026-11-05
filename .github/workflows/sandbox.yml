@@ -1,0 +1,86 @@
+# 純雲端備援執行入口（Claude VM 缺 Docker／網路受限時使用）：與 ci.yml 共用 scripts/ci/verify.sh，不另立測試標準。
+# 手動觸發需此檔已存在於預設分支；在工作分支上可推送 sandbox/** 分支觸發。
+name: sandbox
+
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: 驗證範圍
+        type: choice
+        options: [content, simulation]
+        default: content
+      generate_lockfiles:
+        description: 是否在乾淨 runner 重新解析 lockfile 並輸出 bootstrap-source 成品
+        type: boolean
+        default: false
+  push:
+    branches: ["sandbox/**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sandbox-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  MYSITE_EXECUTION_BACKEND: github-actions
+  MYSITE_BASE_IMAGE_REGISTRY: public.ecr.aws/docker/library
+
+jobs:
+  verify:
+    name: 備援驗證
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: 預檢
+        run: bash scripts/cloud/preflight.sh
+      - name: 驗證
+        env:
+          MYSITE_RUN_ID: sandbox-${{ github.run_id }}-${{ github.run_attempt }}
+        run: bash scripts/ci/verify.sh --scope=${{ inputs.scope || 'content' }}
+      - name: 上傳證據
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sandbox-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            docs/evidence/
+            .runtime/results/
+          retention-days: 14
+          if-no-files-found: warn
+
+  bootstrap-source:
+    name: bootstrap-source（lockfile 重新解析成品）
+    if: ${{ inputs.generate_lockfiles == true }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: 以執行期同版本 PHP 8.5.12（php-tools 目標）與鎖定 Node 映像重新解析 lockfile（不忽略平台需求）
+        run: |
+          set -a; source infra/versions.env; set +a
+          docker build -f infra/images/php/Dockerfile --target php-tools -t mysite/php-tools:bootstrap-source \
+            --build-arg "PCOV_VERSION=${PCOV_VERSION}" --build-arg "PCOV_TGZ_URL=${PCOV_TGZ_URL}" --build-arg "PCOV_TGZ_SHA256=${PCOV_TGZ_SHA256}" .
+          docker run --rm -v "$PWD/app:/var/www/app" -w /var/www/app --entrypoint composer mysite/php-tools:bootstrap-source \
+            update --lock --no-install --no-interaction --no-scripts
+          docker run --rm -v "$PWD/app:/var/www/app" -w /var/www/app --entrypoint composer mysite/php-tools:bootstrap-source check-platform-reqs --lock
+          docker run --rm -v "$PWD/app:/app" -w /app "docker.io/${NODE_IMAGE_REF}" npm install --package-lock-only --no-audit --no-fund
+      - name: 產生成品清單（來源 workflow commit、run、架構、hash）
+        run: |
+          mkdir -p bootstrap-source
+          cp app/composer.json app/composer.lock app/package.json app/package-lock.json bootstrap-source/
+          ( cd bootstrap-source && sha256sum -- ./* > SHA256SUMS )
+          jq -n --arg repo "$GITHUB_REPOSITORY" --arg sha "$GITHUB_SHA" --arg run "$GITHUB_RUN_ID" --arg wf "$GITHUB_WORKFLOW" \
+            --arg arch "$(uname -m)" '{repository:$repo, source_commit:$sha, run_id:$run, workflow:$wf, arch:$arch, note:"只含第一方 lockfile 與清單；不含 vendor、node_modules、秘密"}' > bootstrap-source/manifest.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: bootstrap-source-${{ github.run_id }}
+          path: bootstrap-source/
+          retention-days: 7

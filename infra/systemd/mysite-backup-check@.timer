@@ -1,0 +1,12 @@
+# 每週日 Asia/Taipei 04:41（UTC 週六 20:41）
+[Unit]
+Description=mysite 每週備份完整性檢查排程（%i）
+
+[Timer]
+OnCalendar=Sat *-*-* 20:41:00 UTC
+RandomizedDelaySec=900
+Persistent=true
+Unit=mysite-backup-check@%i.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,18 @@
+# mysite：Certbot webroot 續期；有憑證更新時先 nginx -t 再 reload gateway（v5 §13.6-5，OPS-13）。
+# 憑證 21 天內到期仍未續上 → unit failed 供告警。
+[Unit]
+Description=mysite TLS 憑證續期與 gateway 重新載入
+Documentation=https://github.com/Whenwhoengine/mysite/blob/main/docs/runbooks/%%E4%%B8%%BB%%E6%%A9%%9F%%E9%%96%%8B%%E9%%80%%9A.md
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+ConditionPathExists=/srv/mysite/tls/letsencrypt/live
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash /srv/mysite/platform/infra/systemd/libexec/mysite-certbot-renew.sh
+TimeoutStartSec=30min
+UMask=0027
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full

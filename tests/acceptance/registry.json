@@ -1,0 +1,2606 @@
+{
+  "schema_version": 1,
+  "description": "v5 第十二章 90 項驗收 ID 與執行補強 EXEC 6 項；狀態只能由實際執行結果更新（NOT_RUN／PASS／FAIL／BLOCKED_EXTERNAL／NOT_APPLICABLE）。",
+  "items": [
+    {
+      "id": "CLD-01",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "全部建置命令在 Linux 雲端／Actions 執行，無 Windows 路徑依賴",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:linux-only-build",
+        "governance:linux-only-build"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "CLD-02",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "保留原 README 與 Git 歷史，沒有刪 repo 重建",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:readme-and-history-preserved",
+        "governance:readme-and-history-preserved"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "CLD-03",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "程式與狀態檔已推遠端，另一個會話可讀到同一 commit",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:pushed-state-readable",
+        "governance:pushed-state-readable"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "CLD-04",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "`.env`、秘密、DB dump、媒體與 `.runtime` 不進 Git／映像",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "static:ignore-rules",
+        "static:secret-scan-tracked",
+        "static:ignore-rules",
+        "static:secret-scan-tracked"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "CLD-05",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "bootstrap 執行兩次不重設資料、管理員或 APP_KEY",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "bootstrap:second-run-keeps-state",
+        "wp-contract:seed_idempotent_and_refused_in_production",
+        "bootstrap:second-run-keeps-state",
+        "wp-contract:seed_idempotent_and_refused_in_production"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "CLD-06",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "全新 runner 依 lockfile 重建，未宣告暫存不存在仍能跑",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:fresh-runner-lockfile-rebuild",
+        "governance:fresh-runner-lockfile-rebuild"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "CLD-07",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "關閉／換雲端會話後，依 state 可接續正確未完成任務",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:state-resume-in-fresh-clone",
+        "governance:state-resume-in-fresh-clone"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "CLD-08",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "Docker／網路受限時確實跑 Actions 備援並讀回對應 SHA 結果",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:docker-unavailable-routes-to-actions",
+        "governance:docker-unavailable-routes-to-actions"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "CLD-09",
+      "level": "P1",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "setup／hook 失敗留下確切錯誤，不用 `|| true` 吞掉必要安裝",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:docker-unavailable-routes-to-actions",
+        "governance:no-swallowed-install-errors",
+        "governance:docker-unavailable-routes-to-actions",
+        "governance:no-swallowed-install-errors"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "CLD-10",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "一般 PR／fork 無正式秘密、簽章與部署權限",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:workflow-secret-isolation",
+        "governance:workflow-secret-isolation"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "INF-01",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "WP 與 Laravel Web PHP 均符合鎖定版本及 upload progress 設定",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "doctor:INF-01-APP",
+        "doctor:INF-01-WP",
+        "doctor:INF-01-APP",
+        "doctor:INF-01-WP"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "INF-02",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "MySQL、FPM 埠不對公網開放；DB 帳號不可跨庫任意讀寫",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "doctor:INF-02-DB",
+        "doctor:INF-02-PORTS",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::root_database_user_is_rejected",
+        "doctor:INF-02-DB",
+        "doctor:INF-02-PORTS",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::root_database_user_is_rejected"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "INF-03",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "app public 根目錄正確，`.env`／vendor／Git 不能下載",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "doctor:INF-03",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "doctor:INF-03",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "INF-04",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "uploads 的 PHP、雙副檔名與偽裝 MIME 被拒或無法執行",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "doctor:INF-04",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "wp-contract:wp08_rest_nonce_upload_and_app_password_not_blocked",
+        "doctor:INF-04",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "wp-contract:wp08_rest_nonce_upload_and_app_password_not_blocked"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "INF-05",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "DB 故障時 readiness 失敗、liveness 不偽裝 DB 正常",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "doctor:APP-LIVE",
+        "doctor:APP-READY",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › liveness 與 readiness 只回 ok，不帶版本或路徑",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › liveness 與 readiness 只回 ok，不帶版本或路徑",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › liveness 與 readiness 只回 ok，不帶版本或路徑",
+        "phpunit:Tests\\Feature\\System\\HealthTest::liveness_is_ok_without_details",
+        "phpunit:Tests\\Feature\\System\\HealthTest::readiness_is_ok_when_database_ready",
+        "phpunit:Tests\\Feature\\System\\HealthTest::readiness_fails_when_database_unreachable_but_liveness_stays_ok",
+        "doctor:APP-LIVE",
+        "doctor:APP-READY",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › liveness 與 readiness 只回 ok，不帶版本或路徑",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › liveness 與 readiness 只回 ok，不帶版本或路徑",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › liveness 與 readiness 只回 ok，不帶版本或路徑",
+        "phpunit:Tests\\Feature\\System\\HealthTest::liveness_is_ok_without_details",
+        "phpunit:Tests\\Feature\\System\\HealthTest::readiness_is_ok_when_database_ready",
+        "phpunit:Tests\\Feature\\System\\HealthTest::readiness_fails_when_database_unreachable_but_liveness_stays_ok"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "INF-06",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "服務重建後內容、媒體、Session 必要狀態按契約保存",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:state-create-draft-post",
+        "governance:state-import-media",
+        "governance:state-media-http",
+        "governance:state-session-start",
+        "governance:rebuild-force-recreate",
+        "governance:rebuild-volumes-preserved",
+        "governance:rebuild-services-ready",
+        "governance:verify-draft-post",
+        "governance:verify-media",
+        "governance:verify-session",
+        "governance:state-create-draft-post",
+        "governance:state-import-media",
+        "governance:state-media-http",
+        "governance:state-session-start",
+        "governance:rebuild-force-recreate",
+        "governance:rebuild-volumes-preserved",
+        "governance:rebuild-services-ready",
+        "governance:verify-draft-post",
+        "governance:verify-media",
+        "governance:verify-session"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "INF-07",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "正式無 debug stack trace、無公開 phpinfo、無開發伺服器",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "doctor:INF-07",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › 回應帶基本安全標頭且不暴露 PHP 版本",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › 回應帶基本安全標頭且不暴露 PHP 版本",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › 回應帶基本安全標頭且不暴露 PHP 版本",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::production_requires_https_secure_cookie_and_no_debug",
+        "phpunit:Tests\\Feature\\System\\ErrorPageTest::server_error_in_production_mode_hides_internals",
+        "phpunit:Tests\\Feature\\System\\HealthTest::internal_diagnostics_requires_token",
+        "doctor:INF-07",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › 回應帶基本安全標頭且不暴露 PHP 版本",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › 回應帶基本安全標頭且不暴露 PHP 版本",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › 回應帶基本安全標頭且不暴露 PHP 版本",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::production_requires_https_secure_cookie_and_no_debug",
+        "phpunit:Tests\\Feature\\System\\ErrorPageTest::server_error_in_production_mode_hides_internals",
+        "phpunit:Tests\\Feature\\System\\HealthTest::internal_diagnostics_requires_token"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "INF-08",
+      "level": "P1",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "映像及主機架構一致，儲存與記憶體用量有量測",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:host-arch-consistent",
+        "governance:image-arch-consistent",
+        "governance:image-size-measured",
+        "governance:container-memory-measured",
+        "governance:volume-size-measured",
+        "governance:host-disk-measured",
+        "governance:host-arch-consistent",
+        "governance:image-arch-consistent",
+        "governance:image-size-measured",
+        "governance:container-memory-measured",
+        "governance:volume-size-measured",
+        "governance:host-disk-measured"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "WP-01",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "編輯者可在 WP 建立／修改文章、影片、Podcast 與頁面",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "wp-contract:wp01_editor_creates_and_edits_via_gateway",
+        "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "wp-contract:wp01_editor_creates_and_edits_via_gateway"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "WP-02",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "CPT、taxonomy、ACF JSON 重建後不需人工補欄位",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "wp-contract:php_syntax_lint",
+        "wp-contract:wp02_types_fields_tables_rebuildable",
+        "wp-contract:php_syntax_lint",
+        "wp-contract:wp02_types_fields_tables_rebuildable"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "WP-03",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "draft／private／password protected／trash 不在公開 API",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "wp-contract:wp03_non_public_states_hidden",
+        "wp-contract:production_guards_for_test_hooks",
+        "wp-contract:wp03_non_public_states_hidden",
+        "wp-contract:production_guards_for_test_hooks"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "WP-04",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "編輯者不可管理外掛／使用者或取得商務管理權限",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "wp-contract:wp04_editor_privilege_escalation_denied",
+        "wp-contract:wp04_editor_privilege_escalation_denied"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "WP-05",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "權限遷移重跑不鎖死 admin，也不刪其他外掛 capability",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "wp-contract:wp05_setup_rerun_keeps_admin_and_foreign_caps",
+        "wp-contract:wp05_setup_rerun_keeps_admin_and_foreign_caps"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "WP-06",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "範例 Gutenberg 區塊從編輯到前臺保持語意與排版",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "wp-contract:wp06_gutenberg_block_semantics",
+        "wp-contract:wp06_gutenberg_block_semantics"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "WP-07",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "無訪客期間排程仍會發布，時區與 API 日期正確",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "wp-contract:wp07_scheduled_post_published_by_cron_utc",
+        "wp-contract:wp07_scheduled_post_published_by_cron_utc"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "WP-08",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "WP 原生 REST／nonce／上傳不被 gateway 規則誤擋",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "wp-contract:security_xmlrpc_user_enumeration_jsonp",
+        "wp-contract:wp01_editor_creates_and_edits_via_gateway",
+        "wp-contract:wp08_rest_nonce_upload_and_app_password_not_blocked",
+        "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "wp-contract:security_xmlrpc_user_enumeration_jsonp",
+        "wp-contract:wp01_editor_creates_and_edits_via_gateway",
+        "wp-contract:wp08_rest_nonce_upload_and_app_password_not_blocked"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "WP-09",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "ACF 來源／版本／hash 可追溯，非不明替代外掛",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "doctor:WP-CORE",
+        "wp-contract:wp09_acf_version_traceable",
+        "doctor:WP-CORE",
+        "wp-contract:wp09_acf_version_traceable"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "WP-10",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "正式管理員完成 2FA；備援碼不出現在 repo／artifact",
+      "scope": "content",
+      "verification_venue": "staging_or_production",
+      "status": "BLOCKED_EXTERNAL",
+      "tests": [
+        "wp-contract:wp10_two_factor_gate_logic",
+        "wp-contract:wp10_two_factor_gate_logic"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": "BLK-APPROVAL-01",
+      "note": "CI 已驗證機制（見證據）；本項須在真實 staging／production 驗收，尚未執行。"
+    },
+    {
+      "id": "API-01",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "完整 REST 路徑正確，Laravel 對真實 WP 取資料",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "wp-contract:api01_structure_and_full_paths",
+        "phpunit:Tests\\Unit\\Content\\ContentMapperTest::items_map_to_dtos_with_only_contract_fields",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::it_decodes_successful_responses_and_sends_bounded_query",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::lists_and_details_come_from_real_wordpress",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::public_pages_render_real_content_over_http",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::unknown_slug_is_not_found",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::search_taxonomies_menus_and_site_from_real_wordpress",
+        "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "wp-contract:api01_structure_and_full_paths",
+        "phpunit:Tests\\Unit\\Content\\ContentMapperTest::items_map_to_dtos_with_only_contract_fields",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::it_decodes_successful_responses_and_sends_bounded_query",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::lists_and_details_come_from_real_wordpress",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::public_pages_render_real_content_over_http",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::unknown_slug_is_not_found",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::search_taxonomies_menus_and_site_from_real_wordpress"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "API-02",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "401／403、404、timeout、invalid JSON、model 不符分開處理",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "phpunit:Tests\\Unit\\Content\\ContentMapperTest::unsupported_model_or_api_versions_are_rejected",
+        "phpunit:Tests\\Unit\\Content\\ContentMapperTest::missing_or_mistyped_fields_are_rejected",
+        "phpunit:Tests\\Unit\\Content\\ContentMapperTest::visibility_taxonomies_menu_and_site_are_validated",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::it_decodes_successful_responses_and_sends_bounded_query",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::not_found_is_classified_and_not_retried",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::server_errors_are_retried_once_then_fail_with_503",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::connection_failures_are_retried_once",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::total_timeouts_are_not_retried",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::auth_errors_are_logged_as_configuration_errors_and_shown_as_503",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::client_errors_are_not_retried",
+        "phpunit:Tests\\Unit\\Content\\ContentMapperTest::unsupported_model_or_api_versions_are_rejected",
+        "phpunit:Tests\\Unit\\Content\\ContentMapperTest::missing_or_mistyped_fields_are_rejected",
+        "phpunit:Tests\\Unit\\Content\\ContentMapperTest::visibility_taxonomies_menu_and_site_are_validated",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::it_decodes_successful_responses_and_sends_bounded_query",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::not_found_is_classified_and_not_retried",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::server_errors_are_retried_once_then_fail_with_503",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::connection_failures_are_retried_once",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::total_timeouts_are_not_retried",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::auth_errors_are_logged_as_configuration_errors_and_shown_as_503",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::client_errors_are_not_retried"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "API-03",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "查詢參數、分頁上限與回應大小有界，不可任意指定上游 URL",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "wp-contract:api03_parameter_bounds",
+        "phpunit:Tests\\Unit\\Content\\SlugAndDisplayTimeTest::slugs_are_bounded_and_normalized_for_the_api",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::oversized_responses_are_rejected",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::request_paths_cannot_be_injected",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::listing_pagination_canonical_and_bounds",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::missing_or_malformed_slugs_are_404",
+        "wp-contract:api03_parameter_bounds",
+        "phpunit:Tests\\Unit\\Content\\SlugAndDisplayTimeTest::slugs_are_bounded_and_normalized_for_the_api",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::oversized_responses_are_rejected",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::request_paths_cannot_be_injected",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::listing_pagination_canonical_and_bounds",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::missing_or_malformed_slugs_are_404"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "API-04",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "非法 host、redirect 到私網、metadata 位址抓取被阻擋",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::content_api_host_must_be_allowlisted",
+        "phpunit:Tests\\Unit\\Content\\UrlGuardTest::metadata_is_rejected_even_when_listed_in_allowed_hosts",
+        "phpunit:Tests\\Unit\\Content\\UrlGuardTest::fixed_wp_hosts_are_allowed_as_private_network_exception",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::redirects_are_never_followed",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::configured_base_urls_outside_the_allowlist_never_send_requests",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::content_api_host_must_be_allowlisted",
+        "phpunit:Tests\\Unit\\Content\\UrlGuardTest::metadata_is_rejected_even_when_listed_in_allowed_hosts",
+        "phpunit:Tests\\Unit\\Content\\UrlGuardTest::fixed_wp_hosts_are_allowed_as_private_network_exception",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::redirects_are_never_followed",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::configured_base_urls_outside_the_allowlist_never_send_requests"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "API-05",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "script、事件屬性、危險 URL 與不受信任 iframe 不執行",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "static:blade-raw-output",
+        "wp-contract:brand_settings_https_only",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::it_keeps_allowed_structure",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::external_links_get_rel_and_internal_links_do_not",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::image_source_policy_allows_https_or_cms_and_preview_only_cms",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::disallowed_elements_keep_text_but_lose_markup_and_unknown_classes",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::safe_content_cannot_be_built_or_echoed_outside_the_sanitizer",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::long_bodies_are_not_truncated",
+        "phpunit:Tests\\Feature\\Content\\BladeRawCheckTest::the_real_views_pass",
+        "phpunit:Tests\\Feature\\Content\\BladeRawCheckTest::raw_output_outside_rich_content_is_blocked",
+        "static:blade-raw-output",
+        "wp-contract:brand_settings_https_only",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::it_keeps_allowed_structure",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::external_links_get_rel_and_internal_links_do_not",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::image_source_policy_allows_https_or_cms_and_preview_only_cms",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::disallowed_elements_keep_text_but_lose_markup_and_unknown_classes",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::safe_content_cannot_be_built_or_echoed_outside_the_sanitizer",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::long_bodies_are_not_truncated",
+        "phpunit:Tests\\Feature\\Content\\BladeRawCheckTest::the_real_views_pass",
+        "phpunit:Tests\\Feature\\Content\\BladeRawCheckTest::raw_output_outside_rich_content_is_blocked"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "API-06",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "正確簽章成功，篡改 body／timestamp／key ID 均失敗",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "wp-contract:events_body_signature_and_retry_resign",
+        "phpunit:Tests\\Unit\\Content\\ContentEventVerificationTest::valid_signature_passes",
+        "phpunit:Tests\\Unit\\Content\\ContentEventVerificationTest::tampering_and_bad_headers_fail",
+        "phpunit:Tests\\Unit\\Content\\ContentEventVerificationTest::payload_structure_is_validated",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::a_valid_event_is_persisted_then_processed_on_the_content_queue",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::invalid_signatures_are_401_and_never_persisted",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::malformed_bodies_are_422",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::the_endpoint_is_internal_only_and_fails_closed_without_a_key",
+        "wp-contract:events_body_signature_and_retry_resign",
+        "phpunit:Tests\\Unit\\Content\\ContentEventVerificationTest::valid_signature_passes",
+        "phpunit:Tests\\Unit\\Content\\ContentEventVerificationTest::tampering_and_bad_headers_fail",
+        "phpunit:Tests\\Unit\\Content\\ContentEventVerificationTest::payload_structure_is_validated",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::a_valid_event_is_persisted_then_processed_on_the_content_queue",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::invalid_signatures_are_401_and_never_persisted",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::malformed_bodies_are_422",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::the_endpoint_is_internal_only_and_fails_closed_without_a_key"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "API-07",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "同事件重送成功 ack 但只套用一次；不同內容冒同 ID 被拒",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::a_valid_event_is_persisted_then_processed_on_the_content_queue",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::the_job_is_dispatched_to_the_content_queue_after_commit",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::redelivery_with_a_new_timestamp_is_acknowledged_but_applied_once",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::same_id_with_different_content_is_rejected_and_logged",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::failed_processing_is_retried_on_redelivery_but_processed_events_are_not",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::a_valid_event_is_persisted_then_processed_on_the_content_queue",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::the_job_is_dispatched_to_the_content_queue_after_commit",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::redelivery_with_a_new_timestamp_is_acknowledged_but_applied_once",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::same_id_with_different_content_is_rejected_and_logged",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::failed_processing_is_retried_on_redelivery_but_processed_events_are_not"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "API-08",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "延遲重試重新簽送達時間，合法 outbox 可恢復處理",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "wp-contract:production_guards_for_test_hooks",
+        "wp-contract:events_body_signature_and_retry_resign",
+        "wp-contract:events_dead_letter_replay_redirect_transport",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::redelivery_with_a_new_timestamp_is_acknowledged_but_applied_once",
+        "wp-contract:production_guards_for_test_hooks",
+        "wp-contract:events_body_signature_and_retry_resign",
+        "wp-contract:events_dead_letter_replay_redirect_transport",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::redelivery_with_a_new_timestamp_is_acknowledged_but_applied_once"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "API-09",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "舊事件晚到不復活已撤下內容，對帳可補漏事件",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "wp-contract:events_reconcile_recovers_after_hook_failure",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::unpublish_event_takes_effect_immediately",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::late_old_events_never_resurrect_taken_down_content",
+        "wp-contract:events_reconcile_recovers_after_hook_failure",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::unpublish_event_takes_effect_immediately",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::late_old_events_never_resurrect_taken_down_content"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "API-10",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "webhook 漏送＋WP 斷線下，硬期限後不再回撤下正文",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "phpunit:Tests\\Feature\\Content\\DatabaseCacheTest::leases_expire_by_clock_on_the_database_store",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::visibility_lease_is_reused_until_it_expires",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::lease_never_exceeds_the_60_second_hard_limit",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::takedown_with_lost_event_and_wp_outage_stops_serving_after_the_lease",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::visible_false_returns_404_and_clears_cached_body",
+        "phpunit:Tests\\Feature\\Content\\DatabaseCacheTest::leases_expire_by_clock_on_the_database_store",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::visibility_lease_is_reused_until_it_expires",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::lease_never_exceeds_the_60_second_hard_limit",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::takedown_with_lost_event_and_wp_outage_stops_serving_after_the_lease",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::visible_false_returns_404_and_clears_cached_body"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "API-11",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "預覽 ticket 過期、重播、跨內容、錯 revision 全被拒",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:tablet-768 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:desktop-1440 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "wp-contract:php_unit_selftest",
+        "wp-contract:preview_ticket_snapshot_and_rejections",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::private_reads_require_https_credentials_and_ca",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::private_forbidden_is_distinct_from_configuration_errors",
+        "phpunit:Tests\\Unit\\Preview\\PreviewTicketVerifierTest::a_valid_ticket_yields_bound_claims",
+        "phpunit:Tests\\Unit\\Preview\\PreviewTicketVerifierTest::signature_and_format_failures",
+        "phpunit:Tests\\Unit\\Preview\\PreviewTicketVerifierTest::header_must_be_exactly_hs256_mysite_preview",
+        "e2e:mobile-390 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:tablet-768 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:desktop-1440 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "wp-contract:php_unit_selftest",
+        "wp-contract:preview_ticket_snapshot_and_rejections",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::private_reads_require_https_credentials_and_ca",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::private_forbidden_is_distinct_from_configuration_errors",
+        "phpunit:Tests\\Unit\\Preview\\PreviewTicketVerifierTest::a_valid_ticket_yields_bound_claims",
+        "phpunit:Tests\\Unit\\Preview\\PreviewTicketVerifierTest::signature_and_format_failures",
+        "phpunit:Tests\\Unit\\Preview\\PreviewTicketVerifierTest::header_must_be_exactly_hs256_mysite_preview"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "API-12",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "預覽正文、ACF 與封面屬同一快照，非混合版本",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:tablet-768 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:desktop-1440 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "wp-contract:preview_ticket_snapshot_and_rejections",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::view_shows_the_exact_snapshot_with_preview_banner_and_no_third_party_resources",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::wp_rejection_or_mismatched_snapshot_is_preview_invalid_never_the_public_article",
+        "e2e:mobile-390 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:tablet-768 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:desktop-1440 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "wp-contract:preview_ticket_snapshot_and_rejections",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::view_shows_the_exact_snapshot_with_preview_banner_and_no_third_party_resources",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::wp_rejection_or_mismatched_snapshot_is_preview_invalid_never_the_public_article"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "API-13",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "預覽不進公開 cache／RSS／sitemap／搜尋或 log",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "e2e:tablet-768 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "e2e:desktop-1440 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:desktop-1440 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:desktop-1440 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "wp-contract:preview_ticket_snapshot_and_rejections",
+        "e2e:mobile-390 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "e2e:tablet-768 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "e2e:desktop-1440 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:desktop-1440 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:desktop-1440 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "wp-contract:preview_ticket_snapshot_and_rejections"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "API-14",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "服務密碼、使用者 email、DB 資訊不出現在公開回應",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "wp-contract:api14_no_sensitive_fields",
+        "phpunit:Tests\\Unit\\Content\\ContentMapperTest::items_map_to_dtos_with_only_contract_fields",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::menu_fallback_commerce_link_and_no_private_fields",
+        "wp-contract:api14_no_sensitive_fields",
+        "phpunit:Tests\\Unit\\Content\\ContentMapperTest::items_map_to_dtos_with_only_contract_fields",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::menu_fallback_commerce_link_and_no_private_fields"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "API-15",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "修改／撤下也清理列表、搜尋摘要、選單與 feeds",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "wp-contract:events_reconcile_recovers_after_hook_failure",
+        "phpunit:Tests\\Feature\\Content\\DatabaseCacheTest::generation_and_collections_work_on_the_database_store",
+        "phpunit:Tests\\Feature\\Content\\DatabaseCacheTest::pruning_removes_only_expired_content_cache_rows",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::unpublish_event_takes_effect_immediately",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::updated_content_is_refetched_when_visibility_reports_a_newer_version",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::lists_feeds_and_sitemaps_are_invalidated_by_events_and_bounded_without_them",
+        "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "wp-contract:events_reconcile_recovers_after_hook_failure",
+        "phpunit:Tests\\Feature\\Content\\DatabaseCacheTest::generation_and_collections_work_on_the_database_store",
+        "phpunit:Tests\\Feature\\Content\\DatabaseCacheTest::pruning_removes_only_expired_content_cache_rows",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::unpublish_event_takes_effect_immediately",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::updated_content_is_refetched_when_visibility_reports_a_newer_version",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::lists_feeds_and_sitemaps_are_invalidated_by_events_and_bounded_without_them"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "API-16",
+      "level": "P1",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "timeout／retry 在預定範圍內，故障不造成無界請求放大",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::server_errors_are_retried_once_then_fail_with_503",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::a_single_server_error_recovers_on_the_second_attempt",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::connection_failures_are_retried_once",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::total_timeouts_are_not_retried",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::worst_case_wait_is_bounded_by_configuration",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::real_socket_total_timeout_is_bounded_and_not_retried",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::real_refused_connection_is_retried_exactly_once",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::server_errors_are_retried_once_then_fail_with_503",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::a_single_server_error_recovers_on_the_second_attempt",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::connection_failures_are_retried_once",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::total_timeouts_are_not_retried",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::worst_case_wait_is_bounded_by_configuration",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::real_socket_total_timeout_is_bounded_and_not_retried",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::real_refused_connection_is_retried_exactly_once"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "UI-01",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "首頁、文章、影片、Podcast、搜尋與靜態頁都接真資料",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "phpunit:Tests\\Unit\\Content\\SlugAndDisplayTimeTest::times_are_parsed_as_utc_and_displayed_in_taipei",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::home_renders_real_lists_with_unique_meta",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::listing_pagination_canonical_and_bounds",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::article_detail_renders_sanitized_body_and_meta",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::video_detail_embeds_only_after_click_and_shows_broken_state",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::static_pages_category_and_tag_pages",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::search_states",
+        "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "phpunit:Tests\\Unit\\Content\\SlugAndDisplayTimeTest::times_are_parsed_as_utc_and_displayed_in_taipei",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::home_renders_real_lists_with_unique_meta",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::listing_pagination_canonical_and_bounds",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::article_detail_renders_sanitized_body_and_meta",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::video_detail_embeds_only_after_click_and_shows_broken_state",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::static_pages_category_and_tag_pages",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::search_states"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "UI-02",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "390／768／1440 viewport 無水平溢位，長中文標題正常",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 首頁",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 分類彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 標籤彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長中文標題）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長網址）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（Gutenberg 區塊）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片詳情",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 首頁",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 分類彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 標籤彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長中文標題）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長網址）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（Gutenberg 區塊）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片詳情"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "UI-03",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "空態、404、503、圖片與播放器失效都有明確畫面",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:mobile-390 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:mobile-390 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "e2e:mobile-390 › media.spec.mjs › 失效與空狀態畫面 › 圖片載入失敗顯示明確的失效狀態，不留破圖",
+        "e2e:mobile-390 › media.spec.mjs › 失效與空狀態畫面 › 404 與無搜尋結果有明確畫面",
+        "e2e:tablet-768 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:tablet-768 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:tablet-768 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "e2e:tablet-768 › media.spec.mjs › 失效與空狀態畫面 › 圖片載入失敗顯示明確的失效狀態，不留破圖",
+        "e2e:tablet-768 › media.spec.mjs › 失效與空狀態畫面 › 404 與無搜尋結果有明確畫面",
+        "e2e:mobile-390 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:mobile-390 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:mobile-390 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "e2e:mobile-390 › media.spec.mjs › 失效與空狀態畫面 › 圖片載入失敗顯示明確的失效狀態，不留破圖",
+        "e2e:mobile-390 › media.spec.mjs › 失效與空狀態畫面 › 404 與無搜尋結果有明確畫面",
+        "e2e:tablet-768 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:tablet-768 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:tablet-768 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "e2e:tablet-768 › media.spec.mjs › 失效與空狀態畫面 › 圖片載入失敗顯示明確的失效狀態，不留破圖",
+        "e2e:tablet-768 › media.spec.mjs › 失效與空狀態畫面 › 404 與無搜尋結果有明確畫面"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "UI-04",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "鍵盤可完成主要導覽、搜尋與表單，焦點可見",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › a11y.spec.mjs › 鍵盤與焦點 › 第一個 Tab 聚焦「跳到主要內容」且可見，Enter 後焦點移到主要內容",
+        "e2e:mobile-390 › a11y.spec.mjs › 鍵盤與焦點 › 只用鍵盤操作主選單前往文章列表",
+        "e2e:mobile-390 › a11y.spec.mjs › 鍵盤與焦點 › 只用鍵盤送出頁首搜尋表單",
+        "e2e:mobile-390 › a11y.spec.mjs › 鍵盤與焦點 › 手機寬度選單切換可用；平板與桌面直接顯示選單",
+        "e2e:mobile-390 › a11y.spec.mjs › 鍵盤與焦點 › prefers-reduced-motion 生效：動態時間歸零",
+        "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › 第一個 Tab 聚焦「跳到主要內容」且可見，Enter 後焦點移到主要內容",
+        "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › 只用鍵盤操作主選單前往文章列表",
+        "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › 只用鍵盤送出頁首搜尋表單",
+        "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › 手機寬度選單切換可用；平板與桌面直接顯示選單",
+        "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › prefers-reduced-motion 生效：動態時間歸零",
+        "e2e:mobile-390 › a11y.spec.mjs › 鍵盤與焦點 › 第一個 Tab 聚焦「跳到主要內容」且可見，Enter 後焦點移到主要內容",
+        "e2e:mobile-390 › a11y.spec.mjs › 鍵盤與焦點 › 只用鍵盤操作主選單前往文章列表",
+        "e2e:mobile-390 › a11y.spec.mjs › 鍵盤與焦點 › 只用鍵盤送出頁首搜尋表單",
+        "e2e:mobile-390 › a11y.spec.mjs › 鍵盤與焦點 › 手機寬度選單切換可用；平板與桌面直接顯示選單",
+        "e2e:mobile-390 › a11y.spec.mjs › 鍵盤與焦點 › prefers-reduced-motion 生效：動態時間歸零",
+        "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › 第一個 Tab 聚焦「跳到主要內容」且可見，Enter 後焦點移到主要內容",
+        "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › 只用鍵盤操作主選單前往文章列表",
+        "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › 只用鍵盤送出頁首搜尋表單",
+        "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › 手機寬度選單切換可用；平板與桌面直接顯示選單",
+        "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › prefers-reduced-motion 生效：動態時間歸零"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "UI-05",
+      "level": "P1",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "自動無障礙掃描無嚴重項，另有鍵盤與縮放人工／代理檢查",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：首頁（serious／critical 必須為 0）",
+        "e2e:mobile-390 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：文章詳情（serious／critical 必須為 0）",
+        "e2e:mobile-390 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：搜尋（serious／critical 必須為 0）",
+        "e2e:mobile-390 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：商店（serious／critical 必須為 0）",
+        "e2e:mobile-390 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：後臺登入（serious／critical 必須為 0）",
+        "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：首頁（serious／critical 必須為 0）",
+        "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：文章詳情（serious／critical 必須為 0）",
+        "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：搜尋（serious／critical 必須為 0）",
+        "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：商店（serious／critical 必須為 0）",
+        "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：後臺登入（serious／critical 必須為 0）",
+        "e2e:mobile-390 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：首頁（serious／critical 必須為 0）",
+        "e2e:mobile-390 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：文章詳情（serious／critical 必須為 0）",
+        "e2e:mobile-390 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：搜尋（serious／critical 必須為 0）",
+        "e2e:mobile-390 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：商店（serious／critical 必須為 0）",
+        "e2e:mobile-390 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：後臺登入（serious／critical 必須為 0）",
+        "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：首頁（serious／critical 必須為 0）",
+        "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：文章詳情（serious／critical 必須為 0）",
+        "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：搜尋（serious／critical 必須為 0）",
+        "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：商店（serious／critical 必須為 0）",
+        "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：後臺登入（serious／critical 必須為 0）"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "UI-06",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "canonical／title／sitemap 唯一且指向主站公開內容",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › 各公開頁 title 唯一、canonical 指向主站本頁且不指向 CMS",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › CMS 前臺網址 301 到主站對應頁",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › 各公開頁 title 唯一、canonical 指向主站本頁且不指向 CMS",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › CMS 前臺網址 301 到主站對應頁",
+        "e2e:desktop-1440 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:desktop-1440 › seo.spec.mjs › SEO 與公開邊界 › 各公開頁 title 唯一、canonical 指向主站本頁且不指向 CMS",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › 各公開頁 title 唯一、canonical 指向主站本頁且不指向 CMS",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › CMS 前臺網址 301 到主站對應頁",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › 各公開頁 title 唯一、canonical 指向主站本頁且不指向 CMS",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › CMS 前臺網址 301 到主站對應頁",
+        "e2e:desktop-1440 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:desktop-1440 › seo.spec.mjs › SEO 與公開邊界 › 各公開頁 title 唯一、canonical 指向主站本頁且不指向 CMS"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "UI-07",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "Podcast Range／206 與拖曳播放正常；失效保留可讀簡介",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › infra.spec.mjs › Podcast 音訊傳輸 › 音訊支援 Range／206 並回正確 Content-Type",
+        "e2e:mobile-390 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:mobile-390 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "e2e:tablet-768 › infra.spec.mjs › Podcast 音訊傳輸 › 音訊支援 Range／206 並回正確 Content-Type",
+        "e2e:tablet-768 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:tablet-768 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "e2e:desktop-1440 › infra.spec.mjs › Podcast 音訊傳輸 › 音訊支援 Range／206 並回正確 Content-Type",
+        "e2e:desktop-1440 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:desktop-1440 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::podcast_player_requires_allowed_audio_host",
+        "e2e:mobile-390 › infra.spec.mjs › Podcast 音訊傳輸 › 音訊支援 Range／206 並回正確 Content-Type",
+        "e2e:mobile-390 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:mobile-390 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "e2e:tablet-768 › infra.spec.mjs › Podcast 音訊傳輸 › 音訊支援 Range／206 並回正確 Content-Type",
+        "e2e:tablet-768 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:tablet-768 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "e2e:desktop-1440 › infra.spec.mjs › Podcast 音訊傳輸 › 音訊支援 Range／206 並回正確 Content-Type",
+        "e2e:desktop-1440 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:desktop-1440 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::podcast_player_requires_allowed_audio_host"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "UI-08",
+      "level": "P1",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "截圖、效能量測附環境與測試資料，不把模擬數據當真實流量",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 首頁",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 分類彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 標籤彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長中文標題）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長網址）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（Gutenberg 區塊）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片詳情",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 首頁",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 分類彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 標籤彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長中文標題）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長網址）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（Gutenberg 區塊）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片詳情"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "COM-01",
+      "level": "P0-B",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "disabled 時頁面與寫入都拒絕，改 `real` 亦不能收款",
+      "scope": "simulation",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:mobile-390 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::commerce_real_mode_is_rejected",
+        "phpunit:Tests\\Feature\\Commerce\\CommerceFlagTest::disabled_is_the_default_mode",
+        "phpunit:Tests\\Feature\\Commerce\\CommerceFlagTest::simulation_mode_opens_the_shop",
+        "phpunit:Tests\\Feature\\Commerce\\CommerceFlagTest::real_mode_at_runtime_is_rejected_as_simulation_only",
+        "e2e:mobile-390 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:mobile-390 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::commerce_real_mode_is_rejected",
+        "phpunit:Tests\\Feature\\Commerce\\CommerceFlagTest::disabled_is_the_default_mode",
+        "phpunit:Tests\\Feature\\Commerce\\CommerceFlagTest::simulation_mode_opens_the_shop",
+        "phpunit:Tests\\Feature\\Commerce\\CommerceFlagTest::real_mode_at_runtime_is_rejected_as_simulation_only"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "COM-02",
+      "level": "P0-B",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "Money 邊界、四捨五入與溢位測試通過，運算不走 float",
+      "scope": "simulation",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::parses_decimal_strings_into_minor_units",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::accepts_decimal_12_2_upper_bound_and_rejects_beyond",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::rejects_minor_above_max",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::rejects_float_input",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::rejects_negative_minor_and_unknown_types",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::of_accepts_money_string_and_int_minor",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::adds_subtracts_and_multiplies_exactly",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::detects_overflow_on_add_and_multiply",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::subtraction_below_zero_is_rejected",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::ratio_uses_integer_half_up_rounding",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::parses_decimal_strings_into_minor_units",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::accepts_decimal_12_2_upper_bound_and_rejects_beyond",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::rejects_minor_above_max",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::rejects_float_input",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::rejects_negative_minor_and_unknown_types",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::of_accepts_money_string_and_int_minor",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::adds_subtracts_and_multiplies_exactly",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::detects_overflow_on_add_and_multiply",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::subtraction_below_zero_is_rejected",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::ratio_uses_integer_half_up_rounding"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "COM-03",
+      "level": "P0-B",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "前端篡改價格／折扣／數量不能影響伺服器計價",
+      "scope": "simulation",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "phpunit:Tests\\Unit\\Commerce\\OrderStatusTest::checkout_rejection_messages_are_localized",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::stores_only_variant_quantity_and_price_snapshot",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::enforces_line_quantity_limit",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::enforces_line_count_limit",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::update_remove_and_acknowledge_price",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::ignores_tampered_or_corrupt_session_lines",
+        "phpunit:Tests\\Feature\\Commerce\\CartTest::add_update_and_remove_items",
+        "e2e:mobile-390 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "phpunit:Tests\\Unit\\Commerce\\OrderStatusTest::checkout_rejection_messages_are_localized",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::stores_only_variant_quantity_and_price_snapshot",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::enforces_line_quantity_limit",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::enforces_line_count_limit",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::update_remove_and_acknowledge_price",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::ignores_tampered_or_corrupt_session_lines",
+        "phpunit:Tests\\Feature\\Commerce\\CartTest::add_update_and_remove_items"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "COM-04",
+      "level": "P0-B",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "最後一件庫存同時結帳只允許一單，庫存不為負",
+      "scope": "simulation",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::insufficient_stock_rejects_whole_order_without_partial_writes",
+        "phpunit:Tests\\Feature\\Commerce\\DevelopmentSeederTest::seeds_sample_products_including_a_last_item",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::eight_buyers_race_for_the_last_item_and_only_one_wins",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::twelve_buyers_with_held_locks_never_oversell_five_items",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::multi_line_carts_lock_in_fixed_order_without_deadlock_or_oversell",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::a_real_mysql_deadlock_is_detected_and_checkout_still_completes_once",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::checkout_chosen_as_deadlock_victim_is_retried_and_succeeds",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::insufficient_stock_rejects_whole_order_without_partial_writes",
+        "phpunit:Tests\\Feature\\Commerce\\DevelopmentSeederTest::seeds_sample_products_including_a_last_item",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::eight_buyers_race_for_the_last_item_and_only_one_wins",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::twelve_buyers_with_held_locks_never_oversell_five_items",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::multi_line_carts_lock_in_fixed_order_without_deadlock_or_oversell",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::a_real_mysql_deadlock_is_detected_and_checkout_still_completes_once",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::checkout_chosen_as_deadlock_victim_is_retried_and_succeeds"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "COM-05",
+      "level": "P0-B",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "相同冪等鍵重送只產生一單，且不跨 Session 共用結果",
+      "scope": "simulation",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "phpunit:Tests\\Unit\\Commerce\\CommerceSessionTest::tickets_are_random_bounded_and_session_scoped",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::resubmitting_the_same_idempotency_key_returns_the_same_order",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::another_session_cannot_reuse_a_key_to_read_the_result",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::service_level_replay_and_cross_session_isolation",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::unique_constraint_backs_idempotency_at_database_level",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::concurrent_resubmits_with_the_same_key_create_exactly_one_order",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::the_same_key_from_another_session_never_receives_someone_elses_order",
+        "e2e:mobile-390 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "phpunit:Tests\\Unit\\Commerce\\CommerceSessionTest::tickets_are_random_bounded_and_session_scoped",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::resubmitting_the_same_idempotency_key_returns_the_same_order",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::another_session_cannot_reuse_a_key_to_read_the_result",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::service_level_replay_and_cross_session_isolation",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::unique_constraint_backs_idempotency_at_database_level",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::concurrent_resubmits_with_the_same_key_create_exactly_one_order",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::the_same_key_from_another_session_never_receives_someone_elses_order"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "COM-06",
+      "level": "P0-B",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "交易中故意失敗，訂單／庫存／異動一起回復",
+      "scope": "simulation",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::insufficient_stock_rejects_whole_order_without_partial_writes",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::failure_inside_transaction_rolls_back_everything_and_sends_no_notice",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::a_transaction_failing_before_commit_leaves_no_trace_while_a_competitor_succeeds",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::a_failing_transaction_alone_rolls_back_order_items_stock_and_mutations",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::a_real_mysql_deadlock_is_detected_and_checkout_still_completes_once",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::checkout_chosen_as_deadlock_victim_is_retried_and_succeeds",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::insufficient_stock_rejects_whole_order_without_partial_writes",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::failure_inside_transaction_rolls_back_everything_and_sends_no_notice",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::a_transaction_failing_before_commit_leaves_no_trace_while_a_competitor_succeeds",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::a_failing_transaction_alone_rolls_back_order_items_stock_and_mutations",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::a_real_mysql_deadlock_is_detected_and_checkout_still_completes_once",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::checkout_chosen_as_deadlock_victim_is_retried_and_succeeds"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "COM-07",
+      "level": "P0-B",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "商品價格更動不修改歷史 order_items 快照",
+      "scope": "simulation",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "phpunit:Tests\\Feature\\Admin\\AdminCatalogTest::updating_product_and_variant_prices_is_audited_and_does_not_touch_order_snapshots",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::later_price_changes_do_not_rewrite_order_item_snapshots",
+        "phpunit:Tests\\Feature\\Admin\\AdminCatalogTest::updating_product_and_variant_prices_is_audited_and_does_not_touch_order_snapshots",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::later_price_changes_do_not_rewrite_order_item_snapshots"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "COM-08",
+      "level": "P0-B",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "取消重送不重複補庫存；不合法狀態轉換被拒",
+      "scope": "simulation",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "phpunit:Tests\\Unit\\Commerce\\OrderStatusTest::only_placed_to_cancelled_is_legal",
+        "phpunit:Tests\\Feature\\Admin\\AdminOrderTest::admin_cancels_once_and_resend_does_not_restock_again",
+        "phpunit:Tests\\Feature\\Admin\\AdminOrderTest::anonymized_orders_cannot_be_cancelled_from_admin",
+        "phpunit:Tests\\Feature\\Commerce\\OrderCancelTest::cancel_restocks_once_and_resend_is_a_noop",
+        "phpunit:Tests\\Feature\\Commerce\\OrderCancelTest::database_constraint_blocks_a_second_restock_row",
+        "phpunit:Tests\\Feature\\Commerce\\OrderCancelTest::anonymized_orders_cannot_transition",
+        "phpunit:Tests\\Feature\\Commerce\\OrderCancelTest::inventory_mutations_are_append_only",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::concurrent_cancellations_restock_only_once",
+        "phpunit:Tests\\Unit\\Commerce\\OrderStatusTest::only_placed_to_cancelled_is_legal",
+        "phpunit:Tests\\Feature\\Admin\\AdminOrderTest::admin_cancels_once_and_resend_does_not_restock_again",
+        "phpunit:Tests\\Feature\\Admin\\AdminOrderTest::anonymized_orders_cannot_be_cancelled_from_admin",
+        "phpunit:Tests\\Feature\\Commerce\\OrderCancelTest::cancel_restocks_once_and_resend_is_a_noop",
+        "phpunit:Tests\\Feature\\Commerce\\OrderCancelTest::database_constraint_blocks_a_second_restock_row",
+        "phpunit:Tests\\Feature\\Commerce\\OrderCancelTest::anonymized_orders_cannot_transition",
+        "phpunit:Tests\\Feature\\Commerce\\OrderCancelTest::inventory_mutations_are_append_only",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::concurrent_cancellations_restock_only_once"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "COM-09",
+      "level": "P0-B",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "他人 Session／猜測 token 不能讀訂單或個資",
+      "scope": "simulation",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "phpunit:Tests\\Unit\\Commerce\\CommerceSessionTest::binding_is_stable_per_session_and_differs_between_sessions",
+        "phpunit:Tests\\Unit\\Commerce\\CommerceSessionTest::tickets_are_random_bounded_and_session_scoped",
+        "phpunit:Tests\\Unit\\Commerce\\CommerceSessionTest::corrupt_ticket_and_binding_values_are_ignored",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::another_session_cannot_reuse_a_key_to_read_the_result",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::orders_require_token_and_the_same_session",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::anonymized_order_link_no_longer_works",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::the_same_key_from_another_session_never_receives_someone_elses_order",
+        "e2e:mobile-390 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "phpunit:Tests\\Unit\\Commerce\\CommerceSessionTest::binding_is_stable_per_session_and_differs_between_sessions",
+        "phpunit:Tests\\Unit\\Commerce\\CommerceSessionTest::tickets_are_random_bounded_and_session_scoped",
+        "phpunit:Tests\\Unit\\Commerce\\CommerceSessionTest::corrupt_ticket_and_binding_values_are_ignored",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::another_session_cannot_reuse_a_key_to_read_the_result",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::orders_require_token_and_the_same_session",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::anonymized_order_link_no_longer_works",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::the_same_key_from_another_session_never_receives_someone_elses_order"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "COM-10",
+      "level": "P0-B",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "商務後臺未授權者被拒，CSRF／限流測試通過",
+      "scope": "simulation",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › 未登入存取後臺一律導向登入頁",
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403",
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › 登入錯誤多次觸發限流",
+        "e2e:mobile-390 › admin-2fa.spec.mjs › 後臺 2FA（TOTP） › 拋棄式帳號完整啟用 2FA 並以 TOTP 登入，測後由 admin 停用",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › 未登入存取後臺一律導向登入頁",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › 登入錯誤多次觸發限流",
+        "e2e:tablet-768 › admin-2fa.spec.mjs › 後臺 2FA（TOTP） › 拋棄式帳號完整啟用 2FA 並以 TOTP 登入，測後由 admin 停用",
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › 未登入存取後臺一律導向登入頁",
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403",
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › 登入錯誤多次觸發限流",
+        "e2e:mobile-390 › admin-2fa.spec.mjs › 後臺 2FA（TOTP） › 拋棄式帳號完整啟用 2FA 並以 TOTP 登入，測後由 admin 停用",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › 未登入存取後臺一律導向登入頁",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › 登入錯誤多次觸發限流",
+        "e2e:tablet-768 › admin-2fa.spec.mjs › 後臺 2FA（TOTP） › 拋棄式帳號完整啟用 2FA 並以 TOTP 登入，測後由 admin 停用"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "COM-11",
+      "level": "P0-B",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "不收信用卡／真實地址、不寄真實出貨或付款通知",
+      "scope": "simulation",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:mobile-390 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "phpunit:Tests\\Unit\\Commerce\\OrderStatusTest::there_is_no_paid_or_shipped_state",
+        "phpunit:Tests\\Feature\\Admin\\AdminAuthTest::password_reset_goes_only_to_the_capture_mailer_and_does_not_enumerate",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::full_checkout_creates_order_items_stock_and_mutations",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::checkout_form_has_no_card_address_or_phone_fields",
+        "e2e:mobile-390 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:mobile-390 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "phpunit:Tests\\Unit\\Commerce\\OrderStatusTest::there_is_no_paid_or_shipped_state",
+        "phpunit:Tests\\Feature\\Admin\\AdminAuthTest::password_reset_goes_only_to_the_capture_mailer_and_does_not_enumerate",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::full_checkout_creates_order_items_stock_and_mutations",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::checkout_form_has_no_card_address_or_phone_fields"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "COM-12",
+      "level": "P0-B",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "模擬資料到期刪除／匿名化有證據，沒有永久保存預設",
+      "scope": "simulation",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::cart_expires_after_retention_days_of_inactivity",
+        "phpunit:Tests\\Feature\\Commerce\\DevelopmentSeederTest::refuses_to_run_in_production",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::retention_anonymizes_old_orders_and_purges_audit_and_sessions",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::anonymized_order_link_no_longer_works",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::retention_runs_daily_from_the_scheduler",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::retention_periods_have_bounded_project_defaults",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::cart_expires_after_retention_days_of_inactivity",
+        "phpunit:Tests\\Feature\\Commerce\\DevelopmentSeederTest::refuses_to_run_in_production",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::retention_anonymizes_old_orders_and_purges_audit_and_sessions",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::anonymized_order_link_no_longer_works",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::retention_runs_daily_from_the_scheduler",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::retention_periods_have_bounded_project_defaults"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "OPS-01",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "staging／production 秘密與資料隔離，CI 沒有正式 DB 連線",
+      "scope": "content",
+      "verification_venue": "ci_and_staging",
+      "status": "PASS",
+      "tests": [
+        "deploy:M03_wrong_or_unknown_key_rejected",
+        "deploy:M04_cross_environment_rejected",
+        "deploy:O03_rotate_db_dual_password",
+        "deploy:O04_rotate_reverts_on_failure",
+        "deploy:O05_rotate_guards_and_keyring_phases",
+        "deploy:H01_bootstrap_host_layout_keys_units",
+        "deploy:M03_wrong_or_unknown_key_rejected",
+        "deploy:M04_cross_environment_rejected",
+        "deploy:O03_rotate_db_dual_password",
+        "deploy:O04_rotate_reverts_on_failure",
+        "deploy:O05_rotate_guards_and_keyring_phases",
+        "deploy:H01_bootstrap_host_layout_keys_units"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
+    },
+    {
+      "id": "OPS-02",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "DNS、HTTPS、可信憑證與反向代理 scheme 正確",
+      "scope": "content",
+      "verification_venue": "staging_or_production",
+      "status": "BLOCKED_EXTERNAL",
+      "tests": [],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": "BLK-HOST-01",
+      "note": null
+    },
+    {
+      "id": "OPS-03",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "簽章 manifest 被竄改、跨環境、過期或重播時拒絕部署",
+      "scope": "content",
+      "verification_venue": "ci_and_staging",
+      "status": "PASS",
+      "tests": [
+        "deploy:S03_release_payload_schema_doc",
+        "deploy:M01_valid_manifest_accepted",
+        "deploy:M02_one_byte_tamper_rejected",
+        "deploy:M03_wrong_or_unknown_key_rejected",
+        "deploy:M04_cross_environment_rejected",
+        "deploy:M05_expired_or_future_rejected",
+        "deploy:M06_replay_and_sequence_rules",
+        "deploy:M07_unknown_and_dangerous_fields_rejected",
+        "deploy:M09_platform_contract_and_mysql_major",
+        "deploy:M10_envelope_strict_parsing",
+        "deploy:S03_release_payload_schema_doc",
+        "deploy:M01_valid_manifest_accepted",
+        "deploy:M02_one_byte_tamper_rejected",
+        "deploy:M03_wrong_or_unknown_key_rejected",
+        "deploy:M04_cross_environment_rejected",
+        "deploy:M05_expired_or_future_rejected",
+        "deploy:M06_replay_and_sequence_rules",
+        "deploy:M07_unknown_and_dangerous_fields_rejected",
+        "deploy:M09_platform_contract_and_mysql_major",
+        "deploy:M10_envelope_strict_parsing"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
+    },
+    {
+      "id": "OPS-04",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "只部署已測的 commit／digest，不能替換成同名 latest",
+      "scope": "content",
+      "verification_venue": "ci_and_staging",
+      "status": "PASS",
+      "tests": [
+        "deploy:S04_compose_prod_contract",
+        "deploy:S05_workflows_pinned_least_privilege",
+        "deploy:M08_digest_only_images",
+        "deploy:R01_release_happy_path_order",
+        "phpunit:Tests\\Feature\\System\\DeployStatusTest::it_is_hidden_without_valid_token",
+        "phpunit:Tests\\Feature\\System\\DeployStatusTest::it_is_hidden_when_token_not_configured",
+        "phpunit:Tests\\Feature\\System\\DeployStatusTest::it_reports_release_identity_without_sensitive_details",
+        "deploy:S04_compose_prod_contract",
+        "deploy:S05_workflows_pinned_least_privilege",
+        "deploy:M08_digest_only_images",
+        "deploy:R01_release_happy_path_order",
+        "phpunit:Tests\\Feature\\System\\DeployStatusTest::it_is_hidden_without_valid_token",
+        "phpunit:Tests\\Feature\\System\\DeployStatusTest::it_is_hidden_when_token_not_configured",
+        "phpunit:Tests\\Feature\\System\\DeployStatusTest::it_reports_release_identity_without_sensitive_details"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
+    },
+    {
+      "id": "OPS-05",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "自動部署只有一個鎖，失敗不無限重試或刪掉 volume",
+      "scope": "content",
+      "verification_venue": "ci_and_staging",
+      "status": "PASS",
+      "tests": [
+        "deploy:R02_deploy_lock_single_holder",
+        "deploy:R03_retry_limit_enforced",
+        "deploy:R10_pull_release_fixed_channel_backoff",
+        "deploy:R02_deploy_lock_single_holder",
+        "deploy:R03_retry_limit_enforced",
+        "deploy:R10_pull_release_fixed_channel_backoff"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
+    },
+    {
+      "id": "OPS-06",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "migration 前有備份與 schema 相容判斷，不能直接 destructive rollback",
+      "scope": "content",
+      "verification_venue": "ci_and_staging",
+      "status": "PASS",
+      "tests": [
+        "deploy:R01_release_happy_path_order",
+        "deploy:R04_backup_failure_stops_before_switch",
+        "deploy:R05_schema_incompatible_requires_approval",
+        "deploy:R06_first_install_requires_approval",
+        "phpunit:Tests\\Feature\\System\\HealthTest::health_and_deploy_status_stay_available_during_maintenance",
+        "deploy:R01_release_happy_path_order",
+        "deploy:R04_backup_failure_stops_before_switch",
+        "deploy:R05_schema_incompatible_requires_approval",
+        "deploy:R06_first_install_requires_approval",
+        "phpunit:Tests\\Feature\\System\\HealthTest::health_and_deploy_status_stay_available_during_maintenance"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
+    },
+    {
+      "id": "OPS-07",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "備份可在另一個乾淨環境還原，文章／媒體／模擬訂單可讀",
+      "scope": "content",
+      "verification_venue": "ci_and_staging",
+      "status": "PASS",
+      "tests": [
+        "deploy:O01_backup_records_only_after_check",
+        "deploy:O02_restore_check_refuses_non_isolated",
+        "deploy:I01_real_mysql_backup_isolated_restore",
+        "deploy:O01_backup_records_only_after_check",
+        "deploy:O02_restore_check_refuses_non_isolated",
+        "deploy:I01_real_mysql_backup_isolated_restore"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
+    },
+    {
+      "id": "OPS-08",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "主機重啟後容器、排程、媒體與資料保存正常",
+      "scope": "content",
+      "verification_venue": "staging_or_production",
+      "status": "BLOCKED_EXTERNAL",
+      "tests": [],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": "BLK-HOST-01",
+      "note": null
+    },
+    {
+      "id": "OPS-09",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "停止 Claude 開發環境不影響已部署網站",
+      "scope": "content",
+      "verification_venue": "staging_or_production",
+      "status": "BLOCKED_EXTERNAL",
+      "tests": [],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": "BLK-HOST-01",
+      "note": null
+    },
+    {
+      "id": "OPS-10",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "backup／queue／scheduler／TLS 失敗的告警確實送達核准通道",
+      "scope": "content",
+      "verification_venue": "staging_or_production",
+      "status": "BLOCKED_EXTERNAL",
+      "tests": [],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": "BLK-HOST-01",
+      "note": null
+    },
+    {
+      "id": "OPS-11",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "發布壞版能回上一安全且相容版，資料未被無聲倒帶",
+      "scope": "content",
+      "verification_venue": "ci_and_staging",
+      "status": "PASS",
+      "tests": [
+        "deploy:R07_smoke_failure_reverts_program_only",
+        "deploy:R08_rollback_requires_new_sequence",
+        "deploy:R09_rollback_refuses_unsafe_targets",
+        "deploy:R07_smoke_failure_reverts_program_only",
+        "deploy:R08_rollback_requires_new_sequence",
+        "deploy:R09_rollback_refuses_unsafe_targets"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
+    },
+    {
+      "id": "OPS-12",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "CMS／主站 cookie 隔離，preview／admin／orders 不被共享快取",
+      "scope": "content",
+      "verification_venue": "ci_and_staging",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › cookies.spec.mjs › Cookie 與快取隔離 › CMS 與主站後臺登入 cookie 皆為 host-only、名稱不同、互不送出",
+        "e2e:mobile-390 › cookies.spec.mjs › Cookie 與快取隔離 › 後臺、預覽、訂單回應為 private／no-store",
+        "e2e:mobile-390 › cookies.spec.mjs › Cookie 與快取隔離 › 匿名瀏覽公開內容頁不設定任何 cookie",
+        "e2e:mobile-390 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:tablet-768 › cookies.spec.mjs › Cookie 與快取隔離 › CMS 與主站後臺登入 cookie 皆為 host-only、名稱不同、互不送出",
+        "e2e:tablet-768 › cookies.spec.mjs › Cookie 與快取隔離 › 後臺、預覽、訂單回應為 private／no-store",
+        "e2e:tablet-768 › cookies.spec.mjs › Cookie 與快取隔離 › 匿名瀏覽公開內容頁不設定任何 cookie",
+        "e2e:tablet-768 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:desktop-1440 › cookies.spec.mjs › Cookie 與快取隔離 › CMS 與主站後臺登入 cookie 皆為 host-only、名稱不同、互不送出",
+        "e2e:desktop-1440 › cookies.spec.mjs › Cookie 與快取隔離 › 後臺、預覽、訂單回應為 private／no-store",
+        "e2e:mobile-390 › cookies.spec.mjs › Cookie 與快取隔離 › CMS 與主站後臺登入 cookie 皆為 host-only、名稱不同、互不送出",
+        "e2e:mobile-390 › cookies.spec.mjs › Cookie 與快取隔離 › 後臺、預覽、訂單回應為 private／no-store",
+        "e2e:mobile-390 › cookies.spec.mjs › Cookie 與快取隔離 › 匿名瀏覽公開內容頁不設定任何 cookie",
+        "e2e:mobile-390 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:tablet-768 › cookies.spec.mjs › Cookie 與快取隔離 › CMS 與主站後臺登入 cookie 皆為 host-only、名稱不同、互不送出",
+        "e2e:tablet-768 › cookies.spec.mjs › Cookie 與快取隔離 › 後臺、預覽、訂單回應為 private／no-store",
+        "e2e:tablet-768 › cookies.spec.mjs › Cookie 與快取隔離 › 匿名瀏覽公開內容頁不設定任何 cookie",
+        "e2e:tablet-768 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:desktop-1440 › cookies.spec.mjs › Cookie 與快取隔離 › CMS 與主站後臺登入 cookie 皆為 host-only、名稱不同、互不送出",
+        "e2e:desktop-1440 › cookies.spec.mjs › Cookie 與快取隔離 › 後臺、預覽、訂單回應為 private／no-store"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
+    },
+    {
+      "id": "OPS-13",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "憑證續期 dry-run 或等價演練成功，續期後重新載入 Nginx",
+      "scope": "content",
+      "verification_venue": "staging_or_production",
+      "status": "BLOCKED_EXTERNAL",
+      "tests": [],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": "BLK-HOST-01",
+      "note": null
+    },
+    {
+      "id": "OPS-14",
+      "level": "P1",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "30 天 SLO 觀察資料不足時標未滿觀察期，不假寫達標",
+      "scope": "content",
+      "verification_venue": "staging_or_production",
+      "status": "BLOCKED_EXTERNAL",
+      "tests": [],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": "BLK-HOST-01",
+      "note": null
+    },
+    {
+      "id": "GOV-01",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "設定目錄與 `.env.example`／秘密契約一一對應",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::development_defaults_are_valid",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::commerce_real_mode_is_rejected",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::production_requires_https_secure_cookie_and_no_debug",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::visibility_ttl_cannot_exceed_hard_limit",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::preview_ttl_cannot_exceed_900",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::content_api_host_must_be_allowlisted",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::private_api_must_be_https",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::app_and_cms_must_be_different_origins",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::root_database_user_is_rejected",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesTest::it_reads_and_strips_trailing_newline",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::development_defaults_are_valid",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::commerce_real_mode_is_rejected",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::production_requires_https_secure_cookie_and_no_debug",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::visibility_ttl_cannot_exceed_hard_limit",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::preview_ttl_cannot_exceed_900",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::content_api_host_must_be_allowlisted",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::private_api_must_be_https",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::app_and_cms_must_be_different_origins",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::root_database_user_is_rejected",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesTest::it_reads_and_strips_trailing_newline"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "GOV-02",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "外掛、依賴、映像掃描有結果；高風險未處理項阻擋發布",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:image-scan",
+        "governance:composer-audit",
+        "governance:npm-audit",
+        "governance:wp-plugin-scan",
+        "governance:image-scan",
+        "governance:composer-audit",
+        "governance:npm-audit",
+        "governance:wp-plugin-scan"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "GOV-03",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "所有測試結果可追溯 commit、環境、命令、exit code 與 artifact",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "static:state-registry",
+        "static:state-registry"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "GOV-04",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "文件、腳本介面與實際命令一致，沒有只回成功的空殼腳本",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "deploy:S01_syntax_and_safety",
+        "deploy:S02_help_and_argument_validation",
+        "deploy:S03_release_payload_schema_doc",
+        "deploy:S04_compose_prod_contract",
+        "deploy:S05_workflows_pinned_least_privilege",
+        "deploy:S06_systemd_units",
+        "deploy:H01_bootstrap_host_layout_keys_units",
+        "deploy:H02_preflight_checks",
+        "static:script-syntax-and-help",
+        "static:doc-references",
+        "deploy:S01_syntax_and_safety",
+        "deploy:S02_help_and_argument_validation",
+        "deploy:S03_release_payload_schema_doc",
+        "deploy:S04_compose_prod_contract",
+        "deploy:S05_workflows_pinned_least_privilege",
+        "deploy:S06_systemd_units",
+        "deploy:H01_bootstrap_host_layout_keys_units",
+        "deploy:H02_preflight_checks",
+        "static:script-syntax-and-help",
+        "static:doc-references"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "GOV-05",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "法律、費用、版本未知項明標待查；不虛構授權／成功紀錄",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:unknowns-marked-no-fabrication",
+        "governance:unknowns-marked-no-fabrication"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "GOV-06",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "交接者依 README 能重建、備份、還原與判斷故障服務",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403",
+        "e2e:desktop-1440 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:desktop-1440 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403",
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403",
+        "e2e:desktop-1440 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:desktop-1440 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "DAT-01",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "資料清單載明目的、欄位、保存、接收者與存取權",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:data-inventory-complete",
+        "governance:data-inventory-complete"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "DAT-02",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "log／trace／screenshot 不帶秘密、草稿或不必要個資",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "deploy:O03_rotate_db_dual_password",
+        "deploy:L02_no_secret_in_runtime_outputs",
+        "governance:artifact-secret-hygiene",
+        "phpunit:Tests\\Unit\\Commerce\\AuditRedactionTest::masks_secret_like_keys_recursively",
+        "phpunit:Tests\\Unit\\Commerce\\AuditRedactionTest::truncates_long_values_and_limits_depth_and_items",
+        "phpunit:Tests\\Unit\\Commerce\\AuditRedactionTest::minimizes_ip_addresses",
+        "phpunit:Tests\\Feature\\Admin\\AdminAuthTest::failed_logins_share_one_generic_message_and_audit_without_secrets",
+        "phpunit:Tests\\Feature\\Admin\\AdminOrderTest::export_is_admin_only_audited_and_contains_no_tokens_or_bindings",
+        "deploy:O03_rotate_db_dual_password",
+        "deploy:L02_no_secret_in_runtime_outputs",
+        "governance:artifact-secret-hygiene",
+        "phpunit:Tests\\Unit\\Commerce\\AuditRedactionTest::masks_secret_like_keys_recursively",
+        "phpunit:Tests\\Unit\\Commerce\\AuditRedactionTest::truncates_long_values_and_limits_depth_and_items",
+        "phpunit:Tests\\Unit\\Commerce\\AuditRedactionTest::minimizes_ip_addresses",
+        "phpunit:Tests\\Feature\\Admin\\AdminAuthTest::failed_logins_share_one_generic_message_and_audit_without_secrets",
+        "phpunit:Tests\\Feature\\Admin\\AdminOrderTest::export_is_admin_only_audited_and_contains_no_tokens_or_bindings"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "DAT-03",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "查詢／刪除申請依適用期限分流，不一律套 30 天",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:rights-request-deadlines",
+        "governance:rights-request-deadlines"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "DAT-04",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "隱私告知反映實際 YouTube、音訊、託管與 cookie 使用",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "e2e:mobile-390 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:mobile-390 › media.spec.mjs › 隱私說明與實際行為一致 › 隱私說明列出 youtube-nocookie 與實際設定的 cookie 名稱",
+        "e2e:tablet-768 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:tablet-768 › media.spec.mjs › 隱私說明與實際行為一致 › 隱私說明列出 youtube-nocookie 與實際設定的 cookie 名稱",
+        "e2e:desktop-1440 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:desktop-1440 › media.spec.mjs › 隱私說明與實際行為一致 › 隱私說明列出 youtube-nocookie 與實際設定的 cookie 名稱",
+        "wp-contract:dat04_privacy_page_reflects_behaviour",
+        "e2e:mobile-390 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:mobile-390 › media.spec.mjs › 隱私說明與實際行為一致 › 隱私說明列出 youtube-nocookie 與實際設定的 cookie 名稱",
+        "e2e:tablet-768 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:tablet-768 › media.spec.mjs › 隱私說明與實際行為一致 › 隱私說明列出 youtube-nocookie 與實際設定的 cookie 名稱",
+        "e2e:desktop-1440 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:desktop-1440 › media.spec.mjs › 隱私說明與實際行為一致 › 隱私說明列出 youtube-nocookie 與實際設定的 cookie 名稱",
+        "wp-contract:dat04_privacy_page_reflects_behaviour"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "DAT-05",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "公開 repo／release／artifact 沒有正式 dump、未公開文章或憑證",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "deploy:L00_deliverables_contain_no_secrets",
+        "deploy:L02_no_secret_in_runtime_outputs",
+        "static:ignore-rules",
+        "static:secret-scan-tracked",
+        "deploy:L00_deliverables_contain_no_secrets",
+        "deploy:L02_no_secret_in_runtime_outputs",
+        "static:ignore-rules",
+        "static:secret-scan-tracked"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "DAT-06",
+      "level": "P0",
+      "source": "v5 §12／執行契約 §16",
+      "expected": "還原舊備份後會重套刪除／匿名化清單，避免個資復活",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "deploy:I01_real_mysql_backup_isolated_restore",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::deletion_log_is_reapplied_after_restoring_an_old_backup",
+        "deploy:I01_real_mysql_backup_isolated_restore",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::deletion_log_is_reapplied_after_restoring_an_old_backup"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "EXEC-01",
+      "level": "P0",
+      "source": "執行契約 §17（本次執行驗收）",
+      "expected": "repo 缺 v5 檔案時能依內嵌契約開工，並誠實記錄原文件未取得；不偽造 v5 全文",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:plan-integrity-and-missing-plan-path",
+        "governance:plan-integrity-and-missing-plan-path"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "EXEC-02",
+      "level": "P0",
+      "source": "執行契約 §17（本次執行驗收）",
+      "expected": "首次雲端腳本不依賴尚未存在的檔案，不形成 setup 啟動失敗循環",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:first-run-no-missing-files",
+        "governance:first-run-no-missing-files"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "EXEC-03",
+      "level": "P0",
+      "source": "執行契約 §17（本次執行驗收）",
+      "expected": "如需 Actions 生成初始骨架，應版控的生成原始碼與 lockfiles 能安全取回並提交，不只留在 job 暫存",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "NOT_APPLICABLE",
+      "tests": [],
+      "evidence": [],
+      "blocker_id": null,
+      "note": "本案未使用 Actions 生成初始骨架：Laravel 骨架與 composer.lock／package-lock.json 於 Claude 雲端 VM 生成並直接提交（自 commit 796fadd 起，皆在 Git 歷史中）。sandbox.yml 的 bootstrap-source 路徑已備妥（只輸出第一方 lockfile、SHA256SUMS 與來源 commit），但 workflow_dispatch 須該檔存在於預設分支，合併前無法觸發，故未實際執行；日後若需以 Actions 重新解析 lockfile，應改測此項。"
+    },
+    {
+      "id": "EXEC-04",
+      "level": "P0",
+      "source": "執行契約 §17（本次執行驗收）",
+      "expected": "同一次驗收可追溯 run ID、真正 checkout SHA、lockfile 與測試結果；報告提交與受測程式提交分開",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:imported-evidence-traceable",
+        "governance:imported-evidence-traceable"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "EXEC-05",
+      "level": "P0",
+      "source": "執行契約 §17（本次執行驗收）",
+      "expected": "缺主機只阻擋 M9／M10 真實部署；內容站、模擬商店、部署工具及可在 CI 執行的測試仍推進",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:external-blockers-scoped",
+        "governance:external-blockers-scoped"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    },
+    {
+      "id": "EXEC-06",
+      "level": "P0",
+      "source": "執行契約 §17（本次執行驗收）",
+      "expected": "test trace／artifact 及 bootstrap-source 經來源核對與秘密檢查；不因除錯而公開 Cookie、票券或金鑰",
+      "scope": "content",
+      "verification_venue": "ci",
+      "status": "PASS",
+      "tests": [
+        "governance:artifact-secret-hygiene",
+        "governance:artifact-secret-hygiene"
+      ],
+      "evidence": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "note": null
+    }
+  ],
+  "last_import": [
+    {
+      "run_id": "gha-41968786436-1-content",
+      "gh_run": "41968786436",
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3",
+      "scope": "content"
+    },
+    {
+      "run_id": "gha-41968786436-1-simulation",
+      "gh_run": "41968786436",
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3",
+      "scope": "simulation"
+    }
+  ]
+}

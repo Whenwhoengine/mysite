@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         cacheDirectory="storage/framework/testing/phpunit-cache"
+         failOnRisky="true"
+         failOnWarning="true">
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory>tests/Feature</directory>
+        </testsuite>
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>app</directory>
+        </include>
+    </source>
+    <php>
+        <!-- 測試使用真實 MySQL 測試庫（不使用 SQLite）；其他驅動以測試替身隔離 -->
+        <env name="APP_ENV" value="testing" force="true"/>
+        <env name="APP_DEBUG" value="false" force="true"/>
+        <env name="APP_URL" value="http://mysite.localhost:8080" force="true"/>
+        <env name="WP_PUBLIC_URL" value="http://cms.mysite.localhost:8081" force="true"/>
+        <env force="true" name="APP_MAINTENANCE_DRIVER" value="file"/>
+        <env force="true" name="BCRYPT_ROUNDS" value="4"/>
+        <env force="true" name="BROADCAST_CONNECTION" value="null"/>
+        <env force="true" name="CACHE_STORE" value="array"/>
+        <env name="DB_CONNECTION" value="mysql" force="true"/>
+        <env name="DB_DATABASE" value="mysite_app_test" force="true"/>
+        <env name="DB_URL" value=""/>
+        <env name="MAIL_MAILER" value="array" force="true"/>
+        <env force="true" name="QUEUE_CONNECTION" value="sync"/>
+        <env force="true" name="SESSION_DRIVER" value="array"/>
+        <env name="COMMERCE_MODE" value="disabled" force="true"/>
+        <env name="PULSE_ENABLED" value="false"/>
+        <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="NIGHTWATCH_ENABLED" value="false"/>
+    </php>
+</phpunit>

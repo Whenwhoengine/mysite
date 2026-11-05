@@ -1,0 +1,58 @@
+# development 覆寫：原始碼 bind mount 以利雲端會話即時修改；入口只綁 127.0.0.1。
+services:
+  wp-php:
+    environment:
+      PHP_OPCACHE_VALIDATE_TIMESTAMPS: "1"
+    volumes:
+      - ../wp/plugins/site-content:/var/www/wp/wp-content/plugins/site-content:ro
+      - ../wp/mu-plugins:/var/www/wp/wp-content/mu-plugins:ro
+      - ../wp/acf-json:/var/www/wp/wp-content/acf-json:ro
+      - ../tests/fixtures:/opt/mysite/fixtures:ro
+
+  wp-jobs:
+    environment:
+      PHP_OPCACHE_VALIDATE_TIMESTAMPS: "1"
+    volumes:
+      - ../wp/plugins/site-content:/var/www/wp/wp-content/plugins/site-content:ro
+      - ../wp/mu-plugins:/var/www/wp/wp-content/mu-plugins:ro
+      - ../wp/acf-json:/var/www/wp/wp-content/acf-json:ro
+      - ../tests/fixtures:/opt/mysite/fixtures:ro
+
+  wp-web:
+    volumes:
+      - ../wp/plugins/site-content:/var/www/wp/wp-content/plugins/site-content:ro
+
+  app-php:
+    image: ${MYSITE_IMAGE_PREFIX:-mysite}/laravel-dev:${MYSITE_IMAGE_TAG:-local}
+    volumes: !override
+      - ../app:/var/www/app
+    environment:
+      APP_DEBUG: ${APP_DEBUG:-true}
+
+  app-worker:
+    image: ${MYSITE_IMAGE_PREFIX:-mysite}/laravel-dev:${MYSITE_IMAGE_TAG:-local}
+    volumes: !override
+      - ../app:/var/www/app
+
+  app-scheduler:
+    image: ${MYSITE_IMAGE_PREFIX:-mysite}/laravel-dev:${MYSITE_IMAGE_TAG:-local}
+    volumes: !override
+      - ../app:/var/www/app
+
+  app-web:
+    image: ${MYSITE_IMAGE_PREFIX:-mysite}/app-web-dev:${MYSITE_IMAGE_TAG:-local}
+    volumes:
+      - ../app/public:/var/www/app/public:ro
+
+  gateway:
+    environment:
+      NGINX_ENVSUBST_TEMPLATE_DIR: /etc/nginx/templates/http
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:8080"
+      - "127.0.0.1:${CMS_PORT:-8081}:8081"
+
+  tools:
+    volumes:
+      - ../scripts:/opt/mysite/scripts:ro
+      - ../app:/var/www/app
+      - ../tests:/opt/mysite/tests:ro

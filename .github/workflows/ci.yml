@@ -1,0 +1,116 @@
+# mysite CI：工作分支 push 與 PR 的乾淨 runner 驗證（與 Claude VM 共用 scripts/ci/verify.sh 標準）。
+# 只使用合成秘密；不接觸任何正式秘密、簽章金鑰或部署權限（CLD-10）。
+name: ci
+
+on:
+  push:
+    branches: ["main", "claude/**"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# 「WIP」施工快照只跑靜態檢查，且與正式提交分屬不同群組，不會取消正式提交的完整驗證
+concurrency:
+  group: ci-${{ github.ref }}-${{ (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'WIP')) && 'wip' || 'full' }}
+  cancel-in-progress: true
+
+env:
+  MYSITE_EXECUTION_BACKEND: github-actions
+  # Docker 官方映像改由 digest 相同的 ECR Public 取得，避免匿名拉取限流（ADR-004）
+  MYSITE_BASE_IMAGE_REGISTRY: public.ecr.aws/docker/library
+
+jobs:
+  static:
+    name: 靜態檢查與秘密掃描
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout（含完整歷史供秘密掃描）
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: 腳本、狀態、忽略規則、Blade 與版本鎖定檢查
+        run: bash scripts/ci/verify.sh --scope=content --steps=static
+      - name: Workflow 語法（actionlint）
+        run: |
+          set -a; source infra/versions.env; set +a
+          docker run --rm -v "$PWD:/repo" -w /repo "docker.io/${ACTIONLINT_IMAGE_REF}" -no-color
+      - name: 完整 Git 歷史秘密掃描（gitleaks）
+        run: |
+          set -a; source infra/versions.env; set +a
+          docker run --rm -v "$PWD:/repo" -w /repo "docker.io/${GITLEAKS_IMAGE_REF}" git --redact --no-banner --exit-code 1 /repo
+      - name: 上傳靜態檢查結果
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: static-${{ github.run_id }}
+          path: .runtime/results/
+          retention-days: 14
+          if-no-files-found: warn
+
+  verify:
+    name: 整合驗證（${{ matrix.scope }}）
+    needs: static
+    # 靜態檢查失敗仍執行整合驗證，以取得完整失敗清單（整體結果仍為失敗）；WIP 快照不跑
+    if: ${{ !cancelled() && !(github.event_name == 'push' && startsWith(github.event.head_commit.message, 'WIP')) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        scope: [content, simulation]
+    steps:
+      - name: Checkout（完整歷史：治理檢查需核對初始提交與證據追溯）
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: 雲端預檢（記錄 runner 能力）
+        run: bash scripts/cloud/preflight.sh
+      - name: 本機測試主機名稱（只對應 127.0.0.1）
+        run: echo '127.0.0.1 mysite.localhost cms.mysite.localhost' | sudo tee -a /etc/hosts
+      - name: 安裝 E2E 瀏覽器（鎖定版本）
+        run: |
+          if [ -f tests/e2e/package-lock.json ]; then
+            cd tests/e2e && npm ci --no-audit --no-fund && npx playwright install --with-deps chromium
+          fi
+      - name: 乾淨重建與測試（scripts/ci/verify.sh）
+        env:
+          MYSITE_RUN_ID: gha-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.scope }}
+        run: bash scripts/ci/verify.sh --scope=${{ matrix.scope }}
+      - name: 去秘密化診斷（失敗時）
+        if: failure()
+        run: |
+          mkdir -p .runtime/results/diagnostics
+          for p in mysite-test; do
+            docker ps -a --filter "label=com.docker.compose.project=${p}" --format '{{.Names}} {{.Status}}' > .runtime/results/diagnostics/ps.txt || true
+            for c in $(docker ps -a --filter "label=com.docker.compose.project=${p}" --format '{{.Names}}'); do
+              docker logs --tail 200 "$c" 2>&1 | sed -E 's/(password|secret|token|ticket|signature|authorization|cookie)([=: ]+)[^ ]+/\1\2***/Ig' > ".runtime/results/diagnostics/${c}.log" || true
+            done
+          done
+          bash scripts/ci/secret-scan.sh --path=.runtime/results || { echo '診斷檔疑似含秘密，刪除後不上傳'; rm -rf .runtime/results/diagnostics; }
+      - name: 上傳證據
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: evidence-${{ matrix.scope }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            docs/evidence/
+            .runtime/results/
+            .runtime/evidence/doctor-testing.json
+            .runtime/evidence/web-php-testing.jsonl
+            tests/e2e/screenshots/
+          retention-days: 14
+          if-no-files-found: warn
+      - name: 只清理本 job 的測試資源
+        if: always()
+        env:
+          MYSITE_SECRETS_DIR: .runtime/secrets/testing
+          MYSITE_DIST_DIR: .runtime/dist
+        run: |
+          docker compose -p mysite-test --env-file infra/versions.env --env-file .runtime/env/testing.env \
+            -f infra/compose.base.yml -f infra/compose.ci.yml down -v --remove-orphans || true

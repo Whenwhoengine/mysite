@@ -1,0 +1,88 @@
+{
+    "key": "group_sc_common",
+    "title": "主站顯示",
+    "fields": [
+        {
+            "key": "field_sc_is_sample",
+            "label": "示例內容",
+            "name": "sc_is_sample",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "勾選後主站會標示「示例內容」。正式內容請取消勾選。",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "這是示例內容",
+            "default_value": 0,
+            "allow_in_bindings": 0,
+            "ui": 1,
+            "ui_on_text": "是",
+            "ui_off_text": "否"
+        },
+        {
+            "key": "field_sc_exclude",
+            "label": "不在主站公開",
+            "name": "sc_exclude",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "勾選後即使已發布，也不會出現在主站與公開 API（例如暫時下架）。",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "從主站排除",
+            "default_value": 0,
+            "allow_in_bindings": 0,
+            "ui": 1,
+            "ui_on_text": "排除",
+            "ui_off_text": "公開"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "post"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "page"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "sc_video"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "sc_podcast"
+            }
+        ]
+    ],
+    "menu_order": 10,
+    "position": "side",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "四種內容共用的主站顯示旗標（site-content 外掛契約欄位）。",
+    "show_in_rest": 1,
+    "modified": 1793750400
+}

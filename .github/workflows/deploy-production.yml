@@ -1,0 +1,161 @@
+# mysite deploy-production：只把「已在 staging 驗證過的同一批 digest」簽署成 production 清單並發布到 channel-production，
+# 需 production environment 核准；不重新建置、不重新 resolve 依賴（v5 §14.1、§14.3、§14.5–14.8）。
+# 主機主動拉取；本 workflow 不連線主機、不執行任何 PR 程式。上傳清單 ≠ 部署成功；逾時記 DEPLOYMENT_UNCONFIRMED。
+#
+# 需要的 GitHub 設定（由委託人在瀏覽器設定，皆不得寫入 repo）：
+#   environment「production」（必須設 required reviewers）secrets：RELEASE_SIGNING_KEY_ED25519、DEPLOY_STATUS_TOKEN
+#   environment「production」variables：RELEASE_SIGNING_KEY_ID（production-…）、APP_HOST、CMS_HOST
+#   repository variables：RELEASE_PUBLIC_KEY_STAGING、RELEASE_PUBLIC_KEY_PRODUCTION（公鑰 PEM，非秘密）
+name: deploy-production
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_run_id:
+        description: release.yml 的 run ID（候選版來源）
+        required: true
+        type: string
+      schema_change_class:
+        description: schema 變更分類（none／expand 主機自動執行；contract／breaking 需主機端核准）
+        required: true
+        type: choice
+        options: [none, expand, contract, breaking]
+      migration_plan_ref:
+        description: contract／breaking 必填的 migration 核准參照
+        required: false
+        type: string
+      rollback_target_release:
+        description: 只在程式回復時填寫：要回到的既有 release_id（images 必須與候選版相同）
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: 簽署並發布 production 清單（需核准）
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    environment: production
+    permissions:
+      contents: write   # 建立 channel／不可變紀錄 release asset
+      actions: read     # 讀取 release.yml 的候選版 artifact
+    steps:
+      - name: Checkout（部署工具取自 main 的已審核版本）
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: 確認觸發分支與輸入格式
+        env:
+          REF: ${{ github.ref }}
+          RUN_ID: ${{ inputs.release_run_id }}
+          PLAN: ${{ inputs.migration_plan_ref }}
+          TARGET: ${{ inputs.rollback_target_release }}
+          CLS: ${{ inputs.schema_change_class }}
+        run: |
+          set -euo pipefail
+          [ "$REF" = "refs/heads/main" ] || { echo "::error::只能從 main 執行部署 workflow"; exit 1; }
+          printf '%s' "$RUN_ID" | grep -Eq '^[0-9]{1,20}$' || { echo "::error::release_run_id 格式不合法"; exit 1; }
+          if [ -n "$PLAN" ]; then printf '%s' "$PLAN" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9._:/#-]{2,199}$' || { echo "::error::migration_plan_ref 格式不合法"; exit 1; }; fi
+          if [ -n "$TARGET" ]; then printf '%s' "$TARGET" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9._-]{2,79}$' || { echo "::error::rollback_target_release 格式不合法"; exit 1; }; fi
+          case "$CLS" in contract|breaking) [ -n "$PLAN" ] || { echo "::error::contract／breaking 必須填 migration_plan_ref"; exit 1; } ;; esac
+      - name: 確認候選版來自 main 上成功的 release.yml
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.release_run_id }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          info="$(gh run view "$RUN_ID" --repo "$REPO" --json conclusion,headBranch,workflowName --jq '[.conclusion,.headBranch,.workflowName]|join(" ")')"
+          [ "$info" = "success main release" ] || { echo "::error::run ${RUN_ID} 不是 main 上成功的 release（${info}）"; exit 1; }
+      - name: 下載候選版
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-candidate
+          path: candidate
+          run-id: ${{ inputs.release_run_id }}
+          github-token: ${{ github.token }}
+      - name: 確認同一批 digest 已在 staging 部署並驗證
+        # 程式回復（rollback_target_release）改由主機核對「目標曾在 production 成功啟用且 digest 相同」
+        if: inputs.rollback_target_release == ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          STAGING_KEY: ${{ vars.RELEASE_PUBLIC_KEY_STAGING }}
+        run: |
+          set -euo pipefail
+          [ -n "$STAGING_KEY" ] || { echo "::error::缺 repository variable RELEASE_PUBLIC_KEY_STAGING"; exit 1; }
+          printf '%s\n' "$STAGING_KEY" > "$RUNNER_TEMP/staging-pub.pem"
+          bash scripts/lib/release-ci.sh current-channel --env=staging --public-key="$RUNNER_TEMP/staging-pub.pem" --out="$RUNNER_TEMP/staging.json"
+          if ! jq -e --slurpfile c candidate/release-candidate.json '.images == $c[0].images' "$RUNNER_TEMP/staging.json" >/dev/null; then
+            echo "::error::候選版 digest 與 channel-staging 目前清單不同；production 只能部署 staging 已驗證的同一批 digest"; exit 1
+          fi
+          last="$(gh run list --repo "$REPO" --workflow deploy-staging.yml --branch main --limit 1 --json conclusion --jq '.[0].conclusion // ""')"
+          [ "$last" = "success" ] || { echo "::error::最近一次 deploy-staging 未成功（${last:-無紀錄}）：staging 尚未確認"; exit 1; }
+      - name: 讀取目前 channel、分配新序號、檢查 schema 宣告
+        id: seq
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PUBLIC_KEY: ${{ vars.RELEASE_PUBLIC_KEY_PRODUCTION }}
+          CLS: ${{ inputs.schema_change_class }}
+        run: |
+          set -euo pipefail
+          [ -n "$PUBLIC_KEY" ] || { echo "::error::缺 repository variable RELEASE_PUBLIC_KEY_PRODUCTION（BLOCKED_EXTERNAL）"; exit 1; }
+          printf '%s\n' "$PUBLIC_KEY" > "$RUNNER_TEMP/production-pub.pem"
+          bash scripts/lib/release-ci.sh current-channel --env=production --public-key="$RUNNER_TEMP/production-pub.pem" --out="$RUNNER_TEMP/current.json"
+          seq=$(( $(jq -r '.sequence' "$RUNNER_TEMP/current.json") + 1 ))
+          prev="$(jq -r '.release_id // empty' "$RUNNER_TEMP/current.json")"
+          from="$(jq -r '.source_commit // empty' "$RUNNER_TEMP/current.json")"
+          to="$(jq -r '.source_commit' candidate/release-candidate.json)"
+          bash scripts/lib/release-ci.sh schema-guard --from="$from" --to="$to" --class="$CLS"
+          { echo "sequence=${seq}"; echo "previous=${prev}"; echo "commit=${to}"; } >> "$GITHUB_OUTPUT"
+      - name: 簽署 production 清單（私鑰只存在本 job 的暫存檔）
+        env:
+          SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY_ED25519 }}
+          KEY_ID: ${{ vars.RELEASE_SIGNING_KEY_ID }}
+          CLS: ${{ inputs.schema_change_class }}
+          PLAN: ${{ inputs.migration_plan_ref }}
+          TARGET: ${{ inputs.rollback_target_release }}
+          SEQ: ${{ steps.seq.outputs.sequence }}
+          PREV: ${{ steps.seq.outputs.previous }}
+        run: |
+          set -euo pipefail
+          [ -n "$SIGNING_KEY" ] && [ -n "$KEY_ID" ] || { echo "::error::缺 production 簽章金鑰設定（BLOCKED_EXTERNAL）"; exit 1; }
+          umask 077
+          printf '%s\n' "$SIGNING_KEY" > "$RUNNER_TEMP/signing-key.pem"
+          bash scripts/lib/release-ci.sh make-envelope --env=production --candidate=candidate/release-candidate.json \
+            --sequence="$SEQ" --class="$CLS" --plan-ref="$PLAN" --previous="$PREV" --rollback-target="$TARGET" \
+            --key-file="$RUNNER_TEMP/signing-key.pem" --key-id="$KEY_ID" --public-key="$RUNNER_TEMP/production-pub.pem" \
+            --out="$RUNNER_TEMP/release-envelope.json"
+          rm -f "$RUNNER_TEMP/signing-key.pem"
+      - name: 發布到 channel-production（＋不可變紀錄）
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SEQ: ${{ steps.seq.outputs.sequence }}
+          COMMIT: ${{ steps.seq.outputs.commit }}
+        run: bash scripts/lib/release-ci.sh publish --env=production --envelope="$RUNNER_TEMP/release-envelope.json" --sequence="$SEQ" --commit="$COMMIT"
+      - name: 等待主機回報（逾時＝DEPLOYMENT_UNCONFIRMED）
+        id: wait
+        env:
+          DEPLOY_STATUS_TOKEN: ${{ secrets.DEPLOY_STATUS_TOKEN }}
+          APP_HOST: ${{ vars.APP_HOST }}
+        run: |
+          set -euo pipefail
+          rid="$(python3 -I scripts/lib/manifest.py read-verified --envelope "$RUNNER_TEMP/release-envelope.json" --public-key "$RUNNER_TEMP/production-pub.pem" --field release_id)"
+          [ -n "$APP_HOST" ] || { echo "::error::DEPLOYMENT_UNCONFIRMED：缺 environment variable APP_HOST"; exit 1; }
+          # 暫定：等待上限 40 分鐘（主機每 5 分鐘拉取＋備份＋換版）
+          bash scripts/lib/release-ci.sh wait-status --url="https://${APP_HOST}/internal/deploy-status" --release-id="$rid" --timeout=2400
+      - name: 公開 HTTPS 冒煙
+        env:
+          APP_HOST: ${{ vars.APP_HOST }}
+          CMS_HOST: ${{ vars.CMS_HOST }}
+        run: bash scripts/lib/release-ci.sh external-smoke --app-host="$APP_HOST" --cms-host="$CMS_HOST"
+      - name: 清除暫存
+        if: always()
+        run: rm -f "$RUNNER_TEMP/signing-key.pem" "$RUNNER_TEMP/release-envelope.json"

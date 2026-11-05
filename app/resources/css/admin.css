@@ -1,0 +1,39 @@
+/* Laravel 管理後臺樣式入口（沿用同一組 token）。由後臺工作包擴充。 */
+@import './tokens.css';
+@import './base.css';
+@import './layout.css';
+@import './components.css';
+@import './shop.css';
+
+/* ---- 後臺版面 ---- */
+.admin-header { border-bottom: 1px solid var(--color-border); background: var(--color-surface); }
+.admin-header__inner { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); padding: var(--space-3) var(--space-4); max-width: var(--container); margin-inline: auto; }
+.admin-nav__list { display: flex; flex-wrap: wrap; gap: var(--space-1); list-style: none; margin: 0; padding: 0; }
+.admin-nav__link { display: inline-flex; align-items: center; min-height: var(--tap-target); padding: 0 var(--space-3); border-radius: var(--radius-sm); color: var(--color-text-muted); text-decoration: none; }
+.admin-nav__link:visited { color: var(--color-text-muted); }
+.admin-nav__link:hover, .admin-nav__link[aria-current="page"] { color: var(--color-text); background: var(--color-surface-2); }
+.admin-user { display: flex; align-items: center; gap: var(--space-2); margin-left: auto; flex-wrap: wrap; }
+.admin-main { max-width: var(--container); margin-inline: auto; padding: var(--space-5) var(--space-4) var(--space-8); display: grid; gap: var(--space-5); min-width: 0; }
+.admin-main > * { min-width: 0; }
+.admin-mode { margin: 0; }
+.admin-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.admin-toolbar h1 { margin: 0; }
+.admin-stats { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr)); list-style: none; margin: 0; padding: 0; }
+.admin-stat { display: grid; gap: var(--space-1); padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
+.admin-stat__label { color: var(--color-text-subtle); font-size: var(--text-sm); }
+.admin-stat__value { font-size: var(--text-2xl); font-weight: 800; font-variant-numeric: tabular-nums; }
+.admin-stat__hint { color: var(--color-text-muted); font-size: var(--text-sm); }
+.admin-inline-form { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+.admin-inline-form .input { width: auto; flex: 1 1 8rem; }
+.admin-input--short { max-width: 8rem; }
+.admin-audit__meta { white-space: pre-wrap; word-break: break-all; font-size: var(--text-xs); }
+.admin-panel { display: grid; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
+.admin-panel form { margin: 0; }
+.admin-qr { background: #fff; padding: var(--space-2); border-radius: var(--radius-sm); width: 192px; height: 192px; }
+.admin-codes { columns: 2; list-style: none; padding: 0; margin: 0; font-family: var(--font-mono); }
+
+/* ---- 登入等認證頁 ---- */
+.admin--auth { display: grid; place-items: center; padding: var(--space-5) var(--space-4); }
+.auth-card { width: 100%; max-width: 28rem; display: grid; gap: var(--space-4); padding: var(--space-5); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); }
+.auth-card h1 { margin: 0; font-size: var(--text-2xl); }
+.auth-card__note { margin: 0; }

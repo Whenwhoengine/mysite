@@ -1,0 +1,312 @@
+# mysite 共用服務定義（development／testing／staging／production 共用；差異由 override 注入）。
+# 必須以 --env-file infra/versions.env --env-file <環境設定檔> 執行；不得在此寫入秘密值。
+name: ${COMPOSE_PROJECT_NAME:?COMPOSE_PROJECT_NAME 必須由腳本指定}
+
+# 映像由 scripts/lib/build.sh 建置（docker build）；Compose 只引用映像 tag。
+
+x-app-env: &app-env
+  APP_ENV: ${MYSITE_ENVIRONMENT}
+  APP_DEBUG: ${APP_DEBUG:-false}
+  APP_URL: ${APP_URL}
+  APP_LOCALE: ${APP_LOCALE:-zh_TW}
+  APP_FALLBACK_LOCALE: zh_TW
+  APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Taipei}
+  APP_KEY_FILE: /run/secrets/app_key
+  LOG_CHANNEL: stderr_json
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  DB_CONNECTION: mysql
+  DB_HOST: mysql
+  DB_PORT: "3306"
+  DB_DATABASE: ${APP_DB_NAME:-mysite_app}
+  DB_USERNAME: ${APP_DB_USER:-mysite_app}
+  DB_PASSWORD_FILE: /run/secrets/app_db_password
+  DB_TEST_DATABASE: ${APP_TEST_DB_NAME:-}
+  CACHE_STORE: database
+  SESSION_DRIVER: database
+  SESSION_COOKIE: mysite_app_session
+  SESSION_SECURE_COOKIE: ${SESSION_SECURE_COOKIE:-false}
+  SESSION_ENCRYPT: ${SESSION_ENCRYPT:-true}
+  SESSION_LIFETIME: "120"
+  QUEUE_CONNECTION: database
+  MAIL_MAILER: ${MAIL_MAILER:-log}
+  WP_PUBLIC_URL: ${WP_PUBLIC_URL}
+  CONTENT_API_BASE_URL: ${CONTENT_API_BASE_URL:-http://wp-web:8080/wp-json/site-content/v1}
+  CONTENT_PRIVATE_API_BASE_URL: ${CONTENT_PRIVATE_API_BASE_URL:-https://wp-web:8443/wp-json/site-content/v1}
+  CONTENT_PRIVATE_API_CA_FILE: /run/secrets/internal_ca_cert
+  CONTENT_SERVICE_USERNAME: ${CONTENT_SERVICE_USERNAME:-mysite-service}
+  CONTENT_SERVICE_APP_PASSWORD_FILE: /run/secrets/wp_service_app_password
+  CONTENT_EVENT_URL: ${CONTENT_EVENT_URL:-http://app-web:8080/internal/content-events/v1}
+  CONTENT_EVENT_KEY_ID: ${CONTENT_EVENT_KEY_ID:-k1}
+  CONTENT_EVENT_HMAC_KEY_FILE: /run/secrets/content_event_hmac_key
+  PREVIEW_SIGNING_KEY_FILE: /run/secrets/preview_signing_key
+  DIAGNOSTICS_TOKEN_FILE: /run/secrets/diagnostics_token
+  DEPLOY_STATUS_TOKEN_FILE: /run/secrets/deploy_status_token
+  CONTENT_CONNECT_TIMEOUT_SECONDS: ${CONTENT_CONNECT_TIMEOUT_SECONDS:-2}
+  CONTENT_HTTP_TIMEOUT_SECONDS: ${CONTENT_HTTP_TIMEOUT_SECONDS:-5}
+  CONTENT_VISIBILITY_TTL_SECONDS: ${CONTENT_VISIBILITY_TTL_SECONDS:-30}
+  CONTENT_BODY_CACHE_TTL_SECONDS: ${CONTENT_BODY_CACHE_TTL_SECONDS:-300}
+  PREVIEW_TTL_SECONDS: ${PREVIEW_TTL_SECONDS:-600}
+  PODCAST_AUDIO_ALLOWED_HOSTS: ${PODCAST_AUDIO_ALLOWED_HOSTS:-}
+  COMMERCE_MODE: ${COMMERCE_MODE:-disabled}
+  SIMULATION_DATA_RETENTION_DAYS: ${SIMULATION_DATA_RETENTION_DAYS:-30}
+  CART_RETENTION_DAYS: ${CART_RETENTION_DAYS:-7}
+  AUDIT_RETENTION_DAYS: ${AUDIT_RETENTION_DAYS:-90}
+  TRUSTED_PROXIES: ${EDGE_SUBNET:-172.30.10.0/24}
+  DEPLOY_ENVIRONMENT: ${DEPLOY_ENVIRONMENT:-}
+  DEPLOY_CHANNEL: ${DEPLOY_CHANNEL:-}
+  RELEASE_ID: ${RELEASE_ID:-unreleased}
+  MYSITE_SOURCE_COMMIT: ${MYSITE_SOURCE_COMMIT:-unknown}
+
+x-app-secrets: &app-secrets
+  - app_key
+  - app_db_password
+  - content_event_hmac_key
+  - preview_signing_key
+  - wp_service_app_password
+  - internal_ca_cert
+  - diagnostics_token
+  - deploy_status_token
+
+x-wp-env: &wp-env
+  WP_ENVIRONMENT_TYPE: ${WP_ENVIRONMENT_TYPE}
+  WP_CLI_CACHE_DIR: /tmp/wp-cli-cache
+  WP_CLI_DISABLE_AUTO_CHECK_UPDATE: "1"
+  PAGER: cat
+  WP_DB_HOST: mysql
+  WP_DB_NAME: ${WP_DB_NAME:-mysite_wp}
+  WP_DB_USER: ${WP_DB_USER:-mysite_wp}
+  WP_DB_PASSWORD_FILE: /run/secrets/wp_db_password
+  WP_SALTS_FILE: /run/secrets/wp_salts
+  WP_PUBLIC_URL: ${WP_PUBLIC_URL}
+  MYSITE_APP_URL: ${APP_URL}
+  CONTENT_EVENT_URL: ${CONTENT_EVENT_URL:-http://app-web:8080/internal/content-events/v1}
+  CONTENT_EVENT_KEY_ID: ${CONTENT_EVENT_KEY_ID:-k1}
+  CONTENT_EVENT_HMAC_KEY_FILE: /run/secrets/content_event_hmac_key
+  PREVIEW_SIGNING_KEY_FILE: /run/secrets/preview_signing_key
+  PREVIEW_TTL_SECONDS: ${PREVIEW_TTL_SECONDS:-600}
+  PODCAST_AUDIO_ALLOWED_HOSTS: ${PODCAST_AUDIO_ALLOWED_HOSTS:-}
+  DIAGNOSTICS_TOKEN_FILE: /run/secrets/diagnostics_token
+  MYSITE_SOURCE_COMMIT: ${MYSITE_SOURCE_COMMIT:-unknown}
+
+x-wp-secrets: &wp-secrets
+  - wp_db_password
+  - wp_salts
+  - content_event_hmac_key
+  - preview_signing_key
+  - diagnostics_token
+
+services:
+  mysql:
+    image: ${BASE_IMAGE_REGISTRY}/${MYSQL_IMAGE_REF}
+    restart: unless-stopped
+    # 以 mysql 使用者（999）加入秘密檔群組 33 執行，才能讀取 0640 root:33 的秘密檔
+    user: "999:33"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --default-time-zone=+00:00
+      - --skip-name-resolve
+      - --log-error-verbosity=2
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
+      MYSITE_WP_DB_NAME: ${WP_DB_NAME:-mysite_wp}
+      MYSITE_WP_DB_USER: ${WP_DB_USER:-mysite_wp}
+      MYSITE_APP_DB_NAME: ${APP_DB_NAME:-mysite_app}
+      MYSITE_APP_DB_USER: ${APP_DB_USER:-mysite_app}
+      MYSITE_APP_TEST_DB_NAME: ${APP_TEST_DB_NAME:-}
+    secrets: [mysql_root_password, wp_db_password, app_db_password]
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro
+    networks: [db]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 20s
+
+  wp-php:
+    image: ${MYSITE_IMAGE_PREFIX:-mysite}/wordpress:${MYSITE_IMAGE_TAG:-local}
+    restart: unless-stopped
+    environment: *wp-env
+    secrets: *wp-secrets
+    volumes:
+      - wp-uploads:/var/www/wp/wp-content/uploads
+    networks: [backend, db]
+    depends_on:
+      mysql: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 9000) ? 0 : 1);"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  wp-jobs:
+    image: ${MYSITE_IMAGE_PREFIX:-mysite}/wordpress:${MYSITE_IMAGE_TAG:-local}
+    restart: unless-stopped
+    user: www-data
+    environment:
+      <<: *wp-env
+      MYSITE_ROLE: jobs
+      WP_JOBS_INTERVAL_SECONDS: ${WP_JOBS_INTERVAL_SECONDS:-30}
+    secrets: *wp-secrets
+    volumes:
+      - wp-uploads:/var/www/wp/wp-content/uploads
+    networks: [backend, db]
+    depends_on:
+      wp-php: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/mysite-wp-jobs/heartbeat && [ $(( $(date +%s) - $(cat /tmp/mysite-wp-jobs/heartbeat) )) -lt 300 ]"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+
+  wp-web:
+    image: ${MYSITE_IMAGE_PREFIX:-mysite}/wp-web:${MYSITE_IMAGE_TAG:-local}
+    restart: unless-stopped
+    environment:
+      EDGE_SUBNET: ${EDGE_SUBNET:-172.30.10.0/24}
+    secrets: [wp_internal_tls_cert, wp_internal_tls_key]
+    volumes:
+      - wp-uploads:/var/www/wp/wp-content/uploads:ro
+    networks: [edge, backend]
+    depends_on:
+      wp-php: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/wp-json/site-content/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
+  app-php:
+    image: ${MYSITE_IMAGE_PREFIX:-mysite}/laravel:${MYSITE_IMAGE_TAG:-local}
+    restart: unless-stopped
+    environment: *app-env
+    secrets: *app-secrets
+    volumes:
+      - app-storage:/var/www/app/storage
+    networks: [backend, db]
+    depends_on:
+      mysql: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 9000) ? 0 : 1);"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  app-worker:
+    image: ${MYSITE_IMAGE_PREFIX:-mysite}/laravel:${MYSITE_IMAGE_TAG:-local}
+    restart: unless-stopped
+    user: www-data
+    environment:
+      <<: *app-env
+      MYSITE_ROLE: worker
+    secrets: *app-secrets
+    volumes:
+      - app-storage:/var/www/app/storage
+    networks: [backend, db]
+    depends_on:
+      app-php: { condition: service_healthy }
+
+  app-scheduler:
+    image: ${MYSITE_IMAGE_PREFIX:-mysite}/laravel:${MYSITE_IMAGE_TAG:-local}
+    restart: unless-stopped
+    user: www-data
+    environment:
+      <<: *app-env
+      MYSITE_ROLE: scheduler
+    secrets: *app-secrets
+    volumes:
+      - app-storage:/var/www/app/storage
+    networks: [backend, db]
+    depends_on:
+      app-php: { condition: service_healthy }
+
+  app-web:
+    image: ${MYSITE_IMAGE_PREFIX:-mysite}/app-web:${MYSITE_IMAGE_TAG:-local}
+    restart: unless-stopped
+    networks: [edge, backend]
+    depends_on:
+      app-php: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  gateway:
+    image: ${MYSITE_IMAGE_PREFIX:-mysite}/gateway:${MYSITE_IMAGE_TAG:-local}
+    restart: unless-stopped
+    environment:
+      MYSITE_ENVIRONMENT: ${MYSITE_ENVIRONMENT}
+      APP_HOST: ${APP_HOST:-_}
+      CMS_HOST: ${CMS_HOST:-_}
+      MYSITE_HSTS_HEADER: ${MYSITE_HSTS_HEADER:-}
+      MYSITE_LOGIN_RATE: ${MYSITE_LOGIN_RATE:-10r/m}
+    networks: [edge]
+    depends_on:
+      app-web: { condition: service_healthy }
+      wp-web: { condition: service_healthy }
+
+  # 工具容器：artisan／PHPUnit（容器網路內，與執行期同一 PHP 8.5.12）；只在 tools／test profile 啟動
+  tools:
+    image: ${MYSITE_TOOLS_IMAGE:-mysite/laravel-dev:local}
+    profiles: ["tools", "test"]
+    entrypoint: []
+    working_dir: /var/www/app
+    environment:
+      <<: *app-env
+      MYSITE_ROLE: cli
+    secrets: *app-secrets
+    networks: [backend, db, edge]
+    depends_on:
+      mysql: { condition: service_healthy }
+
+networks:
+  edge:
+    ipam:
+      config: [{ subnet: "${EDGE_SUBNET:-172.30.10.0/24}" }]
+  backend:
+    internal: true
+    ipam:
+      config: [{ subnet: "${BACKEND_SUBNET:-172.30.20.0/24}" }]
+  db:
+    internal: true
+    ipam:
+      config: [{ subnet: "${DB_SUBNET:-172.30.30.0/24}" }]
+
+volumes:
+  mysql-data:
+  wp-uploads:
+  app-storage:
+
+secrets:
+  mysql_root_password:
+    file: ${MYSITE_SECRETS_DIR}/mysql_root_password
+  wp_db_password:
+    file: ${MYSITE_SECRETS_DIR}/wp_db_password
+  app_db_password:
+    file: ${MYSITE_SECRETS_DIR}/app_db_password
+  app_key:
+    file: ${MYSITE_SECRETS_DIR}/app_key
+  wp_salts:
+    file: ${MYSITE_SECRETS_DIR}/wp_salts
+  content_event_hmac_key:
+    file: ${MYSITE_SECRETS_DIR}/content_event_hmac_key
+  preview_signing_key:
+    file: ${MYSITE_SECRETS_DIR}/preview_signing_key
+  wp_service_app_password:
+    file: ${MYSITE_SECRETS_DIR}/wp_service_app_password
+  internal_ca_cert:
+    file: ${MYSITE_SECRETS_DIR}/internal_ca_cert
+  wp_internal_tls_cert:
+    file: ${MYSITE_SECRETS_DIR}/wp_internal_tls_cert
+  wp_internal_tls_key:
+    file: ${MYSITE_SECRETS_DIR}/wp_internal_tls_key
+  diagnostics_token:
+    file: ${MYSITE_SECRETS_DIR}/diagnostics_token
+  deploy_status_token:
+    file: ${MYSITE_SECRETS_DIR}/deploy_status_token

@@ -1,0 +1,61 @@
+/* mysite 設計 token：深色、高對比、閱讀優先（WCAG 2.2 AA 為設計目標）。所有頁面只用這些變數。 */
+:root {
+    color-scheme: dark;
+
+    /* 色彩（文字對背景對比 ≥ 4.5:1；大型文字與 UI ≥ 3:1） */
+    --color-bg: #0f1115;
+    --color-surface: #171a21;
+    --color-surface-2: #1f232c;
+    --color-border: #2e3440;
+    --color-border-strong: #4a5263;
+    --color-text: #eceff4;
+    --color-text-muted: #b4bccb;
+    --color-text-subtle: #98a2b3;
+    --color-accent: #ffb547;          /* 影音辨識色：琥珀 */
+    --color-accent-strong: #ffc875;
+    --color-accent-contrast: #1a1205;
+    --color-link: #8cc8ff;
+    --color-link-visited: #c3a8ff;
+    --color-success: #5fd39a;
+    --color-warning: #ffd166;
+    --color-danger: #ff7b7b;
+    --color-info: #8cc8ff;
+    --color-focus: #ffe08a;
+    --color-sample: #3b2f12;
+
+    /* 字體：系統字型，不載入外部字型服務 */
+    --font-sans: system-ui, -apple-system, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace;
+    --text-xs: 0.8125rem;
+    --text-sm: 0.875rem;
+    --text-base: 1.0625rem;
+    --text-lg: 1.25rem;
+    --text-xl: 1.5rem;
+    --text-2xl: clamp(1.625rem, 1.2rem + 1.6vw, 2.25rem);
+    --text-3xl: clamp(1.875rem, 1.3rem + 2.4vw, 3rem);
+    --leading-tight: 1.3;
+    --leading-normal: 1.75;
+    --measure: 42rem;                 /* 中文閱讀行寬 */
+
+    /* 間距、圓角、陰影、動態 */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-7: 3rem;
+    --space-8: 4rem;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.25);
+    --focus-ring: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-focus);
+    --duration: 160ms;
+    --container: 72rem;
+    --tap-target: 44px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root { --duration: 0ms; }
+}

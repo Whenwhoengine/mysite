@@ -1,0 +1,87 @@
+{
+    "key": "group_sc_podcast",
+    "title": "Podcast 音訊",
+    "fields": [
+        {
+            "key": "field_sc_audio_attachment",
+            "label": "音訊檔（媒體庫）",
+            "name": "sc_audio_attachment",
+            "aria-label": "",
+            "type": "file",
+            "instructions": "建議：上傳 mp3、m4a、wav 或 ogg 到媒體庫後選取（單檔上限 32MB）。若同時填寫網址，以媒體庫檔案為準。",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "id",
+            "library": "all",
+            "min_size": "",
+            "max_size": 32,
+            "mime_types": "mp3,m4a,wav,ogg",
+            "allow_in_bindings": 0
+        },
+        {
+            "key": "field_sc_audio_url",
+            "label": "音訊網址（核准來源）",
+            "name": "sc_audio_url",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "只接受核准主機的 https 網址（PODCAST_AUDIO_ALLOWED_HOSTS；未設定時只允許本 CMS 主機）。伺服器不會代為下載任意網址。",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "allow_in_bindings": 0,
+            "placeholder": "https://"
+        },
+        {
+            "key": "field_sc_podcast_duration",
+            "label": "長度（秒，選填）",
+            "name": "sc_duration_seconds",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "整數秒數，例如 30 分鐘填 1800。",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "min": 1,
+            "max": 86400,
+            "allow_in_bindings": 0,
+            "placeholder": "",
+            "step": 1,
+            "prepend": "",
+            "append": "秒"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "sc_podcast"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Podcast 單集音訊來源與長度（site-content 外掛契約欄位）。",
+    "show_in_rest": 1,
+    "modified": 1793750400
+}

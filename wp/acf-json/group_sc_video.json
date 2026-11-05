@@ -1,0 +1,66 @@
+{
+    "key": "group_sc_video",
+    "title": "影片設定",
+    "fields": [
+        {
+            "key": "field_sc_youtube_url",
+            "label": "YouTube 網址",
+            "name": "sc_youtube_url",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "貼上 YouTube 影片網址（youtube.com/watch?v=… 或 youtu.be/…）。主站以影片 ID 產生 youtube-nocookie 播放器，訪客點擊後才載入；不接受 iframe 原始碼。",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "allow_in_bindings": 0,
+            "placeholder": "https://www.youtube.com/watch?v=xxxxxxxxxxx"
+        },
+        {
+            "key": "field_sc_video_duration",
+            "label": "片長（秒，選填）",
+            "name": "sc_duration_seconds",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "整數秒數，例如 4 分 5 秒填 245。",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "min": 1,
+            "max": 86400,
+            "allow_in_bindings": 0,
+            "placeholder": "",
+            "step": 1,
+            "prepend": "",
+            "append": "秒"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "sc_video"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "影片的 YouTube 來源與片長（site-content 外掛契約欄位）。",
+    "show_in_rest": 1,
+    "modified": 1793750400
+}

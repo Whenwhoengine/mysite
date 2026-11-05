@@ -1,0 +1,15 @@
+{
+  "name": "mysite-e2e",
+  "private": true,
+  "description": "mysite 真實瀏覽器端到端測試（Playwright，版本鎖定）",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "axe-core": "4.14.0"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
+}
