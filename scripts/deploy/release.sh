@@ -197,7 +197,10 @@ case "$cls" in
   *) fail INVALID_SCHEMA_CLASS "$EXIT_FORBIDDEN" "未知 schema 分類" ;;
 esac
 if (( first_install )) && [[ -z "$first_install_ref" ]]; then
-  fail FIRST_INSTALL_APPROVAL_REQUIRED "$EXIT_FORBIDDEN" "空環境首次安裝需要 --first-install-approved=<核准參照>"
+  trap - ERR
+  md_state_step --step first_install --status awaiting_approval --reason FIRST_INSTALL_APPROVAL_REQUIRED || true
+  md_event ERROR first_install_approval_required "空環境首次安裝需要 --first-install-approved=<核准參照>；未做任何變更"
+  ms_die "$EXIT_FORBIDDEN" "FIRST_INSTALL_APPROVAL_REQUIRED：空環境首次安裝需要 --first-install-approved=<核准參照>"
 fi
 
 # ---------------------------------------------------------------------------

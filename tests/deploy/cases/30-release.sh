@@ -112,6 +112,11 @@ r05_schema() {
   assert_file_no_grep 'compose\[r-test-2\] (up|run)|artisan down|artisan migrate' "$STUB_LOG" "未核准時不得維護、migration 或換版" || return 1
   [[ "$(cenv RELEASE_ID)" == r-test-1 ]] || fail "現行版本不得改變" || return 1
   [[ "$(state pending.status)" == awaiting_approval ]] || fail "pending 應為 awaiting_approval" || return 1
+  # timer 拉到同一清單時不得再呼叫 release.sh（避免耗盡重試次數）
+  cp "$H/e2.json" "$STUB_DIR/asset.json"
+  printf '{"draft":false,"assets":[{"name":"release-envelope.json","state":"uploaded","size":%s,"url":"https://api.github.com/repos/Whenwhoengine/mysite/releases/assets/5"}]}' "$(wc -c < "$H/e2.json")" > "$STUB_DIR/meta.json"
+  run_host bash "$T_REPO/scripts/deploy/pull-release.sh" --env=staging --force-now; assert_rc 40 $? "等待核准的清單由 timer 拉到應停在 40" || return 1
+  [[ "$(state pending.attempt)" == 1 ]] || fail "timer 不得消耗重試次數（attempt=$(state pending.attempt)）" || return 1
   rel "$H/e2.json" --approved-schema-plan=plan-other; assert_rc 40 $? "核准參照不符應拒絕" || return 1
   : > "$STUB_LOG"
   rel "$H/e2.json" --approved-schema-plan=plan-2026-11-05-drop-col; assert_rc 0 $? "核准後應可部署" || { tail "$H/last.out"; return 1; }

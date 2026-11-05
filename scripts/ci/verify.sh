@@ -70,8 +70,9 @@ static_checks() {
   local rc=0 f
   : > "$results/static.jsonl"
   for f in $(git ls-files '*.sh'); do bash -n "$f" || { echo "語法錯誤：$f"; rc=1; }; done
-  for f in $(git ls-files 'scripts/**/*.sh' 'tests/**/*.sh'); do
-    case "$f" in scripts/lib/*) continue ;; esac
+  # 只要求「可執行入口」支援 --help：scripts/{cloud,ci,deploy,ops}/*.sh、tests/**/run.sh、tests/security/*.sh
+  # （scripts/lib 與 tests/deploy/cases 等被 source 的模組不是獨立指令）
+  for f in $(git ls-files 'scripts/cloud/*.sh' 'scripts/ci/*.sh' 'scripts/deploy/*.sh' 'scripts/ops/*.sh' 'tests/**/run.sh' 'tests/security/*.sh'); do
     bash "$f" --help >/dev/null 2>&1 || { echo "--help 失敗：$f"; rc=1; }
   done
   (( rc == 0 )) && record static script-syntax-and-help GOV-04 PASS || record static script-syntax-and-help GOV-04 FAIL "腳本語法或 --help 失敗"

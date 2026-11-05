@@ -170,7 +170,14 @@ if (( dry_run )); then
   exit "$EXIT_OK"
 fi
 
-# 4. 交給固定部署 wrapper（不執行清單內任何內容）
+# 4. 等待人工核准的清單（schema contract／breaking、空環境首次安裝）不由 timer 重試，以免耗盡重試次數
+if [[ "$(md_state_get pending.sequence)" == "$seq" && "$(md_state_get pending.status)" == awaiting_approval ]]; then
+  record_failure AWAITING_APPROVAL >/dev/null
+  md_event WARN awaiting_approval "sequence=${seq} 等待人工核准（$(md_state_get pending.last_failure.code)）；請依 docs/runbooks/部署與回復.md 以核准參照執行 release.sh"
+  exit "$EXIT_FORBIDDEN"
+fi
+
+# 5. 交給固定部署 wrapper（不執行清單內任何內容）
 drc=0
 if [[ -n "${MD_REL[RELEASE_ROLLBACK_TARGET]:-}" ]]; then
   bash "$MD_PLATFORM_DIR/scripts/deploy/rollback.sh" --env="$env_name" --approved-release="$verified" || drc=$?

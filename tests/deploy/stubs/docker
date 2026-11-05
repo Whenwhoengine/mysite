@@ -127,8 +127,8 @@ case "$cmd" in
     log "compose[$rel] $joined"
     case "$joined" in
       up*) flag fail-up && exit 1; [[ -e "$STUB_DIR/fail-up-$rel" ]] && exit 1; exit 0 ;;
-      *"artisan migrate"*) flag fail-migrate && exit 1; exit 0 ;;
       *"artisan migrate:status"*) exit 0 ;;
+      *"artisan migrate"*) flag fail-migrate && exit 1; exit 0 ;;
       *"wp core is-installed"*) flag wp-not-installed && exit 1; exit 0 ;;
       *"application-password list"*) printf '11111111-1111-1111-1111-111111111111\n'; exit 0 ;;
       *"application-password create"*) printf 'abcd efgh ijkl mnop qrst uvwx\n'; exit 0 ;;

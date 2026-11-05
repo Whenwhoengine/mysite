@@ -53,8 +53,9 @@ s02_help_and_args() {
 }
 
 s03_schema_doc() {
-  python3 -I - "$T_REPO" <<'PY' || return 1
+  python3 -I -B - "$T_REPO" <<'PY' || return 1
 import importlib.util, json, sys
+sys.dont_write_bytecode = True   # 不在 scripts/lib 產生 __pycache__
 root = sys.argv[1]
 schema = json.load(open(f"{root}/docs/schemas/release-payload.schema.json", encoding="utf-8"))
 spec = importlib.util.spec_from_file_location("manifest", f"{root}/scripts/lib/manifest.py")

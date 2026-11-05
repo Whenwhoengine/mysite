@@ -40,7 +40,7 @@ i01_mysql_backup_restore() {
   command -v docker >/dev/null 2>&1 && timeout 20 docker info >/dev/null 2>&1 || { echo "SKIP: 無 Docker daemon"; return 77; }
   local free; free="$(df -Pm "$T_ROOT" | awk 'NR==2{print $4}')"
   (( free >= 300 )) || { echo "SKIP: 臨時目錄可用空間 ${free} MB 不足 300 MB"; return 77; }   # 暫定：資料庫放 tmpfs，磁碟只放 dump 與 restic repo
-  local P="mysite-deploytest-$(openssl rand -hex 4)"; echo "$P" >> "$T_ROOT/it-projects"
+  local P; P="mysite-deploytest-$(openssl rand -hex 4)"; echo "$P" >> "$T_ROOT/it-projects"
   trap 'it_cleanup' EXIT   # 本函式在獨立子 shell 執行，結束即清理本測試建立的資源
   local ref reg image=""
   ref="$(grep -E '^MYSQL_IMAGE_REF=' "$T_REPO/infra/versions.env" | cut -d= -f2)"
