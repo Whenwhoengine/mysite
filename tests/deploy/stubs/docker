@@ -83,7 +83,7 @@ case "$cmd" in
           cat >/dev/null
           n=0; [[ -f "$STUB_DIR/login-count" ]] && n="$(cat "$STUB_DIR/login-count")"; n=$((n+1)); echo "$n" > "$STUB_DIR/login-count"
           log "exec mysql login-check #$n"
-          if [[ -f "$STUB_DIR/fail-login-after" ]] && (( n > $(cat "$STUB_DIR/fail-login-after") )); then exit 1; fi
+          if [[ -f "$STUB_DIR/fail-login-on" ]] && (( n == $(cat "$STUB_DIR/fail-login-on") )); then exit 1; fi
           exit 0
         fi
         last="${rest[*]: -1}"

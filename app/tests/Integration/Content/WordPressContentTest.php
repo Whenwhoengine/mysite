@@ -86,7 +86,12 @@ final class WordPressContentTest extends TestCase
         $this->assertNotEmpty($posts->items, '開發環境 WP 需要至少一篇公開文章');
         $item = null;
         foreach ($posts->items as $candidate) {
-            if ($this->get($candidate->path())->status() === 200) {
+            try {
+                $detail = $this->repository()->findBySlug(ContentType::Post, $candidate->slug);
+            } catch (MysiteException) {
+                continue; // 其他工作包的契約測試可能同時撤下內容
+            }
+            if ($detail->body !== null && ! $detail->body->isEmpty() && $this->get($candidate->path())->status() === 200) {
                 $item = $candidate;
                 break;
             }

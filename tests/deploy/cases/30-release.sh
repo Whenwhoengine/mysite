@@ -9,7 +9,12 @@ rb() { run_host env MD_SMOKE_INTERVAL=0.2 bash "$T_REPO/scripts/deploy/rollback.
 state() { "${MANIFEST[@]}" state-get --state-dir "$HE/state" --environment "$HENV" --field "$1"; }
 cenv() { grep -E "^$1=" "$HE/state/compose.env" | cut -d= -f2-; }
 # line_of <固定字串>：在 stub log 中第一次出現的行號（0＝沒出現）
-line_of() { local n; n="$(grep -nF -- "$1" "$STUB_LOG" | head -n 1 | cut -d: -f1)"; printf '%s\n' "${n:-0}"; }
+line_of() { # 以 "=" 開頭表示整行完全相符
+  local n
+  if [[ "$1" == =* ]]; then n="$(grep -nxF -- "${1#=}" "$STUB_LOG" | head -n 1 | cut -d: -f1)"
+  else n="$(grep -nF -- "$1" "$STUB_LOG" | head -n 1 | cut -d: -f1)"; fi
+  printf '%s\n' "${n:-0}"
+}
 assert_before() { # assert_before <A> <B>：A 先於 B 出現
   local a b; a="$(line_of "$1")"; b="$(line_of "$2")"
   (( a > 0 && b > 0 && a < b )) || fail "順序錯誤：「$1」(#$a) 應早於「$2」(#$b)"
@@ -31,8 +36,8 @@ r01_happy() {
   assert_before "compose[r-test-1] exec -T app-php php artisan down" "compose[r-test-1] stop app-worker app-scheduler wp-jobs" || return 1
   assert_before "compose[r-test-1] stop app-worker" "compose[r-test-2] run --rm --no-deps -T -e MYSITE_ROLE=cli app-php php artisan migrate --force" || return 1
   assert_before "php artisan migrate --force" "compose[r-test-2] run --rm --no-deps -T -u www-data wp-php wp site-content setup" || return 1
-  assert_before "wp site-content setup" "compose[r-test-2] up -d --wait --wait-timeout 300" || return 1
-  assert_before "compose[r-test-2] up -d --wait --wait-timeout 300" "compose[r-test-2] exec -T app-php php artisan up" || return 1
+  assert_before "wp site-content setup" "=compose[r-test-2] up -d --wait --wait-timeout 300" || return 1
+  assert_before "=compose[r-test-2] up -d --wait --wait-timeout 300" "compose[r-test-2] exec -T app-php php artisan up" || return 1
   assert_before "compose[r-test-2] exec -T app-php php artisan up" "exec app-web deploy-status" || return 1
   [[ "$(state active.sequence)" == 2 && "$(state active.confirmation)" == confirmed ]] || fail "active 應為 sequence 2（confirmed）" || return 1
   [[ "$(cenv RELEASE_ID)" == r-test-2 && "$(cenv MYSITE_IMAGE_LARAVEL)" == "$lar" ]] || fail "compose.env 未換成新 digest" || return 1
@@ -121,7 +126,7 @@ r06_first_install() {
   assert_file_no_grep 'restic backup' "$STUB_LOG" "確實空環境不捏造備份" || return 1
   printf 'ADMIN_EMAIL=admin@example.test\n' >> "$HE/config/deploy.env"
   ( umask 027; openssl rand -hex 16 > "$HE/secrets/wp_admin_password"; printf 'PENDING-BOOTSTRAP-1234\n' > "$HE/secrets/wp_service_app_password" )
-  touch "$STUB_DIR/wp-not-installed"
+  touch "$STUB_DIR/wp-not-installed" "$STUB_DIR/running/app-web"   # 換版後 app-web 容器在執行（替身）
   rel "$H/e1.json" --first-install-approved=approval-2026-11-05; assert_rc 0 $? "核准後首次安裝" || { tail -n 20 "$H/last.out"; return 1; }
   assert_file_grep 'wp core install' "$STUB_LOG" "應執行 WP 首次安裝" || return 1
   assert_file_grep 'application-password create mysite-service' "$STUB_LOG" "應發行服務帳號 Application Password" || return 1
@@ -154,7 +159,8 @@ r08_rollback() {
   deploy_ok 2 "$H/B.json" 'schema_change_class="expand"' || return 1
   envelope "$H/rb3.json" staging 3 "$H/A.json" 'rollback_target_release="r-test-1"'
   rel "$H/rb3.json"; assert_rc 10 $? "回復清單不得走 release.sh" || return 1
-  rb "$H/e2.json"; assert_rc 10 $? "一般清單不得走 rollback.sh" || return 1
+  envelope "$H/e9.json" staging 9 "$H/B.json"
+  rb "$H/e9.json"; assert_rc 10 $? "一般清單不得走 rollback.sh" || return 1
   : > "$STUB_LOG"
   rb "$H/rb3.json"; assert_rc 0 $? "合法回復（新序號 3 → r-test-1 的 digest）" || { tail -n 20 "$H/last.out"; return 1; }
   assert_file_no_grep 'artisan migrate|migrate:rollback|restore' "$STUB_LOG" "回復不得跑 migration 或還原資料" || return 1
