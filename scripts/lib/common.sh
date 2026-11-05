@@ -105,7 +105,7 @@ ms_has_proxy_ca() {
 # root 直接 chgrp；非 root（例如 GitHub-hosted runner）改用免密碼 sudo；兩者皆不可用時回傳失敗。
 ms_chgrp_33() {
   if [[ "$(id -u)" == 0 ]]; then
-    chgrp "$@" 33 2>/dev/null || chgrp 33 "$@"
+    chgrp 33 "$@"
   elif sudo -n true >/dev/null 2>&1; then
     sudo -n chgrp 33 "$@"
   else
