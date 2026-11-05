@@ -5,7 +5,7 @@
       "id": "M0-01",
       "milestone": "M0",
       "title": "核對儲存庫、分支、既有檔案與 v5 原件 hash",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [],
       "owned_paths": [
         "docs/環境查核.md",
@@ -15,15 +15,18 @@
         "CLD-02",
         "EXEC-01"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M0-02",
       "milestone": "M0",
       "title": "建立 ignore／attributes 並以合成秘密驗證排除規則",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M0-01"
       ],
@@ -37,15 +40,18 @@
         "CLD-04",
         "DAT-05"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M0-03",
       "milestone": "M0",
       "title": "雲端預檢腳本與執行路線判定",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M0-01"
       ],
@@ -57,15 +63,18 @@
         "CLD-01",
         "CLD-08"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M0-04",
       "milestone": "M0",
       "title": "版本查核、versions.env、versions.lock.json 初稿",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M0-01"
       ],
@@ -78,15 +87,18 @@
         "GOV-05",
         "WP-09"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M0-05",
       "milestone": "M0",
       "title": "狀態檔、驗收登錄表、CLAUDE.md／AGENTS.md、ADR",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M0-01"
       ],
@@ -101,15 +113,18 @@
         "CLD-07",
         "GOV-03"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M0-06",
       "milestone": "M0",
       "title": "第一個基線提交並推送工作分支、讀回遠端",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M0-02",
         "M0-03",
@@ -122,15 +137,18 @@
       "acceptance_ids": [
         "CLD-03"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M1-01",
       "milestone": "M1",
       "title": "多目標 Dockerfile（PHP 8.5.12 擴充、security.ini、FPM pool）",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M0-04"
       ],
@@ -142,15 +160,18 @@
         "INF-01",
         "INF-07"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M1-02",
       "milestone": "M1",
       "title": "Compose base/dev/ci/prod 與網路分段（edge/backend/db）",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M1-01"
       ],
@@ -161,15 +182,18 @@
         "INF-02",
         "OPS-01"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M1-03",
       "milestone": "M1",
       "title": "Nginx gateway／app-web／wp-web 設定與敏感路徑阻擋",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M1-01"
       ],
@@ -181,15 +205,18 @@
         "INF-04",
         "WP-08"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M1-04",
       "milestone": "M1",
       "title": "MySQL 雙庫雙帳號初始化",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M1-02"
       ],
@@ -199,15 +226,18 @@
       "acceptance_ids": [
         "INF-02"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M1-05",
       "milestone": "M1",
       "title": "Laravel 13 骨架、lockfiles、秘密檔契約、設定驗證、健康檢查",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M0-04"
       ],
@@ -218,15 +248,18 @@
         "GOV-01",
         "INF-05"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M1-06",
       "milestone": "M1",
       "title": "WordPress 核心／ACF／Two Factor 下載驗證與 wp-config 模板",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M0-04"
       ],
@@ -238,15 +271,18 @@
         "WP-09",
         "INF-01"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M1-07",
       "milestone": "M1",
       "title": "bootstrap／up／doctor／session-start／checkpoint 腳本",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M1-02",
         "M1-05",
@@ -261,15 +297,18 @@
         "CLD-09",
         "GOV-04"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M1-08",
       "milestone": "M1",
       "title": "ci.yml／sandbox.yml 首次 CI baseline 並讀回結果",
-      "status": "IN_PROGRESS",
+      "status": "VERIFIED",
       "depends_on": [
         "M1-07"
       ],
@@ -286,15 +325,18 @@
         "EXEC-04",
         "EXEC-03"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M2-01",
       "milestone": "M2",
       "title": "site-content：video／podcast CPT、taxonomy、capabilities 與可重跑遷移",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M1-07"
       ],
@@ -307,15 +349,18 @@
         "WP-04",
         "WP-05"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M2-02",
       "milestone": "M2",
       "title": "ACF Local JSON 欄位組（影片、Podcast、示例標記、品牌）",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M2-01"
       ],
@@ -326,15 +371,18 @@
         "WP-02",
         "WP-09"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M2-03",
       "milestone": "M2",
       "title": "公開 REST：posts／pages／videos／podcasts／taxonomies／menus／search／visibility",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M2-01"
       ],
@@ -347,15 +395,18 @@
         "API-14",
         "WP-03"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M2-04",
       "milestone": "M2",
       "title": "合成示例資料（標明示例）與 Gutenberg 全格式驗收文章",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M2-03"
       ],
@@ -367,15 +418,18 @@
         "WP-06",
         "UI-01"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M2-05",
       "milestone": "M2",
       "title": "WP 權限與 REST 契約測試（含後臺實際編輯流程）",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M2-03"
       ],
@@ -390,9 +444,12 @@
         "WP-05",
         "WP-08"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M2-06",
@@ -408,7 +465,10 @@
       "acceptance_ids": [
         "WP-10"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
       "commit": null
     },
@@ -416,7 +476,7 @@
       "id": "M3-01",
       "milestone": "M3",
       "title": "WordPressRestClient（timeout、重試、大小、redirect、host allowlist）",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M2-03"
       ],
@@ -429,15 +489,18 @@
         "API-04",
         "API-16"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M3-02",
       "milestone": "M3",
       "title": "DTO／model_version 驗證、Sanitizer、SafeContent、Blade raw 檢查",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M3-01"
       ],
@@ -450,15 +513,18 @@
         "API-05",
         "API-14"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M3-03",
       "milestone": "M3",
       "title": "ContentRepository＋可見性租約＋正文快取",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M3-02"
       ],
@@ -469,15 +535,18 @@
         "API-10",
         "API-15"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M3-04",
       "milestone": "M3",
       "title": "設計系統 Blade 元件與版型",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M1-05"
       ],
@@ -489,15 +558,18 @@
         "UI-02",
         "UI-04"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M3-05",
       "milestone": "M3",
       "title": "首頁、文章列表／詳情、分類、標籤、搜尋、靜態頁",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M3-03",
         "M3-04"
@@ -511,15 +583,18 @@
         "UI-03",
         "UI-06"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M3-06",
       "milestone": "M3",
       "title": "WP 發文→Laravel 讀取的整合測試與三尺寸截圖",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M3-05"
       ],
@@ -531,15 +606,18 @@
         "UI-01",
         "UI-02"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M4-01",
       "milestone": "M4",
       "title": "影片與 Podcast 列表／詳情、播放器、失效狀態",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M3-05"
       ],
@@ -550,15 +628,18 @@
         "UI-03",
         "UI-07"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M4-02",
       "milestone": "M4",
       "title": "預覽快照、票券簽發、交換、preview session",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M3-03"
       ],
@@ -571,15 +652,18 @@
         "API-12",
         "API-13"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M4-03",
       "milestone": "M4",
       "title": "outbox、投遞、Laravel 驗簽去重、queue、對帳",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M3-03"
       ],
@@ -593,15 +677,18 @@
         "API-08",
         "API-09"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M4-04",
       "milestone": "M4",
       "title": "撤下硬期限、事件失效、WP 斷線處置與故障測試",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M4-03"
       ],
@@ -612,15 +699,18 @@
         "API-10",
         "API-15"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M4-05",
       "milestone": "M4",
       "title": "WP／Laravel 排程、零訪客定時發布、跨日時區",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M4-03"
       ],
@@ -631,15 +721,18 @@
       "acceptance_ids": [
         "WP-07"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M4-06",
       "milestone": "M4",
       "title": "RSS、sitemap、canonical、CMS 前臺轉向與網址映射",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M3-05"
       ],
@@ -652,15 +745,18 @@
         "UI-06",
         "API-13"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M4-07",
       "milestone": "M4",
       "title": "基本備份與隔離還原腳本（合成資料演練）",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M1-07"
       ],
@@ -671,15 +767,18 @@
         "OPS-07",
         "DAT-06"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M8A-01",
       "milestone": "M8-A",
       "title": "內容範圍乾淨 CI：lint、單元、MySQL 整合、WP 契約、E2E、安全與秘密掃描",
-      "status": "IN_PROGRESS",
+      "status": "VERIFIED",
       "depends_on": [
         "M4-01",
         "M4-02",
@@ -700,15 +799,18 @@
         "INF-08",
         "UI-08"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M8A-02",
       "milestone": "M8-A",
       "title": "依賴／映像掃描與證據彙整",
-      "status": "IN_PROGRESS",
+      "status": "VERIFIED",
       "depends_on": [
         "M8A-01"
       ],
@@ -721,15 +823,18 @@
         "DAT-05",
         "EXEC-06"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M8A-03",
       "milestone": "M8-A",
       "title": "兩輪自我複查（主公角度、維護者角度）並修正",
-      "status": "IN_PROGRESS",
+      "status": "VERIFIED",
       "depends_on": [
         "M8A-01"
       ],
@@ -740,15 +845,18 @@
         "GOV-06",
         "UI-05"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M5-01",
       "milestone": "M5",
       "title": "products／variants／inventory_mutations migration 與模型",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M1-05"
       ],
@@ -759,15 +867,18 @@
       "acceptance_ids": [
         "COM-07"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M5-02",
       "milestone": "M5",
       "title": "Money 元件（整數最小單位、DECIMAL(12,2)）與邊界測試",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M5-01"
       ],
@@ -777,15 +888,18 @@
       "acceptance_ids": [
         "COM-02"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M5-03",
       "milestone": "M5",
       "title": "商店列表／詳情與 COMMERCE_MODE 旗標",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M5-01"
       ],
@@ -796,15 +910,18 @@
       "acceptance_ids": [
         "COM-01"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M5-04",
       "milestone": "M5",
       "title": "後臺商品 CRUD 與庫存調整（授權骨架）",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M5-01",
         "M7-01"
@@ -815,15 +932,18 @@
       "acceptance_ids": [
         "COM-10"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M6-01",
       "milestone": "M6",
       "title": "Session 購物車、數量上限、價格變動提示",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M5-03"
       ],
@@ -833,15 +953,18 @@
       "acceptance_ids": [
         "COM-03"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M6-02",
       "milestone": "M6",
       "title": "結帳交易：重讀價格、鎖庫存、冪等鍵、訂單快照",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M6-01"
       ],
@@ -855,15 +978,18 @@
         "COM-06",
         "COM-07"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M6-03",
       "milestone": "M6",
       "title": "訂單 token、取消狀態機、補庫存一次",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M6-02"
       ],
@@ -874,15 +1000,18 @@
         "COM-08",
         "COM-09"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M6-04",
       "milestone": "M6",
       "title": "MySQL 多連線併發測試（最後一件、重送、死鎖、故意失敗）",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M6-02"
       ],
@@ -894,15 +1023,18 @@
         "COM-05",
         "COM-06"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M6-05",
       "milestone": "M6",
       "title": "模擬標示、不收卡號／地址、郵件只進捕捉器",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M6-02"
       ],
@@ -912,15 +1044,18 @@
       "acceptance_ids": [
         "COM-11"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M7-01",
       "milestone": "M7",
       "title": "管理登入、角色、policies、無公開註冊",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M1-05"
       ],
@@ -932,15 +1067,18 @@
         "COM-10",
         "WP-04"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M7-02",
       "milestone": "M7",
       "title": "Fortify 2FA 與復原碼",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M7-01"
       ],
@@ -950,15 +1088,18 @@
       "acceptance_ids": [
         "COM-10"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M7-03",
       "milestone": "M7",
       "title": "稽核紀錄與 log 遮罩",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M7-01"
       ],
@@ -968,15 +1109,18 @@
       "acceptance_ids": [
         "DAT-02"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M7-04",
       "milestone": "M7",
       "title": "資料保存清理／匿名化、資料清單與隱私告知",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M6-03"
       ],
@@ -991,15 +1135,18 @@
         "DAT-04",
         "DAT-06"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M7-05",
       "milestone": "M7",
       "title": "內容編輯手冊與維護者故障手冊",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M4-02"
       ],
@@ -1010,15 +1157,18 @@
       "acceptance_ids": [
         "GOV-06"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M8B-01",
       "milestone": "M8-B",
       "title": "內容＋商務全量乾淨 CI 與 production-like smoke",
-      "status": "IN_PROGRESS",
+      "status": "VERIFIED",
       "depends_on": [
         "M6-04",
         "M7-02",
@@ -1034,15 +1184,18 @@
         "GOV-02",
         "EXEC-05"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M8B-02",
       "milestone": "M8-B",
       "title": "隔離備份還原（含模擬訂單）與候選部署包",
-      "status": "IN_PROGRESS",
+      "status": "VERIFIED",
       "depends_on": [
         "M8B-01",
         "M4-07"
@@ -1056,15 +1209,18 @@
         "OPS-03",
         "OPS-04"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "DEP-01",
       "milestone": "M8-B",
       "title": "發布清單 payload／envelope、Ed25519 簽章與嚴格驗證",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "M1-07"
       ],
@@ -1075,15 +1231,18 @@
         "OPS-03",
         "OPS-04"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "DEP-02",
       "milestone": "M8-B",
       "title": "pull-release／release／rollback／smoke 與部署鎖、序號抗重播",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "DEP-01"
       ],
@@ -1096,9 +1255,12 @@
         "OPS-06",
         "OPS-11"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "DEP-03",
@@ -1117,7 +1279,10 @@
         "OPS-02",
         "OPS-13"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
       "commit": null
     },
@@ -1125,7 +1290,7 @@
       "id": "DEP-04",
       "milestone": "M8-B",
       "title": "release／deploy-staging／deploy-production／dependency-audit workflows",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "DEP-01"
       ],
@@ -1136,9 +1301,12 @@
         "CLD-10",
         "OPS-04"
       ],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/evidence/gha-41968786436-1-content/summary.json",
+        "docs/evidence/gha-41968786436-1-simulation/summary.json"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "dc1e25f09a70709d5ef871b3a5e9cebf5cb688e3"
     },
     {
       "id": "M9A-01",
