@@ -12,8 +12,9 @@ on:
 permissions:
   contents: read
 
+# 「WIP」施工快照只跑靜態檢查，且與正式提交分屬不同群組，不會取消正式提交的完整驗證
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.ref }}-${{ (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'WIP')) && 'wip' || 'full' }}
   cancel-in-progress: true
 
 env:
@@ -54,8 +55,8 @@ jobs:
   verify:
     name: 整合驗證（${{ matrix.scope }}）
     needs: static
-    # 靜態檢查失敗仍執行整合驗證，以取得完整失敗清單（整體結果仍為失敗）
-    if: ${{ !cancelled() }}
+    # 靜態檢查失敗仍執行整合驗證，以取得完整失敗清單（整體結果仍為失敗）；WIP 快照不跑
+    if: ${{ !cancelled() && !(github.event_name == 'push' && startsWith(github.event.head_commit.message, 'WIP')) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     strategy:
