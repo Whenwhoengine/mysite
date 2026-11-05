@@ -18,6 +18,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 VALID = {"PASS", "FAIL", "NOT_RUN", "BLOCKED_EXTERNAL"}
+AUTO_NOTE_PROD = "CI 已驗證機制（見證據）；本項須在真實 staging／production 驗收，尚未執行。"
+AUTO_NOTE_STAGING = "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
+VENUE_BLOCKER = {"WP-10": "BLK-APPROVAL-01"}
 
 
 def git(*args):
@@ -89,6 +92,17 @@ def main():
         item["evidence"] = sorted(set(m["evidence"]))
         item["tests"] = m["tests"][:20]
         item["blocker_id"] = m["blocker_id"]
+        venue = item.get("verification_venue")
+        # CI 通過不能代替真實環境驗收（v5 §12、§17.5）：只能在真實環境驗的項目維持外部阻擋並保留 CI 機制證據；
+        # CI＋staging 兩段的項目標明 PASS 只涵蓋 CI 段。
+        if venue == "staging_or_production" and m["status"] == "PASS":
+            item["status"] = "BLOCKED_EXTERNAL"
+            item["blocker_id"] = item.get("blocker_id") or VENUE_BLOCKER.get(item["id"], "BLK-HOST-01")
+            item["note"] = AUTO_NOTE_PROD
+        elif venue == "ci_and_staging" and m["status"] == "PASS":
+            item["note"] = AUTO_NOTE_STAGING
+        elif item.get("note") in (AUTO_NOTE_PROD, AUTO_NOTE_STAGING):
+            item["note"] = None
     registry["last_import"] = imported
     registry_path.write_text(json.dumps(registry, ensure_ascii=False, indent=2), encoding="utf-8")
     counts = {}
