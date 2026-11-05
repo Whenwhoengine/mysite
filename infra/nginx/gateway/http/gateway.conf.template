@@ -23,7 +23,8 @@ server {
     server_tokens off;
     access_log /dev/stdout mysite_json;
     client_max_body_size 2m;
-    location = /login { limit_req zone=mysite_login burst=10 nodelay; include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
+    # 後臺登入相關（Fortify prefix=admin）：只計 POST，與 Laravel 自身的 email＋IP 限流並行
+    location ~ ^/admin/(login|two-factor-challenge|forgot-password|reset-password)$ { limit_req zone=mysite_login burst=10 nodelay; include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
     location = /internal/deploy-status { include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
     location ^~ /internal/ { return 404; }
     location / { include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }

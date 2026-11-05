@@ -38,9 +38,9 @@ source "$(dirname "${BASH_SOURCE[0]}")/../../scripts/lib/compose.sh"
 
 readonly ENV_NAME=testing
 readonly ACCEPTANCE_ID=INF-08
-readonly CMD_TIMEOUT=60      # 一般 docker 查詢上限（秒）
-readonly DU_TIMEOUT=300      # 單一 volume du 上限（秒）
-readonly DF_TIMEOUT=300      # docker system df -v 後備量測上限（秒）
+readonly CMD_TIMEOUT=60      # 一般 docker 查詢上限（秒）（暫定）
+readonly DU_TIMEOUT=300      # 單一 volume du 上限（秒）（暫定）
+readonly DF_TIMEOUT=300      # docker system df -v 後備量測上限（秒）（暫定）
 
 for c in docker jq timeout df du uname awk; do
   command -v "$c" >/dev/null 2>&1 || ms_die "$EXIT_EXTERNAL" "缺少必要指令：$c"

@@ -113,7 +113,7 @@ sensitive_blocked() {
     local c; c="$(http_code "http://127.0.0.1:${app_port}${p}")"
     [[ "$c" == 404 || "$c" == 403 ]] || { echo "主站 $p 回 $c"; return 1; }
   done
-  for p in /wp-config.php /xmlrpc.php /readme.html /wp-content/acf-json/ /.env /wp-content/debug.log; do
+  for p in /wp-config.php /xmlrpc.php /readme.html /wp-content/acf-json/ /.env /wp-content/debug.log /wp-comments-post.php /wp-json/wp/v2/comments; do
     local c; c="$(http_code "http://127.0.0.1:${cms_port}${p}")"
     [[ "$c" == 404 || "$c" == 403 ]] || { echo "CMS $p 回 $c"; return 1; }
   done

@@ -16,7 +16,14 @@ export const adminPassword = () => readSecret('app_admin_password');
  * 遇到 429（同 email＋IP 每分鐘 5 次的限流）時等候 61 秒重試一次，避免三個 project 連續登入互相干擾。
  */
 export async function loginAdmin(page, email, password, { retryOn429 = true } = {}) {
-  await page.goto(appUrl('/admin/login'));
+  // 開啟登入頁本身也受 Fortify 整體限流（每 IP 每分鐘 60 次）；E2E 全部來自同一 IP，前一個測試可能用完額度。
+  // 拿到 429 時依 Retry-After 等候後重開（最多兩次），不把 429 頁面當成登入頁去填欄位。
+  for (let attempt = 0; ; attempt += 1) {
+    const opened = await page.goto(appUrl('/admin/login'));
+    if (!opened || opened.status() !== 429 || attempt >= 2) break;
+    const wait = Math.min(Number(opened.headers()['retry-after']) || 60, 65);
+    await page.waitForTimeout((wait + 1) * 1000);
+  }
   await page.waitForLoadState('load');
   await page.locator('#email').fill(email);
   await page.locator('#password').fill(password);

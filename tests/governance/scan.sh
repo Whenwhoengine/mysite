@@ -45,7 +45,8 @@ record() {
 }
 proxy_args=()
 if ms_has_proxy_ca; then
-  proxy_args=(-e "HTTPS_PROXY=$HTTPS_PROXY" -e "https_proxy=$HTTPS_PROXY" -v /root/.ccr/ca-bundle.crt:/etc/ssl/certs/mysite-proxy-ca.crt:ro
+  # 代理只聽在主機 loopback：容器需用 host 網路才連得到（只在 Claude VM 這類代理環境）
+  proxy_args=(--network host -e "HTTPS_PROXY=$HTTPS_PROXY" -e "https_proxy=$HTTPS_PROXY" -v /root/.ccr/ca-bundle.crt:/etc/ssl/certs/mysite-proxy-ca.crt:ro
               -e SSL_CERT_FILE=/etc/ssl/certs/mysite-proxy-ca.crt -e NODE_EXTRA_CA_CERTS=/etc/ssl/certs/mysite-proxy-ca.crt)
 fi
 

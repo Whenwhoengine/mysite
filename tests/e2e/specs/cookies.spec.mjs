@@ -20,6 +20,8 @@ function collectSetCookies(context, host) {
 
 test.describe('Cookie 與快取隔離', () => {
   test('CMS 與主站後臺登入 cookie 皆為 host-only、名稱不同、互不送出', { tag: ['@OPS-12'] }, async ({ browser }, testInfo) => {
+    // 後臺登入可能需等候 Fortify 每 IP 限流解除（最多約 2 分鐘），放寬本測試時限；斷言不變
+    test.setTimeout(240_000);
     const context = await browser.newContext();
     try {
       const cmsCookies = collectSetCookies(context, CMS_URL.host);

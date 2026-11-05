@@ -38,11 +38,11 @@ source "$(dirname "${BASH_SOURCE[0]}")/../../scripts/lib/compose.sh"
 
 readonly ENV_NAME=testing
 readonly ACCEPTANCE_ID=INF-06
-readonly CMD_TIMEOUT=120          # 單一 wp-cli／exec 指令上限（秒）
-readonly HTTP_TIMEOUT=15          # 單一 HTTP 請求上限（秒）
+readonly CMD_TIMEOUT=120          # 單一 wp-cli／exec 指令上限（秒）（暫定）
+readonly HTTP_TIMEOUT=15          # 單一 HTTP 請求上限（秒）（暫定）
 readonly RECREATE_WAIT=300        # compose --wait-timeout（秒）
-readonly RECREATE_TIMEOUT=480     # 整個重建指令的外層上限（秒）
-readonly READY_TIMEOUT=120        # 重建後 HTTP 就緒的等待上限（秒）
+readonly RECREATE_TIMEOUT=480     # 整個重建指令的外層上限（秒）（暫定）
+readonly READY_TIMEOUT=120        # 重建後 HTTP 就緒的等待上限（秒）（暫定）
 readonly LOGIN_PATH=/admin/login  # Fortify prefix=admin（app/config/fortify.php）；/login 在本站為 404
 
 for c in docker jq curl sha256sum python3 timeout openssl; do
@@ -284,7 +284,7 @@ fi
 # ---------------------------------------------------------------------------
 status_after=""; content_sha_after=""; title_after_same=false
 media_disk_sha_after=""; media_code_after=""; media_http_sha_after=""; attached_after=""
-token_same=false; login_code_after=""; cookie_sent_after=false
+token_same=false; login_code_after=""; control_code=""; control_differs=false
 
 started="$(now)"
 if (( state_ok )) && (( recreate_rc == 0 )); then
@@ -314,10 +314,17 @@ if (( state_ok )) && (( recreate_rc == 0 )); then
   login_code_after="$login_code"
   [[ -n "$login_token" && "$login_token" == "$token_before" ]] && token_same=true
   login_token=""
-  if [[ "$login_code_after" == 200 && "$token_same" == true ]]; then
-    record verify-session PASS "同一 cookie jar 再 GET ${LOGIN_PATH} 回 200；CSRF token 與重建前相同（Session 由 DB 保存）" "$started"
+  # 對照組：不帶 cookie 的新請求必須拿到不同 token，證明 token 綁定 Session 而非固定值
+  control_body="$tmp/login-control.body"
+  control_code="$(curl -sS --max-time "$HTTP_TIMEOUT" --resolve "${app_host}:${app_port}:127.0.0.1" -o "$control_body" -w '%{http_code}' \
+    "${app_base}${LOGIN_PATH}" 2>"$tmp/curl-control.err")" || control_code="000"
+  control_token="$(csrf_from "$control_body" || true)"
+  [[ "$control_code" == 200 && -n "$control_token" && "$control_token" != "$token_before" ]] && control_differs=true
+  control_token=""
+  if [[ "$login_code_after" == 200 && "$token_same" == true && "$control_differs" == true ]]; then
+    record verify-session PASS "同一 cookie jar 再 GET ${LOGIN_PATH} 回 200；CSRF token 與重建前相同（Session 由 DB 保存）；對照組新 Session 的 token 不同" "$started"
   else
-    record verify-session FAIL "同一 cookie jar 再 GET ${LOGIN_PATH} 回 ${login_code_after}；CSRF token 與重建前不同或未取得（Session 未保存）：$(errtail "$tmp/curl-after.err")" "$started"
+    record verify-session FAIL "同一 cookie jar 再 GET ${LOGIN_PATH} 回 ${login_code_after}；CSRF token 與重建前$([[ "$token_same" == true ]] && echo 相同 || echo 不同或未取得)；對照組（無 cookie）回 ${control_code}，token 與原 Session $([[ "$control_differs" == true ]] && echo 不同 || echo 相同或未取得)：$(errtail "$tmp/curl-after.err")" "$started"
   fi
 else
   for t in verify-draft-post verify-media verify-session; do
@@ -346,6 +353,7 @@ printf '%s\n' "${records[@]}" | jq -s \
   --arg hcb "$media_code_before" --arg hca "$media_code_after" --arg hsb "$media_http_sha_before" --arg hsa "$media_http_sha_after" \
   --arg login_path "$LOGIN_PATH" --arg cookie "$session_cookie" --argjson cookie_before "$cookie_set_before" \
   --arg lcb "$login_code_before" --arg lca "$login_code_after" --argjson token_same "$token_same" \
+  --arg ccode "$control_code" --argjson control_differs "$control_differs" \
   '{
     acceptance_id: "INF-06", environment: $env, project: $project, source_commit: $commit, checked_at: $at, marker: $marker,
     rebuild: {
@@ -366,6 +374,7 @@ printf '%s\n' "${records[@]}" | jq -s \
             http_sha256_same_after: ($hsa != "" and $hsa == $db), disk_same: ($db != "" and $db == $da)},
     session: {path: $login_path, cookie_name: $cookie, driver: "database", set_cookie_before: $cookie_before,
               http_status_before: $lcb, http_status_after: $lca, csrf_token_same: $token_same,
+              control_without_cookie: {http_status: $ccode, csrf_token_differs: $control_differs},
               note: "cookie 與 CSRF token 的值不記錄，只記相同／不同"},
     results: .
   }' > "$evidence"

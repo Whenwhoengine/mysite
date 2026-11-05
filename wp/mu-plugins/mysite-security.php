@@ -55,6 +55,24 @@ const MYSITE_UPLOAD_DANGEROUS_EXT = array( 'php', 'php3', 'php4', 'php5', 'php7'
 add_filter( 'xmlrpc_enabled', '__return_false' );
 add_filter( 'xmlrpc_methods', '__return_empty_array', PHP_INT_MAX );
 add_filter( 'pings_open', '__return_false', PHP_INT_MAX );
+
+// ---------------------------------------------------------------------------
+// 留言：主站不提供留言功能，CMS 端全面關閉（避免經 CMS 網域收集留言者個資或垃圾留言）
+// ---------------------------------------------------------------------------
+add_filter( 'comments_open', '__return_false', PHP_INT_MAX );
+add_filter( 'rest_allow_anonymous_comments', '__return_false', PHP_INT_MAX );
+add_filter(
+	'rest_endpoints',
+	static function ( $endpoints ) {
+		// 只移除留言的 REST 路由；其他核心與本外掛路由不受影響
+		foreach ( array_keys( $endpoints ) as $route ) {
+			if ( 0 === strpos( $route, '/wp/v2/comments' ) ) {
+				unset( $endpoints[ $route ] );
+			}
+		}
+		return $endpoints;
+	}
+);
 add_filter(
 	'wp_headers',
 	static function ( $headers ) {

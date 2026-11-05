@@ -42,7 +42,8 @@ server {
     ssl_session_cache shared:mysite_tls:10m;
     client_max_body_size 2m;
     add_header Strict-Transport-Security "${MYSITE_HSTS_HEADER}" always;
-    location = /login { limit_req zone=mysite_login burst=10 nodelay; include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
+    # 後臺登入相關（Fortify prefix=admin）：只計 POST，與 Laravel 自身的 email＋IP 限流並行
+    location ~ ^/admin/(login|two-factor-challenge|forgot-password|reset-password)$ { limit_req zone=mysite_login burst=10 nodelay; include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
     # 只放行受權杖保護的部署狀態端點；其他 /internal/* 一律 404（v5 §14.8）
     location = /internal/deploy-status { include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
     location ^~ /internal/ { return 404; }
