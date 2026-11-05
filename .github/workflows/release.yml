@@ -30,9 +30,12 @@ jobs:
       contents: read
     outputs:
       sha: ${{ steps.pick.outputs.sha }}
+    # 自動發布預設關閉：推送 GHCR 可能佔用 Packages 儲存額度（私有套件超出免費額度會計費），
+    # 須由委託人在 repo 的 Actions variables 設定 MYSITE_AUTO_RELEASE=true 才會在 main 的 CI 成功後自動執行；手動觸發不受影響。
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
+      (vars.MYSITE_AUTO_RELEASE == 'true' &&
+       github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.event == 'push' &&
        github.event.workflow_run.head_branch == 'main' &&
        github.event.workflow_run.head_repository.full_name == github.repository)
