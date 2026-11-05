@@ -85,6 +85,7 @@ static_checks() {
   else
     record static blade-raw-output API-05 FAIL "check-blade-raw.sh 不存在"; rc=1
   fi
+  if bash scripts/ci/check-doc-refs.sh; then record static doc-references GOV-04 PASS; else record static doc-references GOV-04 FAIL "文件參照不存在的檔案"; rc=1; fi
   for f in $(git ls-files '*.json'); do python3 -c 'import json,sys; json.load(open(sys.argv[1],encoding="utf-8"))' "$f" || { echo "JSON 錯誤：$f"; rc=1; }; done
   # YAML：允許 Compose 的自訂標籤（例如 !override）
   local yaml_check='import yaml,sys

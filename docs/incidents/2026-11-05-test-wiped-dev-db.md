@@ -7,7 +7,7 @@
 ## 原因
 1. tools 容器的 Compose 環境變數（`DB_DATABASE=mysite_app`、`CACHE_STORE=database` 等）位於 `$_SERVER`。
 2. `phpunit.xml` 的 `<env force="true">` 只改 `$_ENV` 與 `putenv`；Laravel 的 `env()` 先讀 `$_SERVER`，因此框架啟動時仍指向開發庫。
-3. Service provider 在 boot 階段（RateLimiter 解析 cache store）即建立 MySQL 連線；`tests/TestCase.php` 在 `parent::createApplication()` **之後**才改資料庫名稱，為時已晚。
+3. Service provider 在 boot 階段（RateLimiter 解析 cache store）即建立 MySQL 連線；`app/tests/TestCase.php` 在 `parent::createApplication()` **之後**才改資料庫名稱，為時已晚。
 4. `RefreshDatabase` 的 `migrate:fresh` 因而對開發庫執行 `db:wipe`。
 
 ## 處置
