@@ -27,7 +27,8 @@ rc_all=0
 part() {
   local name="$1"; shift
   [[ ",$only," == *",$name,"* ]] || return 0
-  if [[ ! -f "$1" ]]; then
+  local script="${*: -1}"  # 最後一個參數是腳本路徑（前面是直譯器）
+  if [[ ! -f "$script" ]]; then
     jq -cn --arg t "$name-missing" --arg at "$(date -u +%FT%TZ)" '{suite:"governance", test:$t, ids:[], status:"FAIL", message:"腳本不存在", started_at:$at, finished_at:$at}' >> "$MYSITE_RESULTS_DIR/governance.jsonl"
     rc_all=30; return 0
   fi
