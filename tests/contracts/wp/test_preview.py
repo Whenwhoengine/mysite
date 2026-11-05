@@ -140,23 +140,13 @@ def preview(ctx: Context) -> str | None:
     nf = _get("video", vid, "0" * 32, forge_ticket({**base, "sid": "0" * 32}))
     _rejected(nf, "快照不存在")
 
-    # 核發者事後失去編輯權限：以暫時的作者帳號建立快照與票券，降為訂閱者後必須拒絕。
-    author = int(wp("user", "create", f"sc-contract-author-{stamp}", f"sc-contract-author-{stamp}@mysite.invalid", "--role=author",
-                    f"--user_pass={stamp}-Contract-Only-Pw", "--porcelain").stdout.strip())
-    ctx.created_users.append(author)
-    ctx.persist()
-    try:
-        own = int(wp("post", "create", "--post_type=post", "--post_status=draft", f"--post_author={author}", "--post_title=作者自己的草稿",
-                     "--porcelain").stdout.strip())
-        ctx.track_post(own)
-        issued = wp("eval", f"$p = get_post({own}); $snap = SiteContent\\Preview::create_snapshot($p, {author}); "
-                            f"echo SiteContent\\Ticket::issue('post', {own}, $snap['snapshot_id'], $snap['revision_id'], {author});").stdout.strip()
-        _, own_claims, _ = ticket_parts(issued)
-        check(_get("post", own, own_claims["sid"], issued).status == 200, "作者仍可編輯時票券應有效")
-        wp("user", "set-role", str(author), "subscriber")
-        _rejected(_get("post", own, own_claims["sid"], issued), "核發者已失去編輯權限")
-    finally:
-        wp("user", "delete", str(author), "--yes", f"--reassign={s.user_id}", check_ok=False)
+    # 核發者沒有（或已失去）編輯權限：快照與票券都以不可編輯的帳號（服務帳號）為核發者，簽章與欄位全部一致，仍必須拒絕。
+    service_id = int(wp("user", "get", "mysite-service", "--field=ID").stdout.strip())
+    issued = wp("eval", f"$p = get_post({vid}); $snap = SiteContent\\Preview::create_snapshot($p, {service_id}); "
+                        f"echo SiteContent\\Ticket::issue('video', {vid}, $snap['snapshot_id'], $snap['revision_id'], {service_id});").stdout.strip()
+    _, svc_claims, _ = ticket_parts(issued)
+    check(svc_claims["sub"] == service_id and ticket_valid_signature(issued), "核發者測試票券格式不符")
+    _rejected(_get("video", vid, svc_claims["sid"], issued), "核發者不可編輯該內容")
 
     # 內容刪除（垃圾桶）後拒絕。
     trash = s.rest("DELETE", f"/wp/v2/sc_video/{vid}")

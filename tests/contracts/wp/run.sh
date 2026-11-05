@@ -14,7 +14,10 @@ usage() {
 
 群組：lint、api、security、roles、editor、events、preview、schedule（排程測試約需 2 分鐘）
 需求：環境已由 scripts/cloud/bootstrap.sh 建立並執行過 `wp site-content seed`；主機需 python3、docker。
-測試期間會暫停 wp-jobs 的自動投遞與對帳（開發用 option，最長 15 分鐘，結束時解除），並在結束時清理本次建立的資料。
+測試期間會暫停 wp-jobs 的自動投遞與對帳（開發用 option，最長 15 分鐘，結束時解除）。
+結束時（含失敗）不刪除任何內容：本次建立的文章、頁面、影片、Podcast 一律改回草稿（非公開），媒體附件保留；
+中斷的執行由下次啟動時依 .runtime/results/wp-contract-pending-cleanup.json 補做。
+唯一的刪除操作：events_reconcile_recovers_after_hook_failure 會永久刪除「該測試當次建立」的一篇文章，以驗證刪除事件的對帳。
 
 exit code：0 全部通過；10 參數錯；20 環境未就緒；30 有測試失敗。
 USAGE

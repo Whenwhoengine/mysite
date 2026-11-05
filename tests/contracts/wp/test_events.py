@@ -34,7 +34,7 @@ def start_receiver(ctx: Context) -> None:
 
 
 def stop_receiver() -> None:
-    compose_exec("wp-php", f"[ -f {RECEIVER_DIR}/pid ] && kill $(cat {RECEIVER_DIR}/pid) 2>/dev/null; rm -rf {RECEIVER_DIR}")
+    compose_exec("wp-php", f"[ -f {RECEIVER_DIR}/pid ] && kill $(cat {RECEIVER_DIR}/pid) 2>/dev/null; true")
 
 
 def set_mode(mode: str) -> None:
@@ -189,7 +189,7 @@ def reconcile(ctx: Context) -> str | None:
         ctx.persist()
         wp("post", "update", str(pid), "--post_title=契約測試對帳文章（故障中修改）")
     finally:
-        wp("option", "delete", "site_content_simulate_outbox_failure", check_ok=False)
+        wp("option", "update", "site_content_simulate_outbox_failure", "0", check_ok=False)
     check(latest_event(pid)["event_id"] == base["event_id"], "故障注入期間不應寫入 outbox")
     stale = public_get(f"/posts/{pid}").json()["data"]
     check(stale["title"] == "契約測試對帳文章（故障中修改）" and stale["content_version"] == v0, "故障期間 WP 已存內容但版本未遞增（模擬漏事件）")
@@ -206,7 +206,7 @@ def reconcile(ctx: Context) -> str | None:
         wp("option", "update", "site_content_simulate_outbox_failure", "1")
         wp("post", "update", str(pid), "--post_status=draft")
     finally:
-        wp("option", "delete", "site_content_simulate_outbox_failure", check_ok=False)
+        wp("option", "update", "site_content_simulate_outbox_failure", "0", check_ok=False)
     wp("site-content", "reconcile", "--ignore-hold")
     unpub = latest_event(pid)
     check(unpub["event_type"] == "content.unpublished" and unpub["status"] == "draft", f"對帳應補送 content.unpublished：{unpub}")
@@ -216,7 +216,7 @@ def reconcile(ctx: Context) -> str | None:
         wp("option", "update", "site_content_simulate_outbox_failure", "1")
         wp("post", "delete", str(pid), "--force")
     finally:
-        wp("option", "delete", "site_content_simulate_outbox_failure", check_ok=False)
+        wp("option", "update", "site_content_simulate_outbox_failure", "0", check_ok=False)
     check(latest_event(pid)["event_id"] == unpub["event_id"], "故障期間刪除不應產生事件")
     wp("site-content", "reconcile", "--ignore-hold")
     gone = latest_event(pid)

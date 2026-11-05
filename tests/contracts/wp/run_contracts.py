@@ -66,7 +66,8 @@ def wait_for_wp(seconds: int = 240) -> bool:
 
 
 def cleanup(ctx: L.Context) -> list[str]:
-    """只清本次（或上次中斷時記錄的）測試資料；清理完成才清空待清理清單。"""
+    """收尾：不刪除任何內容。本次（或上次中斷時記錄的）測試建立的內容一律改回草稿（非公開）；
+    媒體附件保留；測試加上的能力移除、測試用 option 歸零、解除 wp-jobs 暫停。"""
     notes: list[str] = []
     if not wait_for_wp():
         return ["WP-CLI 無法使用，待清理清單保留在 " + str(L.CLEANUP_FILE)]
@@ -74,21 +75,22 @@ def cleanup(ctx: L.Context) -> list[str]:
         test_events.stop_receiver()
     except Exception as exc:  # noqa: BLE001
         notes.append(f"停止測試接收端失敗：{exc}")
-    for user_id in ctx.created_users:
-        L.wp("user", "delete", str(user_id), "--yes", "--reassign=1", check_ok=False)
-    ids = [str(i) for i in sorted(set(ctx.created_posts), reverse=True)]
+    ids = sorted(set(ctx.created_posts))
     if ids:
-        # 已被測試本身刪除的 ID 會產生警告，忽略即可（只刪本次測試建立的內容與附件）。
-        L.wp("post", "delete", *ids, "--force", check_ok=False)
-        left = L.wp("eval", "echo implode(',', array_filter(array(" + ",".join(ids) + "), 'get_post'));", check_ok=False)
-        if left.code != 0 or left.stdout.strip():
-            notes.append(f"仍有測試內容未刪除：{left.stdout.strip() or '（無法確認）'}")
-    for taxonomy, term_id in ctx.created_terms:
-        L.wp("term", "delete", taxonomy, str(term_id), check_ok=False)
+        id_list = ",".join(str(i) for i in ids)
+        php = ("$ids = array(" + id_list + "); $out = array();"
+               " foreach ($ids as $id) { $p = get_post($id);"
+               " if (!$p || !in_array($p->post_type, array('post','page','sc_video','sc_podcast'), true)) continue;"
+               " if (in_array($p->post_status, array('publish','private','future','pending'), true)) {"
+               " $r = wp_update_post(array('ID' => $id, 'post_status' => 'draft'), true); if (is_wp_error($r)) $out[] = $id; } }"
+               " echo implode(',', $out);")
+        res = L.wp("eval", php, check_ok=False)
+        if res.code != 0 or res.stdout.strip():
+            notes.append(f"部分測試內容未能改為草稿：{res.stdout.strip() or '（WP-CLI 失敗）'}")
     for role, cap in ctx.caps_added:
         L.wp("cap", "remove", role, cap, check_ok=False)
     for option in set(ctx.options_set) | {"site_content_simulate_outbox_failure"}:
-        L.wp("option", "delete", option, check_ok=False)
+        L.wp("option", "update", option, "0", check_ok=False)
     L.release_jobs()
     if not notes:
         L.CLEANUP_FILE.write_text("{}", encoding="utf-8")
@@ -101,15 +103,13 @@ def recover_previous(ctx_cls=L.Context) -> list[str]:
         data = json.loads(L.CLEANUP_FILE.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return []
-    if not any(data.get(k) for k in ("posts", "terms", "caps", "options", "users")):
+    if not any(data.get(k) for k in ("posts", "caps", "options")):
         return []
     old = ctx_cls()
     old.created_posts = [int(x) for x in data.get("posts", [])]
-    old.created_terms = [tuple(x) for x in data.get("terms", [])]
     old.caps_added = [tuple(x) for x in data.get("caps", [])]
     old.options_set = list(data.get("options", []))
-    old.created_users = [int(x) for x in data.get("users", [])]
-    return ["已補清上次中斷的測試資料"] + cleanup(old)
+    return ["已把上次中斷的測試內容改回草稿"] + cleanup(old)
 
 
 def main() -> int:

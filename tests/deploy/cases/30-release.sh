@@ -32,20 +32,21 @@ r01_happy() {
   local lar; lar="$(jq -r .laravel "$H/B.json")"
   assert_before "pull $lar" "exec mysql mysqldump" || return 1
   assert_before "exec mysql mysqldump" "restic backup" || return 1
-  assert_before "restic check" "compose[r-test-1] exec -T app-php php artisan down" || return 1
-  assert_before "compose[r-test-1] exec -T app-php php artisan down" "compose[r-test-1] stop app-worker app-scheduler wp-jobs" || return 1
+  assert_before "restic check" "compose[r-test-1] stop app-worker app-scheduler wp-jobs" || return 1
+  assert_file_no_grep 'artisan down' "$STUB_LOG" "expand 變更不需維護模式（舊版可繼續服務）" || return 1
   assert_before "compose[r-test-1] stop app-worker" "compose[r-test-2] run --rm --no-deps -T -e MYSITE_ROLE=cli app-php php artisan migrate --force" || return 1
   assert_before "php artisan migrate --force" "compose[r-test-2] run --rm --no-deps -T -u www-data wp-php wp site-content setup" || return 1
-  assert_before "wp site-content setup" "=compose[r-test-2] up -d --wait --wait-timeout 300" || return 1
-  assert_before "=compose[r-test-2] up -d --wait --wait-timeout 300" "compose[r-test-2] exec -T app-php php artisan up" || return 1
-  assert_before "compose[r-test-2] exec -T app-php php artisan up" "exec app-web deploy-status" || return 1
+  assert_before "wp site-content setup" "compose[r-test-2] up -d --no-deps app-php" || return 1
+  assert_before "compose[r-test-2] up -d --no-deps app-php" "compose[r-test-2] exec -T app-php php artisan up" || return 1
+  assert_before "compose[r-test-2] exec -T app-php php artisan up" "=compose[r-test-2] up -d --wait --wait-timeout 300" || return 1
+  assert_before "=compose[r-test-2] up -d --wait --wait-timeout 300" "exec app-web deploy-status" || return 1
   [[ "$(state active.sequence)" == 2 && "$(state active.confirmation)" == confirmed ]] || fail "active 應為 sequence 2（confirmed）" || return 1
   [[ "$(cenv RELEASE_ID)" == r-test-2 && "$(cenv MYSITE_IMAGE_LARAVEL)" == "$lar" ]] || fail "compose.env 未換成新 digest" || return 1
   grep -q '^RELEASE_ID=r-test-1$' "$HE/state/compose.env.prev" || fail "未保留上一版 compose.env" || return 1
   [[ "$(wc -l < "$HE/state/history.jsonl")" == 2 ]] || fail "發布歷史應有 2 筆" || return 1
   [[ "$(wc -l < "$HE/state/backups.jsonl")" == 2 ]] || fail "每次部署前都應有成功備份紀錄" || return 1
   assert_file_no_grep 'down -v|migrate:fresh|migrate:rollback|prune' "$STUB_LOG" "不得出現破壞性指令" || return 1
-  echo "OK: 拉 digest→備份→維護→暫停寫入者→migration→WP setup→換版→退出維護→smoke→active，順序正確且無破壞性指令"
+  echo "OK: 拉 digest→備份→暫停寫入者→migration→WP setup→新 app-php＋解除維護→全部換版並等就緒→smoke→active，順序正確且無破壞性指令"
 }
 
 r02_lock() {
@@ -112,7 +113,10 @@ r05_schema() {
   [[ "$(cenv RELEASE_ID)" == r-test-1 ]] || fail "現行版本不得改變" || return 1
   [[ "$(state pending.status)" == awaiting_approval ]] || fail "pending 應為 awaiting_approval" || return 1
   rel "$H/e2.json" --approved-schema-plan=plan-other; assert_rc 40 $? "核准參照不符應拒絕" || return 1
+  : > "$STUB_LOG"
   rel "$H/e2.json" --approved-schema-plan=plan-2026-11-05-drop-col; assert_rc 0 $? "核准後應可部署" || { tail "$H/last.out"; return 1; }
+  assert_before "compose[r-test-1] exec -T app-php php artisan down" "php artisan migrate --force" || return 1
+  assert_before "php artisan migrate --force" "compose[r-test-2] exec -T app-php php artisan up" || return 1
   [[ "$(state active.schema_change_class)" == contract ]] || fail "active 應記錄 contract" || return 1
   echo "OK: contract 變更未核准或參照不符 → exit 40 且未換版；核准參照相符後才在維護模式下部署"
 }

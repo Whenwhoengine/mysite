@@ -201,13 +201,15 @@ if (( first_install )) && [[ -z "$first_install_ref" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 8. 維護模式＋暫停寫入者（舊版仍在執行時）
+# 8. 暫停寫入者；contract／breaking 另進維護模式（none／expand 向後相容，舊版可在 migration 期間繼續服務讀取）
 # ---------------------------------------------------------------------------
 md_state_step --step maintenance
 md_write_compose_env "$next_env"
 if [[ -f "$current_env" && -n "$(md_container app-php)" ]]; then
-  md_compose exec -T app-php php artisan down --retry=60 >/dev/null || fail MAINTENANCE_FAILED "$EXIT_DEPLOY_INCOMPLETE" "無法進入維護模式"
-  maintenance_on=1
+  if [[ "$cls" == contract || "$cls" == breaking ]]; then
+    md_compose exec -T app-php php artisan down --retry=60 >/dev/null || fail MAINTENANCE_FAILED "$EXIT_DEPLOY_INCOMPLETE" "無法進入維護模式"
+    maintenance_on=1
+  fi
   md_compose stop app-worker app-scheduler wp-jobs >/dev/null || { restore_old_service; fail WRITER_STOP_FAILED "$EXIT_DEPLOY_INCOMPLETE" "無法暫停寫入者"; }
   writers_stopped=1
 fi
@@ -272,12 +274,16 @@ revert_to_previous() {
   return 0
 }
 
-if ! md_compose up -d --wait --wait-timeout 300 >/dev/null; then
+# 先以新映像重建 app-php 並解除維護（維護中 app-web 的 /healthz 會回 503，gateway 依賴其健康狀態），再等全部服務就緒
+switch_failed() {
   if revert_to_previous; then fail SWITCH_FAILED_REVERTED "$EXIT_DEPLOY_INCOMPLETE" "新版服務未就緒，已回到上一版程式（資料未倒帶）"; fi
   fail SWITCH_FAILED_HOLD "$EXIT_DEPLOY_INCOMPLETE" "新版服務未就緒且無法自動回到上一版；維持現場待人工處理"
-fi
+}
+md_compose up -d --no-deps app-php >/dev/null || switch_failed
+ms_wait_until 120 2 md_compose exec -T app-php php -r 'exit(0);' || switch_failed
 md_compose exec -T app-php php artisan up >/dev/null || fail MAINTENANCE_OFF_FAILED "$EXIT_DEPLOY_INCOMPLETE" "無法退出維護模式"
 maintenance_on=0
+md_compose up -d --wait --wait-timeout 300 >/dev/null || switch_failed
 
 # ---------------------------------------------------------------------------
 # 11. smoke（release ID＋HTTPS）

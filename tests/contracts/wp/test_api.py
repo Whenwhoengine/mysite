@@ -234,9 +234,9 @@ def wp03(ctx: Context) -> str | None:
                              "--post_content=sc-contract-pending-marker")
     excluded = wp_create_post(ctx, "--post_type=sc_video", "--post_status=publish", "--post_title=契約測試排除影片 sc-contract-exclude-marker",
                               "--post_content=sc-contract-exclude-marker", "--meta_input={\"sc_exclude\":\"1\",\"sc_youtube_url\":\"https://youtu.be/Contract-01\"}")
-    term = wp("term", "create", "category", "契約測試私人分類", "--slug=sc-contract-private-cat", "--porcelain").stdout.strip()
-    ctx.created_terms.append(("category", int(term)))
-    ctx.persist()
+    # 固定 slug、可重複使用的測試分類（不刪除；平時沒有任何內容使用）。
+    if not wp_json("term", "list", "category", "--slug=sc-contract-private-cat", "--fields=term_id", "--format=json"):
+        wp("term", "create", "category", "契約測試私人分類", "--slug=sc-contract-private-cat", "--porcelain")
     wp("post", "term", "set", str(targets["sample-hidden-draft"]), "category", "sc-contract-private-cat", "sample-notes", "--by=slug")
     targets["pending"] = pending
     targets["excluded"] = excluded

@@ -183,6 +183,24 @@ class Response:
 
 def http_request(base: str, method: str, path: str, headers: dict[str, str] | None = None,
                  body: bytes | None = None, host_header: str | None = None, timeout: int = 60) -> Response:
+    """單次 HTTP 請求；gateway 回 502／504 或連線失敗（服務重建中）時最多重試 2 分鐘。"""
+    deadline = time.time() + 120
+    while True:
+        try:
+            resp = _http_once(base, method, path, headers, body, host_header, timeout)
+        except (ConnectionError, http.client.HTTPException, OSError):
+            if time.time() > deadline:
+                raise
+            time.sleep(3)
+            continue
+        if resp.status in (502, 504) and b"nginx" in resp.body and time.time() <= deadline:
+            time.sleep(3)
+            continue
+        return resp
+
+
+def _http_once(base: str, method: str, path: str, headers: dict[str, str] | None,
+               body: bytes | None, host_header: str | None, timeout: int) -> Response:
     parsed = urllib.parse.urlsplit(base)
     conn_cls = http.client.HTTPSConnection if parsed.scheme == "https" else http.client.HTTPConnection
     conn = conn_cls(parsed.hostname, parsed.port or (443 if parsed.scheme == "https" else 80), timeout=timeout)
@@ -449,8 +467,7 @@ class Context:
 
     def persist(self) -> None:
         """把待清理清單寫到結果目錄；中斷的執行可在下次開始時補清。"""
-        data = {"posts": self.created_posts, "terms": self.created_terms, "caps": self.caps_added,
-                "options": self.options_set, "users": self.created_users}
+        data = {"posts": self.created_posts, "caps": self.caps_added, "options": self.options_set}
         try:
             RESULTS_DIR.mkdir(parents=True, exist_ok=True)
             CLEANUP_FILE.write_text(json.dumps(data), encoding="utf-8")
@@ -495,4 +512,4 @@ def hold_jobs(seconds: int = 900) -> None:
 
 
 def release_jobs() -> None:
-    wp("option", "delete", "site_content_jobs_hold_until", check_ok=False)
+    wp("option", "update", "site_content_jobs_hold_until", "0", check_ok=False)
