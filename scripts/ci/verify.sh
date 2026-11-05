@@ -37,7 +37,8 @@ case "$scope" in content|simulation) ;; *) usage >&2; exit "$EXIT_USAGE" ;; esac
 root="$(ms_root)"; cd "$root"; ms_load_versions "$root"
 results="$root/.runtime/results"
 mkdir -p "$results"
-chgrp 33 "$results" 2>/dev/null || true; chmod 0775 "$results"
+# 結果目錄不含秘密：允許 tools 容器（www-data）寫入
+chmod 0777 "$results"
 run_id="${MYSITE_RUN_ID:-local-$(date -u +%Y%m%dT%H%M%SZ)}"
 commit="$(git rev-parse HEAD)"
 backend="${MYSITE_EXECUTION_BACKEND:-$([[ -n "${GITHUB_ACTIONS:-}" ]] && echo github-actions || echo claude-cloud-compose)}"

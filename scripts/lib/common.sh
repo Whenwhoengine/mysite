@@ -100,3 +100,15 @@ ms_compose_files() {
 ms_has_proxy_ca() {
   [[ -n "${HTTPS_PROXY:-}" && -s /root/.ccr/ca-bundle.crt ]]
 }
+
+# 把檔案／目錄群組設為 33（容器內 www-data；MySQL 容器以 999:33 執行），讓容器讀得到 0640 秘密檔。
+# root 直接 chgrp；非 root（例如 GitHub-hosted runner）改用免密碼 sudo；兩者皆不可用時回傳失敗。
+ms_chgrp_33() {
+  if [[ "$(id -u)" == 0 ]]; then
+    chgrp "$@" 33 2>/dev/null || chgrp 33 "$@"
+  elif sudo -n true >/dev/null 2>&1; then
+    sudo -n chgrp 33 "$@"
+  else
+    return 1
+  fi
+}

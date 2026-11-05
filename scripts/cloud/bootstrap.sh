@@ -57,7 +57,7 @@ evidence_dir="$root/.runtime/evidence"
 mkdir -p "$root/.runtime/env" "$secrets_dir/ca" "$state_dir" "$evidence_dir" "$root/.runtime/dist"
 chmod 0700 "$root/.runtime/secrets" "$secrets_dir/ca"
 chmod 0750 "$secrets_dir"
-chgrp 33 "$secrets_dir" 2>/dev/null || true
+ms_chgrp_33 "$secrets_dir" || ms_die "$EXIT_EXTERNAL" "無法把秘密目錄群組設為 33（需要 root 或免密碼 sudo）；容器將讀不到秘密檔"
 
 project="$(ms_compose_project "$env_name")"
 volume_exists() { docker volume inspect "${project}_$1" >/dev/null 2>&1; }
@@ -104,7 +104,7 @@ rand_b64() { openssl rand -base64 "$1" | tr -d '\n=+/' | cut -c1-"$2"; }
 write_secret() {
   local name="$1" value="$2" path="$secrets_dir/$1"
   ( umask 077; printf '%s\n' "$value" > "$path.tmp" )
-  chgrp 33 "$path.tmp" 2>/dev/null || true
+  ms_chgrp_33 "$path.tmp" || ms_die "$EXIT_EXTERNAL" "無法把秘密檔群組設為 33（需要 root 或免密碼 sudo）"
   chmod 0640 "$path.tmp"
   mv "$path.tmp" "$path"
 }
@@ -128,7 +128,7 @@ if need_secret wp_salts mysql-data; then
   for n in AUTH_KEY SECURE_AUTH_KEY LOGGED_IN_KEY NONCE_KEY AUTH_SALT SECURE_AUTH_SALT LOGGED_IN_SALT NONCE_SALT; do
     salts+="$n=$(rand_b64 96 64)"$'\n'
   done
-  ( umask 077; printf '%s' "$salts" > "$secrets_dir/wp_salts.tmp" ); chgrp 33 "$secrets_dir/wp_salts.tmp" 2>/dev/null || true
+  ( umask 077; printf '%s' "$salts" > "$secrets_dir/wp_salts.tmp" ); ms_chgrp_33 "$secrets_dir/wp_salts.tmp" || ms_die "$EXIT_EXTERNAL" "無法設定 wp_salts 群組"
   chmod 0640 "$secrets_dir/wp_salts.tmp"; mv "$secrets_dir/wp_salts.tmp" "$secrets_dir/wp_salts"
 fi
 need_secret content_event_hmac_key "" && write_secret content_event_hmac_key "$(openssl rand -hex 32)"
@@ -147,7 +147,7 @@ if [[ ! -s "$secrets_dir/ca/ca.key" || ! -s "$secrets_dir/ca/ca.crt" ]]; then
       -addext "basicConstraints=critical,CA:TRUE" -addext "keyUsage=critical,keyCertSign,cRLSign" -out "$secrets_dir/ca/ca.crt" )
   rm -f "$secrets_dir/wp_internal_tls_cert"
 fi
-cp "$secrets_dir/ca/ca.crt" "$secrets_dir/internal_ca_cert.tmp"; chgrp 33 "$secrets_dir/internal_ca_cert.tmp" 2>/dev/null || true
+cp "$secrets_dir/ca/ca.crt" "$secrets_dir/internal_ca_cert.tmp"; ms_chgrp_33 "$secrets_dir/internal_ca_cert.tmp" || ms_die "$EXIT_EXTERNAL" "無法設定 internal_ca_cert 群組"
 chmod 0640 "$secrets_dir/internal_ca_cert.tmp"; mv "$secrets_dir/internal_ca_cert.tmp" "$secrets_dir/internal_ca_cert"
 if [[ ! -s "$secrets_dir/wp_internal_tls_cert" ]] || ! openssl x509 -checkend $((30*86400)) -noout -in "$secrets_dir/wp_internal_tls_cert" >/dev/null 2>&1; then
   ( umask 077
@@ -157,7 +157,7 @@ if [[ ! -s "$secrets_dir/wp_internal_tls_cert" ]] || ! openssl x509 -checkend $(
     openssl x509 -req -in "$secrets_dir/wp.csr" -CA "$secrets_dir/ca/ca.crt" -CAkey "$secrets_dir/ca/ca.key" -CAcreateserial \
       -days 397 -sha256 -extfile "$secrets_dir/wp.ext" -out "$secrets_dir/wp_internal_tls_cert" 2>/dev/null
     rm -f "$secrets_dir/wp.csr" "$secrets_dir/wp.ext" "$secrets_dir/ca/ca.srl" )
-  chgrp 33 "$secrets_dir/wp_internal_tls_cert" "$secrets_dir/wp_internal_tls_key" 2>/dev/null || true
+  ms_chgrp_33 "$secrets_dir/wp_internal_tls_cert" "$secrets_dir/wp_internal_tls_key" || ms_die "$EXIT_EXTERNAL" "無法設定 wp-web TLS 檔群組"
   chmod 0640 "$secrets_dir/wp_internal_tls_cert" "$secrets_dir/wp_internal_tls_key"
 fi
 # 服務帳號 Application Password 在 WP 安裝後建立；先放不可用的佔位值，避免 Compose 因缺檔拒絕載入。
@@ -194,7 +194,7 @@ if [[ "$env_name" == development ]]; then
   # 開發用空白 .env（不含任何設定或秘密；設定由 Compose 注入），避免 dotenv 讀取不存在檔案的警告
   [[ -f "$root/app/.env" ]] || printf '# 開發用：設定由 Compose 環境變數注入，秘密由 *_FILE 讀取；請勿在此填入任何值。\n' > "$root/app/.env"
   mkdir -p "$root/app/storage/framework/"{cache/data,sessions,views,testing} "$root/app/storage/logs" "$root/app/bootstrap/cache"
-  chgrp -R 33 "$root/app/storage" "$root/app/bootstrap/cache"; chmod -R g+rwX "$root/app/storage" "$root/app/bootstrap/cache"
+  ms_chgrp_33 -R "$root/app/storage" "$root/app/bootstrap/cache" || ms_die "$EXIT_EXTERNAL" "無法設定 storage 群組"; chmod -R g+rwX "$root/app/storage" "$root/app/bootstrap/cache"
 fi
 
 # ---------------------------------------------------------------------------
