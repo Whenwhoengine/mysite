@@ -78,3 +78,7 @@ Thumbs.db
 .vscode/
 *.swp
 /tests/e2e/screenshots/
+
+# Python 位元組碼
+__pycache__/
+*.pyc

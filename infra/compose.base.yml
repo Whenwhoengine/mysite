@@ -71,6 +71,7 @@ x-wp-env: &wp-env
   WP_ENVIRONMENT_TYPE: ${WP_ENVIRONMENT_TYPE}
   WP_CLI_CACHE_DIR: /tmp/wp-cli-cache
   WP_CLI_DISABLE_AUTO_CHECK_UPDATE: "1"
+  PAGER: cat
   WP_DB_HOST: mysql
   WP_DB_NAME: ${WP_DB_NAME:-mysite_wp}
   WP_DB_USER: ${WP_DB_USER:-mysite_wp}

@@ -164,3 +164,14 @@ claims：
 | `SIMULATION_ONLY` | 422 | 嘗試真實交易語意（例如 real 模式或付款欄位） |
 
 公開錯誤頁顯示正體中文訊息與隨機 request ID，不含 stack trace、路徑或上游細節。
+
+## 7. v1 相容擴充（2026-11-05，WP 工作包實作後補記；皆為新增，不破壞既有欄位語意）
+
+1. 以 `slug` 查詢且回單筆時，item 含 `body_html`（列表一般查詢仍不含）。
+2. 新增 `GET /pages/{id}`、`GET /videos/{id}`、`GET /podcasts/{id}`（與 `/posts/{id}` 相同規則）。
+3. 選單項目可能帶 `children`（同結構的子項陣列）；不支援巢狀的用戶端可忽略。
+4. `/taxonomies` 只列出「公開內容數量大於 0」的分類與標籤。
+5. 影片 YouTube ID 或 Podcast 音訊來源不合法時，`video`／`podcast` 為 `null`；Laravel 顯示播放器失效狀態並保留簡介。
+6. 已刪除內容的 `visibility` 回 `visible:false` 與最後一個 `content_version`。
+7. 只有「公開狀態相關」的變化才產生事件（發布、公開內容修改、撤下、刪除）；草稿之間的修改不發事件。
+8. 錯誤的 Application Password 會被 WordPress 視為匿名請求（核心認證順序），私密預覽端點仍回 403 `site_content_preview_invalid`。

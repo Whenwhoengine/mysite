@@ -272,6 +272,12 @@ if (( seed )); then
   else
     ms_warn "site-content seed 指令尚未實作；略過 WP 示例資料"
   fi
+  # WordPress 安裝時附帶的英文預設文章／頁面不屬本站內容：改為草稿（不刪除）
+  for default_slug in hello-world sample-page; do
+    for id in $(wp post list --post_type=post,page --name="$default_slug" --post_status=publish --field=ID 2>/dev/null); do
+      wp post update "$id" --post_status=draft --quiet
+    done
+  done
   if ms_compose exec -T app-php test -f database/seeders/DevelopmentSeeder.php; then
     artisan db:seed --class='Database\Seeders\DevelopmentSeeder' --force --no-interaction
   fi
