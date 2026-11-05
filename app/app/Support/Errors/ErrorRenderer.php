@@ -44,11 +44,13 @@ final class ErrorRenderer
         });
 
         $exceptions->render(function (Throwable $e, Request $request): ?Response {
-            if (config('app.debug')) {
-                return null; // 開發環境沿用框架除錯頁
-            }
             if ($e instanceof \Illuminate\Validation\ValidationException || $e instanceof \Illuminate\Auth\AuthenticationException) {
                 return null; // 框架原生處理（表單錯誤、導向登入）
+            }
+            // 4xx 一律使用本站正體中文錯誤頁；只有 5xx 系統錯誤在除錯模式下沿用框架除錯頁
+            $isClientError = $e instanceof HttpExceptionInterface && $e->getStatusCode() < 500;
+            if (config('app.debug') && ! $isClientError && ! $e instanceof \Illuminate\Session\TokenMismatchException) {
+                return null;
             }
             if ($e instanceof \Illuminate\Session\TokenMismatchException) {
                 return self::respond($request, 419, 'SESSION_EXPIRED', '頁面已逾時，請重新整理後再試一次。');
