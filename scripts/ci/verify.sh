@@ -150,6 +150,17 @@ phpunit_step() {
       --log-junit /opt/mysite/results/junit.xml \
       --coverage-clover /opt/mysite/results/coverage.xml \
       --coverage-text=/opt/mysite/results/coverage.txt --colors=never
+  local rc=$?
+  # 覆蓋率閘門：自製業務程式（app/app）行覆蓋率 ≥ 70%（不得以擴大排除或灌水測試達標）
+  local pct
+  pct="$(grep -m1 -oE 'Lines:[[:space:]]+[0-9.]+%' "$results/coverage.txt" 2>/dev/null | grep -oE '[0-9.]+' || echo 0)"
+  if awk -v p="$pct" 'BEGIN{exit !(p+0 >= 70)}'; then
+    record coverage line-coverage-gate "" PASS "行覆蓋率 ${pct}%"
+  else
+    record coverage line-coverage-gate "" FAIL "行覆蓋率 ${pct}% 低於 70%"
+    rc=30
+  fi
+  return $rc
 }
 
 wp_contract_step() {
