@@ -1205,11 +1205,11 @@
       "expected": "如需 Actions 生成初始骨架，應版控的生成原始碼與 lockfiles 能安全取回並提交，不只留在 job 暫存",
       "scope": "content",
       "verification_venue": "ci",
-      "status": "NOT_RUN",
+      "status": "NOT_APPLICABLE",
       "tests": [],
       "evidence": [],
       "blocker_id": null,
-      "note": null
+      "note": "本案未使用 Actions 生成初始骨架：Laravel 骨架與 composer.lock／package-lock.json 於 Claude 雲端 VM 生成並直接提交（自 commit 796fadd 起，皆在 Git 歷史中）。sandbox.yml 的 bootstrap-source 路徑已備妥（只輸出第一方 lockfile、SHA256SUMS 與來源 commit），但 workflow_dispatch 須該檔存在於預設分支，合併前無法觸發，故未實際執行；日後若需以 Actions 重新解析 lockfile，應改測此項。"
     },
     {
       "id": "EXEC-04",
