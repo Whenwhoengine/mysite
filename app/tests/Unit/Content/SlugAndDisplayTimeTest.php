@@ -42,7 +42,10 @@ final class SlugAndDisplayTimeTest extends TestCase
         $this->assertSame('https://www.example.org/', PageMeta::canonicalUrl('/'));
         $this->assertSame('標題｜站名', (new PageMeta('標題', '', null))->fullTitle('站名'));
         $this->assertSame('站名', (new PageMeta('站名', '', null))->fullTitle('站名'));
-        $this->assertSame(150, mb_strlen(PageMeta::describe(str_repeat('字', 300), 'x')));
+        $described = PageMeta::describe(str_repeat('字', 300), 'x');
+        $this->assertLessThanOrEqual(152, mb_strwidth($described));
+        $this->assertStringEndsWith('…', $described);
+        $this->assertSame('備用說明', PageMeta::describe("  \n ", '備用說明'));
     }
 
     #[Test]

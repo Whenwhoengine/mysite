@@ -1,0 +1,93 @@
+# staging／production 覆寫（v5 §13.4–13.6、§14.4、ADR-003）：
+#   - 應用映像一律使用「已驗簽發布清單」提供的 registry/name@sha256:digest；不 build、不用 tag、不自動拉取
+#     （scripts/deploy/release.sh 先拉齊並核對全部 digest 才換版，故 pull_policy: never）
+#   - 不掛任何原始碼；資料只在具名 volume（mysql-data、wp-uploads、app-storage）
+#   - 對外只發布 gateway 的 80／443；MySQL、PHP-FPM、內部健康檢查一律不發布
+#   - gateway 依 MYSITE_GATEWAY_MODE 選模板：bootstrap（只有 ACME＋維護頁）或 https；TLS 目錄唯讀掛載
+#   - MySQL 映像由平台 infra/versions.env 固定，發布清單無法更換（大版本變更另走審核）
+# 用法（只由 scripts/lib/deploy.sh 的 md_compose 呼叫）：
+#   docker compose --env-file infra/versions.env --env-file <host>/environments/<env>/state/compose.env \
+#     -f infra/compose.base.yml -f infra/compose.prod.yml ...
+# 必要變數由 state/compose.env 提供（缺少即拒絕啟動）：MYSITE_IMAGE_*、MYSITE_SECRETS_DIR、MYSITE_TLS_DIR、MYSITE_ACME_DIR、
+#   APP_HOST、CMS_HOST、RELEASE_ID、DEPLOY_ENVIRONMENT、DEPLOY_CHANNEL。秘密（含 deploy_status_token）沿用 compose.base.yml 的 file secrets。
+
+x-prod-app-env: &prod-app-env
+  APP_DEBUG: "false"
+  SESSION_SECURE_COOKIE: "true"
+  MAIL_MAILER: ${MAIL_MAILER:-log}
+  RELEASE_ID: ${RELEASE_ID:?RELEASE_ID 必須由已驗簽清單提供}
+  DEPLOY_ENVIRONMENT: ${DEPLOY_ENVIRONMENT:?DEPLOY_ENVIRONMENT 必須提供}
+  DEPLOY_CHANNEL: ${DEPLOY_CHANNEL:?DEPLOY_CHANNEL 必須提供}
+  DEPLOY_STATUS_TOKEN_FILE: /run/secrets/deploy_status_token
+
+x-prod-logging: &prod-logging
+  driver: json-file
+  options:
+    max-size: "20m"   # 暫定：單檔 20 MB
+    max-file: "5"     # 暫定：保留 5 檔
+
+services:
+  mysql:
+    pull_policy: missing
+    logging: *prod-logging
+
+  wp-php:
+    image: ${MYSITE_IMAGE_WORDPRESS:?發布清單未提供 wordpress 映像}
+    pull_policy: never
+    logging: *prod-logging
+
+  wp-jobs:
+    image: ${MYSITE_IMAGE_WORDPRESS:?發布清單未提供 wordpress 映像}
+    pull_policy: never
+    logging: *prod-logging
+
+  wp-web:
+    image: ${MYSITE_IMAGE_WP_WEB:?發布清單未提供 wp-web 映像}
+    pull_policy: never
+    logging: *prod-logging
+
+  app-php:
+    image: ${MYSITE_IMAGE_LARAVEL:?發布清單未提供 laravel 映像}
+    pull_policy: never
+    environment: *prod-app-env
+    logging: *prod-logging
+
+  app-worker:
+    image: ${MYSITE_IMAGE_LARAVEL:?發布清單未提供 laravel 映像}
+    pull_policy: never
+    environment: *prod-app-env
+    logging: *prod-logging
+
+  app-scheduler:
+    # 單一實例（不得 scale）：Laravel scheduler 只能有一個有效執行者
+    image: ${MYSITE_IMAGE_LARAVEL:?發布清單未提供 laravel 映像}
+    pull_policy: never
+    environment: *prod-app-env
+    logging: *prod-logging
+
+  app-web:
+    image: ${MYSITE_IMAGE_APP_WEB:?發布清單未提供 app-web 映像}
+    pull_policy: never
+    logging: *prod-logging
+
+  gateway:
+    image: ${MYSITE_IMAGE_GATEWAY:?發布清單未提供 gateway 映像}
+    pull_policy: never
+    environment:
+      NGINX_ENVSUBST_TEMPLATE_DIR: /etc/nginx/templates/${MYSITE_GATEWAY_MODE:-bootstrap}
+      APP_HOST: ${APP_HOST:?APP_HOST 必須是核准網域}
+      CMS_HOST: ${CMS_HOST:?CMS_HOST 必須是核准網域}
+      MYSITE_HSTS_HEADER: ${MYSITE_HSTS_HEADER:-}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ${MYSITE_TLS_DIR:?MYSITE_TLS_DIR 必須提供}:/etc/mysite-tls:ro
+      - ${MYSITE_ACME_DIR:?MYSITE_ACME_DIR 必須提供}:/var/www/acme:ro
+    logging: *prod-logging
+
+  # 工具容器在正式環境也只使用同一個已驗簽 Laravel 映像（不使用 dev 映像）
+  tools:
+    image: ${MYSITE_IMAGE_LARAVEL:?發布清單未提供 laravel 映像}
+    pull_policy: never
+    environment: *prod-app-env

@@ -22,7 +22,8 @@ final class Slug
         if (preg_match('/^[%a-z0-9-]{1,200}$/', $decoded) === 1 && rawurldecode($decoded) !== $decoded) {
             return mb_check_encoding(rawurldecode($decoded), 'UTF-8') ? $decoded : null;
         }
-        if (preg_match('/[A-Z\s\/\\\\?#&=+_.]/', $decoded) === 1) {
+        // 純 ASCII 只能符合第一條規則；其餘（含大寫、底線、斜線、空白等）一律不存在
+        if (preg_match('/^[\x00-\x7f]*$/', $decoded) === 1 || preg_match('/[A-Z\s\/\\\\?#&=+_.%]/', $decoded) === 1) {
             return null;
         }
         $encoded = strtolower(rawurlencode($decoded));
