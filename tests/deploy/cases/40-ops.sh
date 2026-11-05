@@ -107,11 +107,18 @@ o05_rotate_guards() {
   new_host o05 staging; host_running
   rot --kind=app-db; assert_rc 40 $? "缺 --approved-plan" || return 1
   run_host bash "$T_REPO/scripts/ops/rotate-secrets.sh" --env=development --kind=app-db --approved-plan=p-dev; assert_rc 40 $? "development 未加 --allow-development" || return 1
+  run_host bash "$T_REPO/scripts/ops/rotate-secrets.sh" --env=testing --kind=event-hmac --approved-plan=p-test --phase=add; assert_rc 40 $? "testing 未加 --allow-testing" || return 1
+  # 應用已支援金鑰圈後預設為 yes；仍跑舊版發布的主機明確設 no 時，輪替必須拒絕（GAP-KEYRING-01）
+  printf 'KEYRING_SUPPORT=no\nAPP_PREVIOUS_KEYS_SUPPORT=no\n' >> "$HE/config/deploy.env"
   rot --kind=event-hmac --approved-plan=p-1 --phase=add; assert_rc 20 $? "應用未支援金鑰圈" || return 1
   assert_file_grep 'APP_SUPPORT_MISSING' "$H/last.out" "應說明需要應用支援" || return 1
   rot --kind=app-key --approved-plan=p-1 --phase=add; assert_rc 20 $? "Laravel 未支援 APP_PREVIOUS_KEYS_FILE" || return 1
+  assert_file_grep 'APP_SUPPORT_MISSING' "$H/last.out" "app-key 也應說明需要應用支援" || return 1
   rot --kind=event-hmac --approved-plan=p-1; assert_rc 10 $? "event-hmac 缺 --phase" || return 1
-  printf 'KEYRING_SUPPORT=yes\n' >> "$HE/config/deploy.env"
+  [[ ! -e "$HE/secrets/content_event_hmac_keyring" && ! -e "$HE/secrets/app_previous_keys" ]] || fail "被拒時不得建立或改寫任何秘密檔" || return 1
+  # 拿掉 no（回到預設）：以下三期在預設設定下執行，證明預設已是 yes
+  sed -i '/^KEYRING_SUPPORT=/d; /^APP_PREVIOUS_KEYS_SUPPORT=/d' "$HE/config/deploy.env"
+  ! grep -q 'SUPPORT=' "$HE/config/deploy.env" || fail "測試前置：主機設定不應再寫支援旗標" || return 1
   ( umask 027; openssl rand -hex 32 > "$HE/secrets/content_event_hmac_key" )
   local ring="$HE/secrets/content_event_hmac_keyring"
   rot --kind=event-hmac --approved-plan=p-1 --phase=promote; assert_rc 10 $? "未 add 不得 promote" || return 1
@@ -120,12 +127,48 @@ o05_rotate_guards() {
   rot --kind=event-hmac --approved-plan=p-1 --phase=add; assert_rc 10 $? "過渡中不得再 add" || return 1
   rot --kind=event-hmac --approved-plan=p-1 --phase=promote; assert_rc 0 $? "promote" || return 1
   [[ "$(awk '{print $1":"$3}' "$ring" | tr '\n' ' ')" == "k1:accept k2:active " ]] || fail "promote 後應為 k2 active、k1 accept" || return 1
+  local k1_key; k1_key="$(awk '$1 == "k1" { print $2 }' "$ring")"
   rot --kind=event-hmac --approved-plan=p-1 --phase=retire; assert_rc 0 $? "retire" || return 1
   [[ "$(awk '{print $1":"$3}' "$ring" | tr '\n' ' ')" == "k2:active " ]] || fail "retire 後只剩 k2 active" || return 1
-  local k; for k in $(awk '{print $2}' "$ring"); do secret_leak_check "$k" "金鑰圈內容" || return 1; done
+  [[ "$(tr -d '\n' < "$HE/secrets/content_event_hmac_key")" == "$(awk '{print $2}' "$ring")" ]] || fail "retire 後單一金鑰檔應同步為剩下的 active key（不得留著已撤銷的舊 key）" || return 1
+  [[ "$(stat -c '%a' "$HE/secrets/content_event_hmac_key")" == 640 ]] || fail "單一金鑰檔權限應為 0640" || return 1
+  local k; for k in $(awk '{print $2}' "$ring") "$k1_key"; do secret_leak_check "$k" "金鑰圈內容" || return 1; done
   grep -nE 'compose\[\] up -d --no-deps --force-recreate --wait --wait-timeout 180 (app-php|wp-php)' "$STUB_LOG" | head -n 2 | grep -q 'app-php' \
     || fail "接收端（Laravel）必須先於發送端（WP）重建" || return 1
-  echo "OK: 無核准／development 未明示／應用未支援皆拒絕；事件金鑰 add→promote→retire 雙期過渡，順序錯誤即拒絕，金鑰值不外洩"
+  grep -q 'exec -T app-php php artisan mysite:keyring event-hmac' "$STUB_LOG" && grep -q 'exec -T -u www-data wp-jobs wp site-content keyring event-hmac' "$STUB_LOG" \
+    || fail "每期都要確認 Laravel 與 WP（含 wp-jobs）實際載入的金鑰圈" || return 1
+  grep -q 'retire 期限' "$HE/state/rotations.jsonl" || fail "promote 應記錄 retire 期限" || return 1
+
+  # 預覽金鑰：容器實際載入的金鑰圈與秘密檔不一致（映像過舊）→ 驗證失敗並回到上一階段
+  ( umask 027; openssl rand -hex 32 > "$HE/secrets/preview_signing_key" )
+  local pring="$HE/secrets/preview_signing_keyring"
+  touch "$STUB_DIR/keyring-stale"
+  rot --kind=preview --approved-plan=p-2 --phase=add; assert_rc 50 $? "未實際載入新金鑰圈應視為驗證失敗" || return 1
+  assert_file_grep 'VERIFY_FAILED_REVERTED' "$H/last.out" "應回報已回到上一階段" || return 1
+  [[ "$(awk '{print $1":"$3}' "$pring" | tr '\n' ' ')" == "k1:active " ]] || fail "驗證失敗後金鑰圈應回到 k1 active" || return 1
+  rm -f "$STUB_DIR/keyring-stale"
+  rot --kind=preview --approved-plan=p-2 --phase=add; assert_rc 0 $? "preview add" || { tail "$H/last.out"; return 1; }
+  [[ "$(awk '{print $1":"$3}' "$pring" | tr '\n' ' ')" == "k1:active k2:accept " ]] || fail "preview add 後應為 k1 active、k2 accept" || return 1
+  rot --kind=preview --approved-plan=p-2 --phase=revert; assert_rc 0 $? "preview revert" || return 1
+  [[ "$(awk '{print $1":"$3}' "$pring" | tr '\n' ' ')" == "k1:active " ]] || fail "revert 後應回到 k1 active" || return 1
+  [[ "$(awk '{print $2}' "$pring")" == "$(tr -d '\n' < "$HE/secrets/preview_signing_key")" ]] || fail "預覽金鑰圈的 k1 應等於原單一金鑰" || return 1
+  for k in $(awk '{print $2}' "$pring"); do secret_leak_check "$k" "預覽金鑰圈內容" || return 1; done
+
+  # APP_KEY：add（舊 key 移入 app_previous_keys）→ retire（清空）；Laravel 實際載入的舊金鑰數量需與秘密檔一致
+  ( umask 027; printf 'base64:%s\n' "$(openssl rand -base64 32)" > "$HE/secrets/app_key" )
+  local old_app; old_app="$(cat "$HE/secrets/app_key")"
+  rot --kind=app-key --approved-plan=p-3 --phase=add; assert_rc 0 $? "app-key add" || { tail "$H/last.out"; return 1; }
+  [[ "$(cat "$HE/secrets/app_previous_keys")" == "$old_app" ]] || fail "add 後舊 APP_KEY 應移入 app_previous_keys" || return 1
+  [[ "$(cat "$HE/secrets/app_key")" =~ ^base64:[A-Za-z0-9+/]{43}=$ && "$(cat "$HE/secrets/app_key")" != "$old_app" ]] || fail "add 後應換成新的 APP_KEY" || return 1
+  rot --kind=app-key --approved-plan=p-3 --phase=add; assert_rc 10 $? "上一次 add 尚未 retire 不得再 add" || return 1
+  local new_app; new_app="$(cat "$HE/secrets/app_key")"
+  rot --kind=app-key --approved-plan=p-3 --phase=retire; assert_rc 0 $? "app-key retire" || return 1
+  [[ -f "$HE/secrets/app_previous_keys" && ! -s "$HE/secrets/app_previous_keys" ]] || fail "retire 後 app_previous_keys 應為空檔（檔案保留供 Compose 掛載）" || return 1
+  [[ "$(cat "$HE/secrets/app_key")" == "$new_app" ]] || fail "retire 不得改變目前的 APP_KEY" || return 1
+  grep -q 'exec -T app-php php artisan mysite:keyring app-key' "$STUB_LOG" || fail "應確認 Laravel 實際載入的舊 APP_KEY 數量" || return 1
+  secret_leak_check "$old_app" "舊 APP_KEY" || return 1
+  secret_leak_check "$new_app" "新 APP_KEY" || return 1
+  echo "OK: 無核准／development 或 testing 未明示／主機設定 no 皆拒絕；預設 yes 下事件金鑰 add→promote→retire、預覽 add→revert、APP_KEY add→retire；未實際載入新金鑰圈即回復；金鑰值不外洩"
 }
 
 case_add O01_backup_records_only_after_check OPS-07 o01_backup

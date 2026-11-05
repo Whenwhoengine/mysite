@@ -26,6 +26,17 @@ h01_bootstrap() {
       ! grep -qF -- "$(head -n 1 "$E/secrets/$s")" "$BH.out" || fail "秘密 $s 出現在輸出" || return 1
     fi
   done
+  # 金鑰圈（GAP-KEYRING-01）：由既有單一金鑰組成 k1 active；app_previous_keys 為空檔
+  local pair
+  for pair in content_event_hmac_key:content_event_hmac_keyring preview_signing_key:preview_signing_keyring; do
+    s="${pair##*:}"
+    [[ -s "$E/secrets/$s" && "$(stat -c '%a' "$E/secrets/$s")" == 640 ]] || fail "金鑰圈 $s 未產生或權限不是 0640" || return 1
+    [[ "$(awk '{print $1":"$3}' "$E/secrets/$s")" == "k1:active" ]] || fail "金鑰圈 $s 應只有 k1 active" || return 1
+    [[ "$(awk '{print $2}' "$E/secrets/$s")" == "$(tr -d '\n' < "$E/secrets/${pair%%:*}")" ]] || fail "金鑰圈 $s 的 k1 應等於既有單一金鑰" || return 1
+    ! grep -qF -- "$(awk '{print $2}' "$E/secrets/$s")" "$BH.out" || fail "金鑰圈 $s 的金鑰出現在輸出" || return 1
+  done
+  [[ -f "$E/secrets/app_previous_keys" && ! -s "$E/secrets/app_previous_keys" && "$(stat -c '%a' "$E/secrets/app_previous_keys")" == 640 ]] \
+    || fail "app_previous_keys 應為 0640 空檔" || return 1
   [[ ! -e "$E/secrets/restic_password" ]] || fail "不得代為產生備份密碼（需先存入受控保管處）" || return 1
   [[ "$(wc -l < "$E/secrets/wp_salts")" == 8 ]] && grep -q '^base64:' "$E/secrets/app_key" || fail "salts／APP_KEY 格式錯誤" || return 1
   cmp -s "$E/config/trusted-keys/staging-k1.pem" "$KEYS/staging-k1.pub.pem" || fail "公鑰未安裝" || return 1
@@ -60,15 +71,28 @@ h02_preflight() {
   for s in app_key content_event_hmac_key preview_signing_key internal_ca_cert wp_internal_tls_cert wp_internal_tls_key diagnostics_token; do
     ( umask 027; openssl rand -hex 16 > "$HE/secrets/$s" )
   done
+  pf; assert_rc 20 $? "缺金鑰圈與 app_previous_keys 時應 exit 20" || { tail "$H/last.out"; return 1; }
+  jq -e '(.checks.secrets | contains("content_event_hmac_keyring")) and (.checks.secrets | contains("app_previous_keys"))' "$HE/state/preflight.json" >/dev/null \
+    || fail "preflight.json 應列出缺少的金鑰圈與 app_previous_keys" || return 1
+  for s in content_event_hmac_keyring preview_signing_keyring; do
+    ( umask 027; printf 'k1 %s active\n' "$(openssl rand -hex 32)" > "$HE/secrets/$s" )
+  done
+  ( umask 027; : > "$HE/secrets/app_previous_keys" )
   pf; assert_rc 0 $? "前置齊全應通過" || { cat "$H/last.out"; return 1; }
   jq -e '.result == "PASS" and .checks.trust_keys == "PASS" and .checks.backup == "PASS" and .checks.time_sync == "PASS"' "$HE/state/preflight.json" >/dev/null \
     || fail "preflight.json 結果不正確" || return 1
   chmod 0644 "$HE/secrets/app_key"
   pf; assert_rc 20 $? "秘密檔其他人可讀應失敗" || return 1
   chmod 0640 "$HE/secrets/app_key"
+  # 金鑰圈格式不合法（兩把 active）→ 失敗
+  printf 'k2 %s active\n' "$(openssl rand -hex 32)" >> "$HE/secrets/preview_signing_keyring"
+  pf; assert_rc 20 $? "金鑰圈兩把 active 應失敗" || return 1
+  jq -e '.checks.secrets | contains("preview_signing_keyring")' "$HE/state/preflight.json" >/dev/null || fail "應指出不合法的金鑰圈" || return 1
+  ( umask 027; printf 'k1 %s active\nk2 %s accept\n' "$(openssl rand -hex 32)" "$(openssl rand -hex 32)" > "$HE/secrets/preview_signing_keyring" )
+  pf; assert_rc 0 $? "合法的過渡期金鑰圈（active＋accept）應通過" || { cat "$H/last.out"; return 1; }
   printf 'SOMETHING_UNKNOWN=1\n' >> "$HE/config/deploy.env"
   pf; assert_rc 10 $? "設定檔含未知鍵應 exit 10" || return 1
-  echo "OK: 缺秘密 exit 20、齊全 exit 0、秘密權限過寬 exit 20、設定未知鍵 exit 10；結果寫入 state/preflight.json"
+  echo "OK: 缺秘密（含金鑰圈）exit 20、齊全 exit 0、秘密權限過寬或金鑰圈格式錯 exit 20、設定未知鍵 exit 10；結果寫入 state/preflight.json"
 }
 
 case_add H01_bootstrap_host_layout_keys_units OPS-01,GOV-04 h01_bootstrap
