@@ -1,8 +1,11 @@
 // 把每個測試結果寫成一行 JSON（suite=e2e），驗收 ID 取自測試 tag（例如 @UI-02）。
+// 測試以註記（type「量測」）記錄的實測值（例如撤下秒數、axe 嚴重項數）會一併寫入 message；跳過原因也寫入。
 import fs from 'node:fs';
 import path from 'node:path';
 
 const ID_RE = /^@((CLD|INF|WP|API|UI|COM|OPS|GOV|DAT|EXEC)-\d+)$/;
+
+const redact = (s) => s.replace(/(ticket|token|password|cookie|secret|code)=([^&\s]+)/gi, '$1=***');
 
 export default class JsonlReporter {
   constructor() {
@@ -15,8 +18,12 @@ export default class JsonlReporter {
   onTestEnd(test, result) {
     const ids = (test.tags || []).map((t) => (t.match(ID_RE) || [])[1]).filter(Boolean);
     const status = result.status === 'passed' ? 'PASS' : (result.status === 'skipped' ? 'SKIPPED' : 'FAIL');
-    const message = (result.errors || []).map((e) => (e.message || '').split('\n')[0]).join('；')
-      .replace(/(ticket|token|password|cookie)=([^&\s]+)/gi, '$1=***').slice(0, 500);
+    const errors = (result.errors || []).map((e) => (e.message || '').replace(/\u001b\[[0-9;]*m/g, '').split('\n')[0]);
+    const notes = [...new Set([...(result.annotations || []), ...(test.annotations || [])]
+      .filter((a) => a.type === '量測' || a.type === 'skip')
+      .map((a) => a.description || '')
+      .filter(Boolean))];
+    const message = redact([...errors, ...notes].join('；')).slice(0, 1000);
     const finished = new Date(result.startTime.getTime() + result.duration);
     fs.appendFileSync(this.file, JSON.stringify({
       suite: 'e2e',
