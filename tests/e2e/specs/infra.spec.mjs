@@ -37,3 +37,20 @@ test.describe('gateway 與健康檢查', () => {
     expect(h['server'] || '').not.toMatch(/\d/);
   });
 });
+
+test.describe('Podcast 音訊傳輸', () => {
+  test('音訊支援 Range／206 並回正確 Content-Type', { tag: ['@UI-07'] }, async ({ request }) => {
+    const page = await request.get('/podcasts');
+    expect(page.status()).toBe(200);
+    const html = await page.text();
+    const m = html.match(/href="(\/podcasts\/[^"?#]+)"/);
+    expect(m, 'Podcast 列表至少有一集').toBeTruthy();
+    const detail = await (await request.get(m[1])).text();
+    const src = (detail.match(/<source[^>]+src="([^"]+)"/) || detail.match(/<audio[^>]+src="([^"]+)"/) || [])[1];
+    expect(src, '詳情頁有音訊來源').toBeTruthy();
+    const res = await request.get(src.replace(/&amp;/g, '&'), { headers: { Range: 'bytes=0-99' } });
+    expect(res.status()).toBe(206);
+    expect(res.headers()['content-type']).toMatch(/^audio\//);
+    expect(res.headers()['content-range']).toMatch(/^bytes 0-99\/\d+$/);
+  });
+});
