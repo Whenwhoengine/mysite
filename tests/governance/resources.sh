@@ -134,14 +134,15 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 2. 映像架構與大小（compose config --images；test profile 另含 tools 映像）
+# 2. 映像架構與大小（compose config --images 為必要範圍；test profile 的 tools 映像存在時一併檢查）
 # ---------------------------------------------------------------------------
 started="$(now)"
 default_images="$(dc config --images 2>"$tmp/config.err" | sort -u)"
-all_images="$(dc --profile test config --images 2>>"$tmp/config.err" | sort -u)"
+profile_images="$(dc --profile test config --images 2>>"$tmp/config.err" | sort -u)"
+all_images="$(printf '%s\n%s\n' "$default_images" "$profile_images" | sed '/^$/d' | sort -u)"
 images_json='[]'
-img_missing=""; img_mismatch=""
-if [[ -z "$all_images" ]]; then
+img_missing=""; img_mismatch=""; optional_absent=""
+if [[ -z "$default_images" ]]; then
   img_missing="compose config --images 無輸出：$(tail -2 "$tmp/config.err" | tr '\n' ' ' | ms_redact)"
 fi
 while read -r ref; do
@@ -149,19 +150,23 @@ while read -r ref; do
   in_default=false
   grep -qxF "$ref" <<< "$default_images" && in_default=true
   if info="$(dk image inspect --format '{{json .}}' "$ref" 2>/dev/null)"; then
-    entry="$(jq -c --arg ref "$ref" --argjson d "$in_default" --arg host "$host_arch" \
-      '{ref:$ref, id:.Id, architecture:.Architecture, variant:(.Variant // ""), os:.Os, size_bytes:.Size, used_by_default_services:$d}' <<< "$info")"
+    entry="$(jq -c --arg ref "$ref" --argjson d "$in_default" \
+      '{ref:$ref, id:.Id, architecture:.Architecture, variant:(.Variant // ""), os:.Os, size_bytes:.Size, required:$d}' <<< "$info")"
     a="$(jq -r '.architecture' <<< "$entry")"
     match=false; [[ "$(norm_arch "$a")" == "$host_arch" ]] && match=true
     [[ "$match" == true ]] || img_mismatch+=" ${ref}=${a}"
-    entry="$(jq -c --argjson m "$match" '. + {arch_match:$m}' <<< "$entry")"
-  else
+    entry="$(jq -c --argjson m "$match" '. + {present:true, arch_match:$m}' <<< "$entry")"
+  elif [[ "$in_default" == true ]]; then
     img_missing+=" ${ref}"
-    entry="$(jq -cn --arg ref "$ref" --argjson d "$in_default" '{ref:$ref, id:null, architecture:null, size_bytes:null, used_by_default_services:$d, arch_match:false, error:"本機無此映像"}')"
+    entry="$(jq -cn --arg ref "$ref" '{ref:$ref, required:true, present:false, id:null, architecture:null, size_bytes:null, arch_match:false, error:"本機無此映像"}')"
+  else
+    # 只屬 test profile（tools，PHPUnit 用）且本機未建置：不屬執行中服務，記錄但不判失敗
+    optional_absent+=" ${ref}"
+    entry="$(jq -cn --arg ref "$ref" '{ref:$ref, required:false, present:false, id:null, architecture:null, size_bytes:null, arch_match:null, note:"test profile 映像，本機未建置"}')"
   fi
   images_json="$(jq -c --argjson e "$entry" '. + [$e]' <<< "$images_json")"
 done <<< "$all_images"
-n_images="$(jq 'length' <<< "$images_json")"
+n_images="$(jq '[.[] | select(.present)] | length' <<< "$images_json")"
 
 # 執行中容器實際使用的映像（以容器的 image ID 檢查，涵蓋 tag 已被重建但容器尚未換版的情形）
 containers_json='[]'
@@ -183,13 +188,13 @@ done < <(printf '%s\n' "$ps_json" | jq -c 'select(.State=="running") | {ID, Name
 n_ctr="$(jq 'length' <<< "$containers_json")"
 
 if [[ -z "$img_missing" && -z "$img_mismatch" && -z "$ctr_mismatch" && -z "$ctr_err" && "$n_images" -gt 0 && "$n_ctr" -gt 0 ]]; then
-  record image-arch-consistent PASS "${n_images} 個映像與 ${n_ctr} 個執行中容器的映像架構皆為 ${host_arch}（與主機一致）" "$started"
+  record image-arch-consistent PASS "${n_images} 個映像與 ${n_ctr} 個執行中容器的映像架構皆為 ${host_arch}（與主機一致）${optional_absent:+；test profile 映像未建置：${optional_absent# }}" "$started"
 else
   record image-arch-consistent FAIL "缺映像：${img_missing:-無}；映像架構不符：${img_mismatch:-無}；容器映像架構不符：${ctr_mismatch:-無}；容器映像讀取失敗：${ctr_err:-無}" "$started"
 fi
 
 started="$(now)"
-bad_sizes="$(jq -r '[.[] | select((.size_bytes|type) != "number" or .size_bytes <= 0) | .ref] | join(",")' <<< "$images_json")"
+bad_sizes="$(jq -r '[.[] | select(.present or .required) | select((.size_bytes|type) != "number" or .size_bytes <= 0) | .ref] | join(",")' <<< "$images_json")"
 if [[ "$n_images" -gt 0 && -z "$bad_sizes" ]]; then
   record image-size-measured PASS "${n_images} 個映像大小已量測，合計 $(jq '[.[].size_bytes] | add' <<< "$images_json") bytes" "$started"
 else
