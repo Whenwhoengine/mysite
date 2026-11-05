@@ -27,7 +27,7 @@ final class Sanitizer
         'div', 'span', 'section', 'article', 'header', 'footer', 'main', 'aside', 'nav', 'address',
         'h1', 'h5', 'h6', 'b', 'i', 'u', 's', 'small', 'mark', 'sub', 'sup', 'abbr', 'time', 'del', 'ins', 'q',
         'dl', 'dt', 'dd', 'center', 'font', 'label', 'details', 'summary', 'picture', 'kbd', 'samp', 'var',
-        'bdi', 'bdo', 'data', 'ruby', 'rt', 'rp', 'wbr', 'big', 'tt', 'strike', 'figure-caption',
+        'bdi', 'bdo', 'data', 'ruby', 'rt', 'rp', 'wbr', 'big', 'tt', 'strike',
     ];
 
     /** 明確列出一律連內容移除的元素（預設動作亦為移除；列出是為了讓設定一目了然）。 */
