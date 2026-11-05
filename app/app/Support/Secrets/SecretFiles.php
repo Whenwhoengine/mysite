@@ -22,6 +22,7 @@ final class SecretFiles
         'PREVIEW_SIGNING_KEY',
         'CONTENT_SERVICE_APP_PASSWORD',
         'DIAGNOSTICS_TOKEN',
+        'DEPLOY_STATUS_TOKEN',
     ];
 
     /** staging／production 必須全部具備。 */

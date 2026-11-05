@@ -134,6 +134,7 @@ fi
 need_secret content_event_hmac_key "" && write_secret content_event_hmac_key "$(openssl rand -hex 32)"
 need_secret preview_signing_key "" && write_secret preview_signing_key "$(openssl rand -hex 32)"
 need_secret diagnostics_token "" && write_secret diagnostics_token "$(openssl rand -hex 24)"
+need_secret deploy_status_token "" && write_secret deploy_status_token "$(openssl rand -hex 24)"
 need_secret wp_admin_password mysql-data && write_secret wp_admin_password "$(rand_b64 48 32)"
 need_secret wp_editor_password mysql-data && write_secret wp_editor_password "$(rand_b64 48 32)"
 need_secret app_admin_password mysql-data && write_secret app_admin_password "$(rand_b64 48 32)"

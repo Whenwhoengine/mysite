@@ -39,6 +39,7 @@ x-app-env: &app-env
   CONTENT_EVENT_HMAC_KEY_FILE: /run/secrets/content_event_hmac_key
   PREVIEW_SIGNING_KEY_FILE: /run/secrets/preview_signing_key
   DIAGNOSTICS_TOKEN_FILE: /run/secrets/diagnostics_token
+  DEPLOY_STATUS_TOKEN_FILE: /run/secrets/deploy_status_token
   CONTENT_CONNECT_TIMEOUT_SECONDS: ${CONTENT_CONNECT_TIMEOUT_SECONDS:-2}
   CONTENT_HTTP_TIMEOUT_SECONDS: ${CONTENT_HTTP_TIMEOUT_SECONDS:-5}
   CONTENT_VISIBILITY_TTL_SECONDS: ${CONTENT_VISIBILITY_TTL_SECONDS:-30}
@@ -63,6 +64,7 @@ x-app-secrets: &app-secrets
   - wp_service_app_password
   - internal_ca_cert
   - diagnostics_token
+  - deploy_status_token
 
 x-wp-env: &wp-env
   WP_ENVIRONMENT_TYPE: ${WP_ENVIRONMENT_TYPE}
@@ -303,3 +305,5 @@ secrets:
     file: ${MYSITE_SECRETS_DIR}/wp_internal_tls_key
   diagnostics_token:
     file: ${MYSITE_SECRETS_DIR}/diagnostics_token
+  deploy_status_token:
+    file: ${MYSITE_SECRETS_DIR}/deploy_status_token

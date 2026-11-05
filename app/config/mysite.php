@@ -64,6 +64,7 @@ return [
         'environment' => env('DEPLOY_ENVIRONMENT'),
         'channel' => env('DEPLOY_CHANNEL'),
         'release_id' => env('RELEASE_ID', 'unreleased'),
+        'status_token' => env('DEPLOY_STATUS_TOKEN'),
     ],
 
     'trusted_proxies' => $csv(env('TRUSTED_PROXIES', '')),
