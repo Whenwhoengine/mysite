@@ -6,7 +6,7 @@ import { APP_BASE, EDITOR_PROJECT, TAKEDOWN_LIMIT_MS, appUrl, note, uniqueToken 
 import { formatHits, pollChecks } from '../helpers/site.mjs';
 import { syntheticPng } from '../helpers/png.mjs';
 import {
-  editorState, ensureDraft, loginToCms, openNewPost, publish, replaceTitle, restStatus, saveChanges, switchToDraft, typeTitleAndBody,
+  editorState, ensureDraft, loginToCms, openNewPost, openPostSidebar, publish, replaceTitle, restStatus, saveChanges, switchToDraft, typeTitleAndBody,
 } from '../helpers/wp.mjs';
 
 // 搜尋頁會回顯查詢字串，所以以「有搜尋結果項目」判斷，而不是只找記號
@@ -51,6 +51,7 @@ test.describe('WP 後臺編輯流程', () => {
       });
 
       await test.step('經媒體視窗上傳合成封面並設為精選圖片（原生 REST／nonce／上傳經 gateway）', async () => {
+        await openPostSidebar(page);
         await page.getByRole('button', { name: /^設定精選圖片$/ }).click();
         const modal = page.locator('.media-modal');
         await expect(modal).toBeVisible();
@@ -131,7 +132,7 @@ test.describe('WP 後臺編輯流程', () => {
       // 保險：不論成敗都改回草稿（非公開）；只改狀態、不刪除
       if (postId) {
         const status = await restStatus(page.context(), postId).catch(() => null);
-        if (status && status !== 'draft') await ensureDraft(page.context(), postId).catch(() => {});
+        if (status && !['draft', 'auto-draft'].includes(status)) await ensureDraft(page.context(), postId).catch(() => {});
       }
       await visitor.close();
     }

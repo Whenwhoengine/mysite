@@ -38,6 +38,17 @@ export async function editorCanvas(page) {
 
 const topBar = (page) => page.getByRole('region', { name: '編輯器頂端列' });
 
+/** 打開右側設定欄並切到「文章」分頁（選取區塊時側欄會自動切到「區塊」分頁）。 */
+export async function openPostSidebar(page) {
+  const settings = page.getByRole('region', { name: /編輯器設定|Editor settings/ });
+  if (!(await settings.isVisible().catch(() => false))) {
+    await topBar(page).getByRole('button', { name: /^設定$|^Settings$/ }).first().click();
+  }
+  const tab = settings.getByRole('tab', { name: /^文章$|^頁面$|^影片$|^Podcast$|^Post$|^Page$/ }).first();
+  if ((await tab.getAttribute('aria-selected')) !== 'true') await tab.click();
+  await expect(tab).toHaveAttribute('aria-selected', 'true');
+}
+
 export async function openNewPost(page, postType = 'post') {
   await handleWelcomeGuide(page);
   await page.goto(cmsUrl(postType === 'post' ? '/wp-admin/post-new.php' : `/wp-admin/post-new.php?post_type=${postType}`));
@@ -125,6 +136,7 @@ export async function saveChanges(page) {
 
 /** 以側欄「狀態」改回草稿並儲存（撤下）。回傳按下儲存的時間點。 */
 export async function switchToDraft(page) {
+  await openPostSidebar(page);
   await page.getByRole('button', { name: /^變更狀態|^Change status/ }).click();
   await page.getByRole('radio', { name: /^草稿$|^Draft$/ }).check();
   await page.keyboard.press('Escape');

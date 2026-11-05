@@ -21,6 +21,9 @@ export default defineConfig({
     video: 'off',
     screenshot: 'only-on-failure',
     ignoreHTTPSErrors: false,
+    // 單一動作與導覽的等待上限（暫定值）：避免元素找不到時耗盡整個測試時限
+    actionTimeout: 20_000,
+    navigationTimeout: 45_000,
   },
   projects: [
     { name: 'mobile-390', use: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true } },
