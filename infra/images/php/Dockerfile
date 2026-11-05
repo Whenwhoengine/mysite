@@ -107,6 +107,7 @@ RUN --mount=type=secret,id=build_ca,required=false \
 COPY app/ ./
 RUN set -eux; \
     rm -rf .env tests node_modules storage/logs/* bootstrap/cache/*.php; \
+    export MYSITE_SKIP_CONFIG_VALIDATION=1; \
     composer dump-autoload --no-dev --optimize --classmap-authoritative; \
     php artisan package:discover --ansi; \
     find vendor -name '.git' -type d -prune -exec rm -rf '{}' +
@@ -166,7 +167,7 @@ RUN --mount=type=secret,id=build_ca,required=false \
     rm -f /tmp/build-ca.pem
 COPY app/ ./
 COPY --from=app-assets /var/www/app/public/build /var/www/app/public/build
-RUN set -eux; printf '# 測試映像：設定全由環境變數注入；此檔只避免 dotenv 讀取不存在的檔案。\n' > .env; composer dump-autoload --optimize; php artisan package:discover --ansi; \
+RUN set -eux; printf '# 測試映像：設定全由環境變數注入；此檔只避免 dotenv 讀取不存在的檔案。\n' > .env; export MYSITE_SKIP_CONFIG_VALIDATION=1; composer dump-autoload --optimize; php artisan package:discover --ansi; \
     chown -R www-data:www-data storage bootstrap/cache
 
 # ---------------------------------------------------------------------------

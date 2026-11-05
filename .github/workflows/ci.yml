@@ -37,7 +37,7 @@ jobs:
       - name: Workflow 語法（actionlint）
         run: |
           set -a; source infra/versions.env; set +a
-          docker run --rm -v "$PWD:/repo" -w /repo "docker.io/${ACTIONLINT_IMAGE_REF}" -color=never
+          docker run --rm -v "$PWD:/repo" -w /repo "docker.io/${ACTIONLINT_IMAGE_REF}" -no-color
       - name: 完整 Git 歷史秘密掃描（gitleaks）
         run: |
           set -a; source infra/versions.env; set +a
@@ -114,6 +114,9 @@ jobs:
           if-no-files-found: warn
       - name: 只清理本 job 的測試資源
         if: always()
+        env:
+          MYSITE_SECRETS_DIR: .runtime/secrets/testing
+          MYSITE_DIST_DIR: .runtime/dist
         run: |
           docker compose -p mysite-test --env-file infra/versions.env --env-file .runtime/env/testing.env \
             -f infra/compose.base.yml -f infra/compose.ci.yml down -v --remove-orphans || true
