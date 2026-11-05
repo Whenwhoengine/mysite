@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Secrets;
 
 use App\Support\Secrets\SecretFiles;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -37,6 +38,7 @@ final class SecretFilesTest extends TestCase
         return $path;
     }
 
+    #[Group('GOV-01')]
     #[Test]
     public function it_reads_and_strips_trailing_newline(): void
     {
@@ -44,6 +46,7 @@ final class SecretFilesTest extends TestCase
         $this->assertSame('s3cret-value', SecretFiles::readPath('X', $path));
     }
 
+    #[Group('GOV-01')]
     #[Test]
     public function it_rejects_missing_file(): void
     {
@@ -51,6 +54,7 @@ final class SecretFilesTest extends TestCase
         SecretFiles::readPath('X', $this->dir.'/missing');
     }
 
+    #[Group('GOV-01')]
     #[Test]
     public function it_rejects_empty_or_whitespace(): void
     {
@@ -59,6 +63,7 @@ final class SecretFilesTest extends TestCase
         SecretFiles::readPath('X', $path);
     }
 
+    #[Group('GOV-01')]
     #[Test]
     public function it_rejects_world_readable_file(): void
     {
@@ -67,6 +72,7 @@ final class SecretFilesTest extends TestCase
         SecretFiles::readPath('X', $path);
     }
 
+    #[Group('GOV-01')]
     #[Test]
     public function it_accepts_group_readable_file(): void
     {
@@ -74,6 +80,7 @@ final class SecretFilesTest extends TestCase
         $this->assertSame('value', SecretFiles::readPath('X', $path));
     }
 
+    #[Group('GOV-01')]
     #[Test]
     public function it_rejects_multiline_content(): void
     {
@@ -82,6 +89,7 @@ final class SecretFilesTest extends TestCase
         SecretFiles::readPath('X', $path);
     }
 
+    #[Group('GOV-01')]
     #[Test]
     public function required_secrets_fail_in_production_when_missing(): void
     {
@@ -93,6 +101,7 @@ final class SecretFilesTest extends TestCase
         SecretFiles::assertRequiredForEnvironment('production');
     }
 
+    #[Group('GOV-01')]
     #[Test]
     public function unknown_environment_is_rejected(): void
     {

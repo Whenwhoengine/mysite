@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Config;
 
 use App\Support\Config\MysiteConfig;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -33,12 +34,15 @@ final class MysiteConfigTest extends TestCase
         ], $override);
     }
 
+    #[Group('GOV-01')]
     #[Test]
     public function development_defaults_are_valid(): void
     {
         $this->assertSame([], MysiteConfig::validate($this->mysite(), $this->framework()));
     }
 
+    #[Group('GOV-01')]
+    #[Group('COM-01')]
     #[Test]
     public function commerce_real_mode_is_rejected(): void
     {
@@ -46,6 +50,8 @@ final class MysiteConfigTest extends TestCase
         $this->assertContains('COMMERCE_MODE=real 不被允許：本案只有模擬商店', $errors);
     }
 
+    #[Group('GOV-01')]
+    #[Group('INF-07')]
     #[Test]
     public function production_requires_https_secure_cookie_and_no_debug(): void
     {
@@ -63,6 +69,7 @@ final class MysiteConfigTest extends TestCase
         $this->assertStringContainsString('DEPLOY_ENVIRONMENT', $joined);
     }
 
+    #[Group('GOV-01')]
     #[Test]
     public function visibility_ttl_cannot_exceed_hard_limit(): void
     {
@@ -70,6 +77,7 @@ final class MysiteConfigTest extends TestCase
         $this->assertContains('CONTENT_VISIBILITY_TTL_SECONDS 必須介於 1 與 60', $errors);
     }
 
+    #[Group('GOV-01')]
     #[Test]
     public function preview_ttl_cannot_exceed_900(): void
     {
@@ -77,6 +85,8 @@ final class MysiteConfigTest extends TestCase
         $this->assertContains('PREVIEW_TTL_SECONDS 必須介於 60 與 900', $errors);
     }
 
+    #[Group('GOV-01')]
+    #[Group('API-04')]
     #[Test]
     public function content_api_host_must_be_allowlisted(): void
     {
@@ -84,6 +94,7 @@ final class MysiteConfigTest extends TestCase
         $this->assertContains('CONTENT_API_BASE_URL 的 host 不在 CONTENT_ALLOWED_HOSTS', $errors);
     }
 
+    #[Group('GOV-01')]
     #[Test]
     public function private_api_must_be_https(): void
     {
@@ -91,6 +102,8 @@ final class MysiteConfigTest extends TestCase
         $this->assertContains('CONTENT_PRIVATE_API_BASE_URL 必須使用 https', $errors);
     }
 
+    #[Group('GOV-01')]
+    #[Group('OPS-12')]
     #[Test]
     public function app_and_cms_must_be_different_origins(): void
     {
@@ -98,6 +111,8 @@ final class MysiteConfigTest extends TestCase
         $this->assertContains('APP_URL 與 WP_PUBLIC_URL 不得為同一來源（cookie 與 canonical 必須分離）', $errors);
     }
 
+    #[Group('GOV-01')]
+    #[Group('INF-02')]
     #[Test]
     public function root_database_user_is_rejected(): void
     {

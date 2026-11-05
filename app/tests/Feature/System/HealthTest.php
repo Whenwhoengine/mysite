@@ -6,6 +6,7 @@ namespace Tests\Feature\System;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -14,18 +15,21 @@ final class HealthTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[Group('INF-05')]
     #[Test]
     public function liveness_is_ok_without_details(): void
     {
         $this->get('/healthz')->assertOk()->assertExactJson(['status' => 'ok']);
     }
 
+    #[Group('INF-05')]
     #[Test]
     public function readiness_is_ok_when_database_ready(): void
     {
         $this->get('/readyz')->assertOk()->assertExactJson(['status' => 'ok']);
     }
 
+    #[Group('INF-05')]
     #[Test]
     public function readiness_fails_when_database_unreachable_but_liveness_stays_ok(): void
     {
@@ -44,6 +48,7 @@ final class HealthTest extends TestCase
         DB::purge('mysql_down');
     }
 
+    #[Group('INF-07')]
     #[Test]
     public function internal_diagnostics_requires_token(): void
     {
@@ -55,6 +60,7 @@ final class HealthTest extends TestCase
         $this->assertArrayHasKey('session.upload_progress.enabled', $response->json());
     }
 
+    #[Group('INF-07')]
     #[Test]
     public function internal_routes_reject_forwarded_requests(): void
     {

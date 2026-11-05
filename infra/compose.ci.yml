@@ -1,0 +1,21 @@
+# testing／CI 覆寫：使用建置好的正式型映像（不掛原始碼），入口只綁 127.0.0.1。
+services:
+  wp-php:
+    volumes:
+      - ../tests/fixtures:/opt/mysite/fixtures:ro
+
+  wp-jobs:
+    volumes:
+      - ../tests/fixtures:/opt/mysite/fixtures:ro
+
+  gateway:
+    environment:
+      NGINX_ENVSUBST_TEMPLATE_DIR: /etc/nginx/templates/http
+    ports:
+      - "127.0.0.1:${APP_PORT:-18080}:8080"
+      - "127.0.0.1:${CMS_PORT:-18081}:8081"
+
+  tools:
+    volumes:
+      - ../tests:/opt/mysite/tests:ro
+      - ../.runtime/results:/opt/mysite/results

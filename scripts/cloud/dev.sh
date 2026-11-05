@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# 開發環境便利指令（development project）。所有命令都在容器內執行，不需主機 PHP。
+# 開發／測試環境便利指令。預設 development；以環境變數 MYSITE_ENV=testing 切換到測試專案。
+# 所有命令都在容器內執行，不需主機 PHP。
 set -Eeuo pipefail
 usage() {
   cat <<'USAGE'
@@ -17,7 +18,9 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
 # shellcheck source=../lib/compose.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/compose.sh"
 root="$(ms_root)"; cd "$root"; ms_load_versions "$root"
-ms_compose_prepare "$root" development
+target_env="${MYSITE_ENV:-development}"
+ms_require_env_enum "$target_env" development testing
+ms_compose_prepare "$root" "$target_env"
 cmd="$1"; shift
 case "$cmd" in
   -h|--help) usage ;;
