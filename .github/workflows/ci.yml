@@ -69,6 +69,8 @@ jobs:
           persist-credentials: false
       - name: 雲端預檢（記錄 runner 能力）
         run: bash scripts/cloud/preflight.sh
+      - name: 本機測試主機名稱（只對應 127.0.0.1）
+        run: echo '127.0.0.1 mysite.localhost cms.mysite.localhost' | sudo tee -a /etc/hosts
       - name: 安裝 E2E 瀏覽器（鎖定版本）
         run: |
           if [ -f tests/e2e/package-lock.json ]; then
