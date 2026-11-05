@@ -13,6 +13,7 @@ usage() {
 USAGE
 }
 [[ $# -ge 1 ]] || { usage >&2; exit 10; }
+case "$1" in -h|--help) usage; exit 0 ;; esac
 # shellcheck source=../lib/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
 # shellcheck source=../lib/compose.sh
