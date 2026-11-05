@@ -76,7 +76,7 @@ jobs:
         run: |
           mkdir -p bootstrap-source
           cp app/composer.json app/composer.lock app/package.json app/package-lock.json bootstrap-source/
-          ( cd bootstrap-source && sha256sum * > SHA256SUMS )
+          ( cd bootstrap-source && sha256sum -- ./* > SHA256SUMS )
           jq -n --arg repo "$GITHUB_REPOSITORY" --arg sha "$GITHUB_SHA" --arg run "$GITHUB_RUN_ID" --arg wf "$GITHUB_WORKFLOW" \
             --arg arch "$(uname -m)" '{repository:$repo, source_commit:$sha, run_id:$run, workflow:$wf, arch:$arch, note:"只含第一方 lockfile 與清單；不含 vendor、node_modules、秘密"}' > bootstrap-source/manifest.json
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
