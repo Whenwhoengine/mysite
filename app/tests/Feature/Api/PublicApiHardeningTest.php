@@ -55,6 +55,26 @@ final class PublicApiHardeningTest extends TestCase
     }
 
     #[Test]
+    #[Group('PAPI-08')]
+    public function front_controller_page_links_do_not_carry_the_index_php_prefix(): void
+    {
+        // 直接開 /index.php 仍是首頁（FE-20：/index.php 照舊交給 Laravel），但頁面連結不得帶 /index.php/（那些路徑在 gateway 一律 404）
+        $this->fakeWordPress([
+            '/menus/*' => ['data' => ['location' => 'primary', 'items' => []], 'meta' => self::meta()],
+            '/site' => Http::response('', 404),
+            '/posts' => self::listEnvelope([self::wpItem()]),
+            '/videos' => self::listEnvelope([]),
+            '/podcasts' => self::listEnvelope([]),
+        ]);
+        $server = ['SCRIPT_NAME' => '/index.php', 'SCRIPT_FILENAME' => public_path('index.php'), 'PHP_SELF' => '/index.php'];
+        $page = $this->call('GET', '/index.php', [], [], [], $server)->assertOk();
+        $this->assertStringNotContainsString('/index.php/', (string) $page->getContent());
+        $this->assertStringContainsString('/feed.xml"', (string) $page->getContent());
+        // 之後的一般請求不受影響（測試工具會以上一個請求的根目錄組網址，所以這裡用完整網址；正式環境每個請求各自獨立）
+        $this->assertStringNotContainsString('/index.php', (string) $this->get(config('app.url').'/articles')->assertOk()->getContent());
+    }
+
+    #[Test]
     #[Group('PAPI-02')]
     public function only_get_and_head_are_allowed_and_cors_is_not_offered(): void
     {

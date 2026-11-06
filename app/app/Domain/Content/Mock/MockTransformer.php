@@ -64,9 +64,9 @@ final class MockTransformer
     {
         $json = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
         $needles = ['/wp-content/uploads/'];
-        $origin = self::cmsOrigin();
-        if ($origin !== null) {
-            $needles[] = $origin;
+        $host = self::cmsHost();
+        if ($host !== null) {
+            $needles[] = $host; // 以主機名比對：涵蓋 http(s)://、//主機/（相對協定）與主機名尾端多一個點
         }
         foreach ($needles as $needle) {
             if (stripos($json, $needle) !== false) {
@@ -75,23 +75,24 @@ final class MockTransformer
         }
     }
 
-    /** WP_PUBLIC_URL 的來源（scheme://host[:port]）；未設定時為 null。 */
-    private static function cmsOrigin(): ?string
+    /** WP_PUBLIC_URL 的主機名（小寫）；未設定時為 null。 */
+    private static function cmsHost(): ?string
     {
-        $parts = parse_url((string) config('mysite.wp_public_url'));
-        if (! is_array($parts) || ! isset($parts['scheme'], $parts['host'])) {
-            return null;
-        }
+        $host = parse_url((string) config('mysite.wp_public_url'), PHP_URL_HOST);
 
-        return strtolower($parts['scheme'].'://'.$parts['host'].(isset($parts['port']) ? ':'.$parts['port'] : ''));
+        return is_string($host) && $host !== '' ? strtolower(rtrim($host, '.')) : null;
     }
 
-    /** 指向 CMS（同源或 /wp-content/uploads/）的網址。 */
+    /** 指向 CMS 的網址：含 /wp-content/uploads/，或主機是 CMS（不分協定、含 //主機/ 寫法與尾端的點）。 */
     private static function isCmsUrl(string $url): bool
     {
-        $origin = self::cmsOrigin();
+        if (stripos($url, '/wp-content/uploads/') !== false) {
+            return true;
+        }
+        $cms = self::cmsHost();
+        $host = parse_url(trim($url), PHP_URL_HOST);
 
-        return stripos($url, '/wp-content/uploads/') !== false || ($origin !== null && str_starts_with(strtolower($url), $origin));
+        return $cms !== null && is_string($host) && strtolower(rtrim($host, '.')) === $cms;
     }
 
     /**

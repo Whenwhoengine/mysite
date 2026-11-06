@@ -51,6 +51,7 @@
 | `GET /api/v1/search` | 站內搜尋 | `q`（最長 100 字）、`type`（post、video、podcast、page）、`page` | 200、404、422、503 |
 
 參數規則（與 Blade 相同）：
+- 全站的 `TrimStrings`、`ConvertEmptyStringsToNull` 中介層先處理查詢參數：前後空白去掉，空字串視同未帶。所以 `?page=`、`?type=` 等於沒帶，`?page=%201` 等於 `page=1`。
 - `page`：`^[1-9]\d{0,3}$` 且不超過 1000；其他值、以及超過總頁數，一律 404。
 - `slug`：路由接受 1～200 個非斜線字元（`[^/]{1,200}`），超過回 404。能對應到內容的 slug 還要符合 WordPress 格式（`app/app/Domain/Content/Support/Slug.php`）：小寫英數與連字號（`[a-z0-9-]`）最長 190 字元，含大寫一律不存在；中文 slug 以小寫百分比編碼後最長 200 字元（一個中文字編碼後 9 字元，約 22 個中文字）。不符合的一律 404、不送往上游，與 Blade 公開頁相同（現行行為，本案不改）。
 - `q`：去頭尾空白、合併連續空白後計算長度；超過 100 字回 422（`SEARCH_INVALID`）。`q` 為空時不查詢上游，`searched: false`。

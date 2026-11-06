@@ -34,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         );
         // 順序：AssignRequestId 在最外層（錯誤回應也帶同一個請求編號），其次公開 API 守門與標頭
         $middleware->prepend(\App\Http\Middleware\PublicApiHeaders::class);
+        $middleware->append(\App\Http\Middleware\RootUrlWithoutFrontController::class);
         $middleware->prepend(AssignRequestId::class);
         $middleware->append(\App\Http\Middleware\RejectDisabledCommerceEarly::class);
         // 維護模式期間健康檢查與部署狀態仍須可用（部署流程依此判斷換版結果）

@@ -134,7 +134,9 @@ gateway_blocks_probes() {
   c="$(http_code "http://127.0.0.1:${app_port}/index.php")"
   [[ "$c" == 200 ]] || { echo "/index.php 經 gateway 回 $c（應交給 Laravel 前端控制器回 200）"; return 1; }
   sleep 1
-  if ms_compose logs --no-color --since "$since" app-web 2>/dev/null | grep -q "$mark"; then
+  local logs
+  logs="$(ms_compose logs --no-color --since "$since" app-web 2>/dev/null)" || { echo "讀不到 app-web 存取紀錄，無法證明上游收不到探測"; return 1; }
+  if grep -q "$mark" <<<"$logs"; then
     echo "探測請求到達 app-web（gateway 未直接攔截）"; return 1
   fi
 }
@@ -155,7 +157,9 @@ gateway_blocks_public_api() {
     [[ "$c" == 404 ]] || { echo "公開 API ${p} 經 gateway 回 $c（應 404）"; return 1; }
   done
   sleep 1
-  if ms_compose logs --no-color --since "$since" app-web 2>/dev/null | grep -q "$mark"; then
+  local logs
+  logs="$(ms_compose logs --no-color --since "$since" app-web 2>/dev/null)" || { echo "讀不到 app-web 存取紀錄，無法證明上游收不到探測"; return 1; }
+  if grep -q "$mark" <<<"$logs"; then
     echo "探測請求到達 app-web（gateway 未直接攔截）"; return 1
   fi
 }

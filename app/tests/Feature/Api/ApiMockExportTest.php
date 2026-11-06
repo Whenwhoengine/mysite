@@ -238,7 +238,8 @@ final class ApiMockExportTest extends TestCase
         $this->fakeSampleWordPress(function (array $items): array {
             $items['post']['body_html'] = '<p><a href="http://cms.mysite.localhost:8081/wp-content/uploads/2026/11/full.png">看大圖</a></p>'
                 .'<blockquote cite="http://cms.mysite.localhost:8081/wp-content/uploads/2026/11/source.pdf"><p>引文</p></blockquote>'
-                .'<p><a href="https://example.com/">外部連結</a></p>';
+                .'<p><a href="https://example.com/">外部連結</a></p>'
+                .'<p><a href="//cms.mysite.localhost:8081/?p=1">相對協定</a><a href="http://cms.mysite.localhost.:8081/?p=2">尾端有點</a></p>';
 
             return $items;
         });

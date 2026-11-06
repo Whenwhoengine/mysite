@@ -96,7 +96,7 @@
             "name": "page",
             "in": "query",
             "required": false,
-            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$）；其他值與超過總頁數一律 404",
+            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$，前後空白先去掉）；其他值與超過總頁數一律 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
             "schema": {
               "type": "string"
             }
@@ -212,7 +212,7 @@
             "name": "page",
             "in": "query",
             "required": false,
-            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$）；其他值與超過總頁數一律 404",
+            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$，前後空白先去掉）；其他值與超過總頁數一律 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
             "schema": {
               "type": "string"
             }
@@ -328,7 +328,7 @@
             "name": "page",
             "in": "query",
             "required": false,
-            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$）；其他值與超過總頁數一律 404",
+            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$，前後空白先去掉）；其他值與超過總頁數一律 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
             "schema": {
               "type": "string"
             }
@@ -511,7 +511,7 @@
             "name": "type",
             "in": "query",
             "required": false,
-            "description": "post、video、podcast；不帶時為總覽（此時帶 page 一律 404）；其他值 404",
+            "description": "post、video、podcast；不帶時為總覽（此時帶 page 一律 404）；其他值 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
             "schema": {
               "type": "string"
             }
@@ -520,7 +520,7 @@
             "name": "page",
             "in": "query",
             "required": false,
-            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$）；其他值與超過總頁數一律 404",
+            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$，前後空白先去掉）；其他值與超過總頁數一律 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
             "schema": {
               "type": "string"
             }
@@ -587,7 +587,7 @@
             "name": "type",
             "in": "query",
             "required": false,
-            "description": "post、video、podcast；不帶時為總覽（此時帶 page 一律 404）；其他值 404",
+            "description": "post、video、podcast；不帶時為總覽（此時帶 page 一律 404）；其他值 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
             "schema": {
               "type": "string"
             }
@@ -596,7 +596,7 @@
             "name": "page",
             "in": "query",
             "required": false,
-            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$）；其他值與超過總頁數一律 404",
+            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$，前後空白先去掉）；其他值與超過總頁數一律 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
             "schema": {
               "type": "string"
             }
@@ -664,7 +664,7 @@
             "name": "type",
             "in": "query",
             "required": false,
-            "description": "post、video、podcast、page；其他值 422",
+            "description": "post、video、podcast、page；其他值 422；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
             "schema": {
               "type": "string"
             }
@@ -673,7 +673,7 @@
             "name": "page",
             "in": "query",
             "required": false,
-            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$）；其他值與超過總頁數一律 404",
+            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$，前後空白先去掉）；其他值與超過總頁數一律 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
             "schema": {
               "type": "string"
             }
