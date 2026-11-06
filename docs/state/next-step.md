@@ -8,7 +8,10 @@
   - 治理與弱點掃描 36 項
   - 證據：`docs/evidence/gha-41984011065-1-*`、`docs/evidence/bootstrap-source-41973465852/`
 - 驗收登錄表：PASS 89、BLOCKED_EXTERNAL 7（OPS-02、08、09、10、13、14、WP-10）、FAIL 0、NOT_RUN 0。
-- 程式已合併到 main：PR #1（`aad927e`）、PR #2（本次）。工作分支在每次合併後從 main 重新起算。
+- 程式已合併到 main：PR #1（`aad927e`）、PR #2（`98bd557`）。工作分支在每次合併後從 main 重新起算。
+- 進行中切片 `M1-09`（分支 `claude/wonderful-ritchie-jsf1rh`，狀態 IMPLEMENTED，待 CI 讀回後改 VERIFIED）：gateway 登入限流原本只比對精確路徑，`POST /admin/login/`（結尾斜線）與 `/index.php/admin/login`（前端控制器別名）都能繞過 gateway 進到 Laravel 登入處理程式。已改為接受結尾斜線、`/index.php/` 前綴一律 404，並新增 doctor `GW-LOGIN-LIMIT`（實測）與部署工具 `S07`（http／https 模板一致性）。
+  - 本 VM 已驗證：修正前 doctor `GW-LOGIN-LIMIT` FAIL（8 項：結尾斜線 6 項、`/index.php/` 別名 2 項），重建 gateway 後 PASS；`verify.sh --scope=content --steps=static` 通過；部署工具 38 項 PASS（I01 未跑）；https 模板以 gateway 映像 `nginx -t` 通過。
+  - 未在本 VM 跑：完整 `verify.sh`（PHPUnit、WP 契約、E2E、治理），交給 CI。
 - 目前任務：`M9A-01`（staging 主機開通與部署），被 BLK-HOST-01、BLK-DNS-01 阻擋，等委託人提供主機與網域。
 - 第一個可執行的下一步：委託人提供常駐 Linux 主機（或核准供應商與月費上限）與網域後，依 `docs/runbooks/主機開通.md` 的 P0–P8 進行，再跑 staging 驗收（OPS-02、08、09、10、13）。
 - 尚待真實環境的其他驗收：
@@ -21,4 +24,4 @@
 - 恢復服務：`bash scripts/cloud/session-start.sh`；首次或缺件：`bash scripts/cloud/bootstrap.sh --env=development`。
 - 本 VM 的 testing 環境：子代理實測輪替後，金鑰與 APP_KEY 已換過；需要乾淨狀態時，重跑 `bootstrap.sh --env=testing` 即可，CI 不受影響。
 - 不可重跑的破壞性動作：無。開發資料卷只能由委託人明確要求後手動清除；正式環境不存在 reset。
-- 尚未推送的內容：以 `git status` 與 `git log origin/claude/happy-euler-evh676..HEAD` 檢查。
+- 尚未推送的內容：以 `git status` 與 `git log origin/claude/wonderful-ritchie-jsf1rh..HEAD` 檢查。

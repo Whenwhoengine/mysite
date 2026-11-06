@@ -14,6 +14,8 @@ usage() {
   - MySQL 帳號不可跨庫存取（INF-02）、埠未對外發布
   - .env／vendor／.git／composer.json 不可下載（INF-03）
   - uploads 內 PHP／雙副檔名不可執行（INF-04 基礎）
+  - gateway 登入限流涵蓋路徑變體：POST /admin/login/、//admin/login/、/wp-login.php 等遭 429；
+    /index.php/admin/login 在進入 Laravel 前回 404；GET 登入頁不計入（明細寫入 .runtime/evidence/gateway-login-limit-<env>.txt）
   - wp-jobs 心跳、app-worker、app-scheduler 在執行
 EOF
 }
@@ -133,6 +135,44 @@ uploads_not_executable() {
   ms_compose exec -T -u www-data wp-php rm -rf "$dir"
 }
 
+gateway_login_limited() {
+  # gateway 登入限流必須涵蓋 Laravel／WordPress 仍會送進登入處理程式的路徑變體（結尾斜線、連續斜線、%XX），
+  # 且 /index.php/<路徑> 別名必須在進入 Laravel 前被擋下。
+  # 從 app-web 容器（edge 網路上的另一個來源 IP）直接連 gateway：不消耗主機端瀏覽器與 E2E 共用的登入限流額度。
+  # 只送空白 POST、不帶 CSRF 權杖與帳密：到得了 Laravel 的請求只會得到 419，不會形成登入嘗試。
+  # 判定「gateway 擋下」＝狀態碼相符且回應是 nginx 預設錯誤頁（Laravel 的錯誤頁不含此標記）。
+  # 暫定值：每個變體最多送 40 次（burst 10 只需第 12 次；testing 120r/m 下單次請求慢到約 0.36 秒仍可觸發）、curl 逾時 5 秒。
+  local probe out
+  probe="$(cat <<'SH'
+app_host="$1"; cms_host="$2"; max=40
+post() { curl -s --path-as-is --max-time 5 -H "Host: $2" --data-binary '' -w '|%{http_code}' "http://gateway:$1$3" 2>/dev/null || printf '|000'; }
+get() { curl -s --path-as-is --max-time 5 -H "Host: $2" -o /dev/null -w '%{http_code}' "http://gateway:$1$3" 2>/dev/null || printf '000'; }
+from_nginx() { case "$1" in *'<center>nginx</center>'*) return 0 ;; esac; return 1; }
+limited() {
+  i=0; codes=""
+  while [ "$i" -lt "$max" ]; do
+    i=$((i + 1)); r="$(post "$1" "$2" "$3")"; c="${r##*|}"; codes="$codes $c"
+    if [ "$c" = 429 ] && from_nginx "$r"; then echo "PASS POST :$1$3 第 $i 次遭 gateway 限流"; return 0; fi
+  done
+  echo "FAIL POST :$1$3 連送 $max 次未遭 gateway 限流（狀態碼：$(printf '%s\n' $codes | sort -u | tr '\n' ' ')）"
+}
+blocked() {
+  r="$(post "$1" "$2" "$3")"; c="${r##*|}"
+  if [ "$c" = 404 ] && from_nginx "$r"; then echo "PASS POST :$1$3 由 nginx 回 404"; else echo "FAIL POST :$1$3 回 $c（應在進入 Laravel 前回 404）"; fi
+}
+for p in /admin/login/ /admin/login //admin/login //admin/login/ /admin/login// /admin/%6cogin /admin/two-factor-challenge/ /admin/forgot-password/ /admin/reset-password/; do limited 8080 "$app_host" "$p"; done
+for p in /index.php/admin/login /index.php/admin/login/ /%69ndex.php/admin/login; do blocked 8080 "$app_host" "$p"; done
+c="$(get 8080 "$app_host" /admin/login/)"
+if [ "$c" != 429 ] && [ "$c" != 000 ]; then echo "PASS GET :8080/admin/login/ 不計入限流（$c）"; else echo "FAIL GET :8080/admin/login/ 回 $c（開啟登入頁不應被限流）"; fi
+for p in /wp-login.php //wp-login.php; do limited 8081 "$cms_host" "$p"; done
+SH
+)"
+  out="$(ms_compose exec -T app-web sh -c "$probe" gateway-login-probe "${app_url#*://}" "${cms_url#*://}" 2>&1)" || { echo "探測無法執行：$out"; return 1; }
+  printf '%s\n' "$out" > "$root/.runtime/evidence/gateway-login-limit-$env_name.txt"
+  grep -q '^PASS ' <<< "$out" || { echo "探測沒有輸出結果：$out"; return 1; }
+  ! grep '^FAIL ' <<< "$out"
+}
+
 jobs_running() {
   ms_compose exec -T wp-jobs sh -c 'test -f /tmp/mysite-wp-jobs/heartbeat && [ $(( $(date +%s) - $(cat /tmp/mysite-wp-jobs/heartbeat) )) -lt 300 ]' || { echo "wp-jobs 心跳逾時或不存在"; return 1; }
   ms_compose ps --format json app-worker | jq -e 'select(.State=="running")' >/dev/null || { echo "app-worker 未執行"; return 1; }
@@ -152,6 +192,7 @@ check INF-02-PORTS "只發布 loopback gateway 埠" no_public_ports
 check INF-03 "敏感檔不可下載" sensitive_blocked
 check INF-04 "uploads 腳本不可執行" uploads_not_executable
 check INF-07 "公開診斷不可經 gateway 存取" expect_code 404 -H "X-Mysite-Diagnostics-Token: ${diag_token}" "http://127.0.0.1:${app_port}/internal/diagnostics/php"
+check GW-LOGIN-LIMIT "gateway 登入限流涵蓋路徑變體" gateway_login_limited
 check JOBS "wp-jobs 心跳、worker、scheduler" jobs_running
 
 out="$root/.runtime/evidence/doctor-$env_name.json"

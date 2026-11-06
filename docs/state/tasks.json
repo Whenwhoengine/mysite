@@ -334,6 +334,26 @@
       "commit": "529223ab6856e7c0a6e3fcae52e568f68c53d515"
     },
     {
+      "id": "M1-09",
+      "milestone": "M1",
+      "title": "gateway 登入限流涵蓋路徑變體（結尾斜線、/index.php/ 別名）與 doctor GW-LOGIN-LIMIT、部署工具 S07 探測",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "M1-03"
+      ],
+      "owned_paths": [
+        "infra/nginx/gateway/",
+        "scripts/cloud/doctor.sh",
+        "tests/deploy/cases/10-static.sh"
+      ],
+      "acceptance_ids": [
+        "GOV-04"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
       "id": "M2-01",
       "milestone": "M2",
       "title": "site-content：video／podcast CPT、taxonomy、capabilities 與可重跑遷移",

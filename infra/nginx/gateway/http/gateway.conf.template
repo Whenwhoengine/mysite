@@ -23,8 +23,13 @@ server {
     server_tokens off;
     access_log /dev/stdout mysite_json;
     client_max_body_size 2m;
-    # 後臺登入相關（Fortify prefix=admin）：只計 POST，與 Laravel 自身的 email＋IP 限流並行
-    location ~ ^/admin/(login|two-factor-challenge|forgot-password|reset-password)$ { limit_req zone=mysite_login burst=10 nodelay; include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
+    # 後臺登入相關（Fortify prefix=admin）：只計 POST，與 Laravel 自身的 email＋IP 限流並行。
+    # Laravel 比對路由前會去掉結尾斜線（/admin/login/ 仍進同一處理程式），所以結尾斜線一併納入；
+    # 連續斜線、%XX、. 與 .. 由 nginx 正規化（merge_slashes 預設 on）後才比對，不需另列。
+    location ~ ^/admin/(login|two-factor-challenge|forgot-password|reset-password)/?$ { limit_req zone=mysite_login burst=10 nodelay; include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
+    # /index.php/<路徑> 會被 Laravel 當成 <路徑>（前端控制器別名，例如 /index.php/admin/login 進入登入處理程式），
+    # 可繞過本區塊所有以路徑為準的規則（登入限流、/internal/ 阻擋）。正常網址不會出現此前綴，一律 404。
+    location ^~ /index.php/ { return 404; }
     location = /internal/deploy-status { include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
     location ^~ /internal/ { return 404; }
     location / { include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
