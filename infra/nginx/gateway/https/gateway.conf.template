@@ -45,6 +45,11 @@ server {
     # 後臺登入相關（Fortify prefix=admin）：只計 POST，與 Laravel 自身的 email＋IP 限流並行
     location ~ ^/admin/(login|two-factor-challenge|forgot-password|reset-password)$ { limit_req zone=mysite_login burst=10 nodelay; include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
     # 只放行受權杖保護的部署狀態端點；其他 /internal/* 一律 404（v5 §14.8）
+    # 與 app-web 現行規則等價（定案執行書 §4.6、M-02、FE-20）：敏感檔與非前端控制器的 .php 在 gateway 主站區塊就回 404，
+    # 不論 blade 或 next 模式都不會進到上游；/index.php 照舊交給 app-web（Laravel 前端控制器）。CMS 區塊不加（WordPress 需要 .php）。
+    include /etc/nginx/snippets/deny-sensitive.conf;
+    location = /index.php { include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
+    location ~ \.php$ { return 404; }
     location = /internal/deploy-status { include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
     location ^~ /internal/ { return 404; }
     location / { include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }

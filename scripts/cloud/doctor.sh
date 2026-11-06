@@ -14,6 +14,7 @@ usage() {
   - MySQL 帳號不可跨庫存取（INF-02）、埠未對外發布
   - .env／vendor／.git／composer.json 不可下載（INF-03）
   - uploads 內 PHP／雙副檔名不可執行（INF-04 基礎）
+  - 主站敏感檔與 .php 探測由 gateway 直接回 404，上游收不到（定案執行書 §4.6、FE-20）
   - wp-jobs 心跳、app-worker、app-scheduler 在執行
 EOF
 }
@@ -119,6 +120,24 @@ sensitive_blocked() {
   done
 }
 
+gateway_blocks_probes() {
+  # 定案執行書 §4.6、FE-20：主站的敏感檔與非前端控制器 .php 探測由 gateway 直接回 404，上游（app-web）完全收不到；
+  # /index.php 仍交給 app-web（Laravel 前端控制器）。以本次專屬標記比對 app-web 存取紀錄，證明不是上游回的 404。
+  local mark since p c
+  mark="fe20probe$(date +%s)$RANDOM"
+  since="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  for p in "/${mark}.php" "/.${mark}" "/vendor/${mark}" "/${mark}.env" "/${mark}.sql"; do
+    c="$(http_code "http://127.0.0.1:${app_port}${p}")"
+    [[ "$c" == 404 ]] || { echo "gateway 對 ${p} 回 $c（應 404）"; return 1; }
+  done
+  c="$(http_code "http://127.0.0.1:${app_port}/index.php")"
+  [[ "$c" == 200 ]] || { echo "/index.php 經 gateway 回 $c（應交給 Laravel 前端控制器回 200）"; return 1; }
+  sleep 1
+  if ms_compose logs --no-color --since "$since" app-web 2>/dev/null | grep -q "$mark"; then
+    echo "探測請求到達 app-web（gateway 未直接攔截）"; return 1
+  fi
+}
+
 uploads_not_executable() {
   local dir="/var/www/wp/wp-content/uploads/mysite-doctor"
   ms_compose exec -T -u www-data wp-php sh -c "mkdir -p $dir && printf '<?php echo \"EXECUTED\";' > $dir/probe.php && printf '<?php echo \"EXECUTED\";' > $dir/probe.php.jpg && printf 'GIF89a<?php echo \"EXECUTED\";' > $dir/probe.gif" || return 1
@@ -151,6 +170,7 @@ check INF-02-DB "DB 帳號不可跨庫" db_isolation
 check INF-02-PORTS "只發布 loopback gateway 埠" no_public_ports
 check INF-03 "敏感檔不可下載" sensitive_blocked
 check INF-04 "uploads 腳本不可執行" uploads_not_executable
+check GW-PROBES "敏感檔與 .php 探測由 gateway 直接回 404" gateway_blocks_probes
 check INF-07 "公開診斷不可經 gateway 存取" expect_code 404 -H "X-Mysite-Diagnostics-Token: ${diag_token}" "http://127.0.0.1:${app_port}/internal/diagnostics/php"
 check JOBS "wp-jobs 心跳、worker、scheduler" jobs_running
 
