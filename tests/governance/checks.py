@@ -266,10 +266,23 @@ def check_session_scripts():
         if not plan_rel or not (dest / plan_rel).is_file():
             problems.append("repo 中沒有規劃書原文")
         else:
-            if hashlib.sha256((dest / plan_rel).read_bytes()).hexdigest() != status.get("plan_sha256"):
-                problems.append("規劃書 SHA-256 與紀錄不符")
+            # ADR-015：原件可帶行內修訂註記；去掉註記後的雜湊必須等於委託人原件（scripts/lib/plan_digest.py）。
+            dg = subprocess.run([sys.executable, "scripts/lib/plan_digest.py", plan_rel], cwd=dest, capture_output=True, text=True, timeout=30)
+            if dg.returncode != 0 or dg.stdout.strip() != status.get("plan_sha256"):
+                problems.append("規劃書去掉修訂註記後的 SHA-256 與紀錄不符")
             if "（SHA-256 與紀錄相符）" not in r.stdout:
                 problems.append("session-start 未回報規劃書完整性")
+            plan_orig = (dest / plan_rel).read_bytes()
+            # 只在暫存 clone 內：多加一則合規註記仍通過；註記外多一個字就必須失敗。
+            (dest / plan_rel).write_bytes(plan_orig + "〔ADR-999 修訂註記（治理測試）：只在暫存 clone〕".encode("utf-8"))
+            chk_note = subprocess.run([sys.executable, "scripts/ci/check-state.py"], cwd=dest, capture_output=True, text=True, timeout=60)
+            if chk_note.returncode != 0:
+                problems.append("加上合規的行內修訂註記後 check-state 失敗")
+            (dest / plan_rel).write_bytes(plan_orig + "竄".encode("utf-8"))
+            chk_tamper = subprocess.run([sys.executable, "scripts/ci/check-state.py"], cwd=dest, capture_output=True, text=True, timeout=60)
+            if chk_tamper.returncode == 0:
+                problems.append("規劃書在修訂註記以外被改了一個字，check-state 卻通過")
+            (dest / plan_rel).write_bytes(plan_orig)
             (dest / plan_rel).unlink()  # 只在暫存 clone 內模擬「repo 缺 v5」
             r2 = run_script(dest, ["scripts/cloud/session-start.sh"])
             if r2.returncode != 0 or "規劃書原文不在 repo" not in r2.stdout or "docs/執行契約.md" not in r2.stdout:
@@ -279,7 +292,7 @@ def check_session_scripts():
                 problems.append("缺 v5 但 status.json 仍宣稱有原文，check-state 卻通過（未誠實記錄）")
             if not (dest / "docs/執行契約.md").is_file():
                 problems.append("缺少內嵌契約 docs/執行契約.md")
-        record("plan-integrity-and-missing-plan-path", ["EXEC-01"], not problems, "；".join(problems) or "v5 原文 SHA-256 相符；模擬缺 v5 時 session-start 誠實說明並指向執行契約，check-state 拒絕把缺原文當成有原文")
+        record("plan-integrity-and-missing-plan-path", ["EXEC-01"], not problems, "；".join(problems) or "v5 原文（去掉行內修訂註記後）SHA-256 相符；合規註記通過、註記外竄改一字即失敗；模擬缺 v5 時 session-start 誠實說明並指向執行契約，check-state 拒絕把缺原文當成有原文")
 
         # --- CLD-09、CLD-08：Docker 不可用時給出確切錯誤並導向 Actions，不吞錯
         nodocker = {"DOCKER_HOST": "unix:///nonexistent/mysite-gov-docker.sock"}

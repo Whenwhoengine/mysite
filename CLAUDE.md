@@ -2,9 +2,9 @@
 
 ## 專案
 - 目標儲存庫：`Whenwhoengine/mysite`；先讀 `git remote -v`，不是就停止寫入。
-- 委託人的電腦只使用瀏覽器；不得依賴 Windows、WSL、Docker Desktop 或本機 CLI。
+- 委託人的電腦只使用瀏覽器；不得依賴 Windows、WSL、Docker Desktop 或本機 CLI。〔ADR-015 修訂註記（2026-11-06）：委託人電腦另用 MyDyad 與 Node.js 做 React 前端的設計預覽；正式建置、測試、部署仍全在雲端，見 docs/架構決策.md ADR-015〕
 - WordPress（`wp/`）管內容；Laravel 13（`app/`，PHP 類別在 `app/app/`）管公開前臺與模擬商店；只以 REST＋簽章事件整合；MySQL 8.4 分庫分帳號。
-- 正體中文介面；Blade＋原生 CSS／JS；不引入 WooCommerce、SPA、SSO、Redis、真實金流。
+- 正體中文介面；Blade＋原生 CSS／JS；不引入 WooCommerce、SPA、SSO、Redis、真實金流。〔ADR-015 修訂註記（2026-11-06）：公開頁改由 Next.js Pages Router 伺服器渲染（不是 SPA），前端在 Whenwhoengine/MySiteStorage；後臺、商店、草稿預覽仍是 Blade，見 docs/架構決策.md ADR-015〕
 
 ## 每輪開始必讀（依序）
 1. `docs/規劃書v5.md`（新會話完整讀）與 `docs/執行契約.md`（施工細則）。

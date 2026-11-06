@@ -23,6 +23,6 @@
 - 不可重跑的破壞性動作：無。開發資料卷只能由委託人明確要求後手動清除；正式環境不存在 reset。
 - 尚未推送的內容：以 `git status` 與 `git log origin/claude/happy-euler-evh676..HEAD` 檢查。
 - **MySite React 前端專案**（`docs/MySiteReact前端專案定案執行.md`，ADR-015）：
-  - F0 已做：定案執行書原文入 docs/；ADR-015；`claude/happy-euler-evh676` 依委託人裁定保留並併入 F0 PR。
+  - F0 已做：定案執行書、v1、v2 三份原文逐位元組入 docs/；ADR-015（裁定紀錄＋v1 §1.4 範圍表）；v1 §1.4 各處行內修訂註記（原件雜湊以 `scripts/lib/plan_digest.py` 去註記後比對）；`claude/happy-euler-evh676` 依委託人裁定保留並併入 F0 PR。
   - 已先行落實（與 blade 模式等價）：gateway 主站區塊照搬 app-web 的敏感檔與 `.php` 規則，doctor 新增 GW-PROBES 檢查；D13c 呼叫次數試算見 `docs/MySiteReact施工紀錄/D13c逾時試算.md`。
-  - 卡住：v1、v2 全文未提供（BLK-REACT-DOCS-01），F0 其餘項目與 F1～F3、F6 待全文入庫後施工；F3 另需委託人設定 MySiteStorage 事件政策（BLK-REACT-POLICY-01）。
+  - 進行中：F1（公開 API 契約）、F2（Laravel `/api/v1`）。F3 需委託人先設定 MySiteStorage 事件政策（BLK-REACT-POLICY-01）；F7 需主機（BLK-HOST-01）。

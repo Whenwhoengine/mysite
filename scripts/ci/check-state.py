@@ -5,12 +5,13 @@
 登錄表恰含 v5 的 90 個 ID＋EXEC 6 個且不重號、狀態值合法、status.json 必要欄位齊全。
 exit 0 通過；30 有違規；10 檔案缺失或格式錯誤。
 """
-import hashlib
 import json
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts/lib"))
+from plan_digest import original_digest  # noqa: E402
 MILESTONE_STATES = {"NOT_STARTED", "IN_PROGRESS", "IMPLEMENTED", "VERIFIED", "BLOCKED_EXTERNAL", "FAILED"}
 TEST_STATES = {"NOT_RUN", "PASS", "FAIL", "BLOCKED_EXTERNAL", "NOT_APPLICABLE"}
 DELIVERY_STATES = {"IMPLEMENTATION_IN_PROGRESS", "CI_VERIFIED", "READY_FOR_STAGING", "STAGING_VERIFIED", "READY_FOR_PRODUCTION", "PRODUCTION_VERIFIED"}
@@ -108,7 +109,8 @@ def main():
         if not plan.is_file():
             errors.append(f"status.json 記錄的規劃書 {plan_rel} 不存在；原文未取得時應把 source_plan_file 設為 null 並依 docs/執行契約.md 開工")
         else:
-            digest = hashlib.sha256(plan.read_bytes()).hexdigest()
+            # ADR-015：原件可帶行內修訂註記；去掉註記後必須與委託人原件逐位元組相同（scripts/lib/plan_digest.py）。
+            digest = original_digest(plan.read_bytes())
             if digest != status.get("plan_sha256"):
                 errors.append(f"規劃書 {plan_rel} 的 SHA-256 與 status.json 紀錄不符（可能被改寫或不是委託人提供的原件）")
     elif not (ROOT / "docs/執行契約.md").is_file():
