@@ -28,5 +28,6 @@
   - F1 已做：契約 `app/resources/contracts/public-api-v1.openapi.json`（OpenAPI 3.0.3）＋樣本集（有效 54、無效 16）＋說明 `docs/公開API契約.md`（畫面欄位對照、導航狀態矩陣、`@DAT-04` 邊界）＋DOM 掛鉤清單 `tests/e2e/dom-hooks.json`。
   - CI 讀回：提交 `e9eafcf`，run 42177692118 全綠（兩輪查錯後）。
   - F2 已做：`/api/v1/*`（`app/routes/api.php`）、`MediaPolicy`／`PageMetaFactory`／`PublicContentInput` 與 Blade 共用、gateway 對外 `/api/` 回 404、假資料匯出指令 `content:export-api-mocks`；PAPI-01～07 在 development 實跑 PASS，PAPI-08 留 F6。紀錄 `docs/MySiteReact施工紀錄/F1F2施工紀錄.md`。
-  - 下一步：F0～F2 在 PR Whenwhoengine/mysite#3 待委託人合併；F3 寫守門工作流程之前需委託人設定 MySiteStorage 事件政策（BLK-REACT-POLICY-01），F3 其他準備可先做；F6 的網路與限流數值待委託人裁定 D13a、D13f（`docs/MySiteReact施工紀錄/D13呈報.md`）；F7 需主機（BLK-HOST-01）。
+  - F3 已做（MySiteStorage，PR Whenwhoengine/MySiteStorage#1）：骨架、資料層、受保護元件、Tailwind v4 複刻 Blade、AI_RULES／AGENTS、主 CI、單元 318 與 E2E 123 項本機全過；紀錄 `docs/MySiteReact施工紀錄/F3施工紀錄.md`。守門工作流程與 FE-11 待事件政策。
+  - 下一步：F0～F2 在 PR Whenwhoengine/mysite#3 待委託人合併；MySiteStorage PR #1 待 CI 讀回與委託人合併；寫守門工作流程之前需委託人設定 MySiteStorage 事件政策（BLK-REACT-POLICY-01）；F6 的網路與限流數值待委託人裁定 D13a、D13f（`docs/MySiteReact施工紀錄/D13呈報.md`）；F7 需主機（BLK-HOST-01）。
   - 本 VM 的 testing 環境：2026-11-06 因磁碟配額不足（剩約 0.7 GB）重建映像失敗，目前已停止（資料卷保留）。CI 不受影響；要在本 VM 跑 testing 前須先釋放空間（Docker 建置快取約 9 GB 可回收、先前會話的 composer git 快取約 7 GB，清除須委託人同意）。
