@@ -1394,7 +1394,7 @@
       "id": "REACT-F0",
       "milestone": "REACT",
       "title": "React 前端專案 F0：三份計畫書入庫、ADR-015、v1 §1.4 修訂註記",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [],
       "owned_paths": [
         "docs/",
@@ -1403,16 +1403,16 @@
       ],
       "acceptance_ids": [],
       "evidence_refs": [
-        "GitHub Actions run 42166078410"
+        "GitHub Actions run 42177692118（PR）、42177687572（push）：static、content、simulation 全綠"
       ],
       "blocker_id": null,
-      "commit": "71d4b46"
+      "commit": "e9eafcf"
     },
     {
       "id": "REACT-F1",
       "milestone": "REACT",
       "title": "React 前端專案 F1：公開 API 契約定稿（OpenAPI、樣本集、DOM 掛鉤清單）",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "REACT-F0"
       ],
@@ -1422,15 +1422,17 @@
         "tests/e2e/dom-hooks.json"
       ],
       "acceptance_ids": [],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "GitHub Actions run 42177692118（PR）、42177687572（push）：static、content、simulation 全綠"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "e9eafcf"
     },
     {
       "id": "REACT-F2",
       "milestone": "REACT",
       "title": "React 前端專案 F2：Laravel 公開唯讀 API、共用政策、假資料匯出（PAPI-01～07）",
-      "status": "IMPLEMENTED",
+      "status": "VERIFIED",
       "depends_on": [
         "REACT-F1"
       ],
@@ -1441,9 +1443,11 @@
         "app/routes/api.php"
       ],
       "acceptance_ids": [],
-      "evidence_refs": [],
+      "evidence_refs": [
+        "GitHub Actions run 42177692118（PR）、42177687572（push）：static、content、simulation 全綠"
+      ],
       "blocker_id": null,
-      "commit": null
+      "commit": "e9eafcf"
     },
     {
       "id": "REACT-F3",
