@@ -1462,7 +1462,7 @@
       ],
       "acceptance_ids": [],
       "evidence_refs": [
-        "Whenwhoengine/MySiteStorage#1（提交 d1336cf）；本機實跑：單元 318、E2E 123 全過；docs/MySiteReact施工紀錄/F3施工紀錄.md"
+        "Whenwhoengine/MySiteStorage#1（提交 d1336cf）：CI run 42277177242 全綠（單元 318、E2E 123）；docs/MySiteReact施工紀錄/F3施工紀錄.md"
       ],
       "blocker_id": "BLK-REACT-POLICY-01",
       "commit": "d1336cf"
