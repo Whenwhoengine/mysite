@@ -79,7 +79,7 @@
       "operation": "/api/v1/articles/{slug}",
       "method": "get",
       "status": 200,
-      "note": "200 字 slug"
+      "note": "200 字元 slug（只測前端組網址與版面；真實 API 單篇查詢只接受 190 字元以內英數 slug）"
     },
     {
       "file": "valid/articles.show.long-title-no-cover.json",

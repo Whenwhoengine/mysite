@@ -26,5 +26,5 @@
   - F0 已做：定案執行書、v1、v2 三份原文逐位元組入 docs/；ADR-015（裁定紀錄＋v1 §1.4 範圍表）；v1 §1.4 各處行內修訂註記（原件雜湊以 `scripts/lib/plan_digest.py` 去註記後比對）；`claude/happy-euler-evh676` 依委託人裁定保留並併入 F0 PR。
   - 已先行落實（與 blade 模式等價）：gateway 主站區塊照搬 app-web 的敏感檔與 `.php` 規則，doctor 新增 GW-PROBES 檢查；D13c 呼叫次數試算見 `docs/MySiteReact施工紀錄/D13c逾時試算.md`。
   - F1 已做：契約 `app/resources/contracts/public-api-v1.openapi.json`（OpenAPI 3.0.3）＋樣本集（有效 27、無效 16）＋說明 `docs/公開API契約.md`（畫面欄位對照、導航狀態矩陣、`@DAT-04` 邊界）＋DOM 掛鉤清單 `tests/e2e/dom-hooks.json`。
-  - F2 已做：`/api/v1/*`（`app/routes/api.php`）、`MediaPolicy`／`PageMetaFactory`／`PublicContentInput` 與 Blade 共用、gateway 對外 `/api/` 回 404；假資料匯出指令施工中；PAPI-01～07 在 development 實跑 PASS，PAPI-08 留 F6。紀錄 `docs/MySiteReact施工紀錄/F1F2施工紀錄.md`。
+  - F2 已做：`/api/v1/*`（`app/routes/api.php`）、`MediaPolicy`／`PageMetaFactory`／`PublicContentInput` 與 Blade 共用、gateway 對外 `/api/` 回 404、假資料匯出指令 `content:export-api-mocks`；PAPI-01～07 在 development 實跑 PASS，PAPI-08 留 F6。紀錄 `docs/MySiteReact施工紀錄/F1F2施工紀錄.md`。
   - 下一步：F0～F2 PR 待委託人合併；F3 需委託人先設定 MySiteStorage 事件政策（BLK-REACT-POLICY-01）；F6 可接著在 mysite 做；F7 需主機（BLK-HOST-01）。
