@@ -4,11 +4,11 @@
 
 @section('content')
     <header class="page-header">
-        <h1>搜尋</h1>
+        <h1 data-page-title>搜尋</h1>
         <p class="page-header__lede">搜尋站內公開的文章、影片、Podcast 與頁面。</p>
     </header>
 
-    <form class="search-panel" role="search" action="/search" method="get" novalidate>
+    <form class="search-panel" role="search" action="/search" method="get" novalidate data-search-form>
         <div class="field search-panel__q">
             <label class="field__label" for="search-q">搜尋字詞</label>
             <input id="search-q" class="input" type="search" name="q" value="{{ $q }}" maxlength="100"
@@ -27,24 +27,24 @@
     </form>
 
     @if ($error !== null)
-        <x-notice variant="danger" title="無法搜尋" role="alert" id="search-error">{{ $error }}</x-notice>
+        <x-notice variant="danger" title="無法搜尋" role="alert" id="search-error" data-search-error>{{ $error }}</x-notice>
     @elseif ($q === '')
         <p class="search-hint">輸入關鍵字開始搜尋，例如作品名稱或主題。</p>
     @elseif ($result !== null && $result->isEmpty())
-        <div class="empty" role="status">
+        <div class="empty" role="status" data-search-empty>
             <p class="empty__title">找不到符合「{{ $q }}」的內容</p>
             <p>請換個關鍵字、減少字數，或改選「全部」類型再試一次。</p>
         </div>
     @elseif ($result !== null)
-        <p class="search-summary" role="status">找到 {{ $result->total }} 則符合「{{ $q }}」的內容</p>
+        <p class="search-summary" role="status" data-search-summary>找到 {{ $result->total }} 則符合「{{ $q }}」的內容</p>
         <ul class="search-results" role="list">
             @foreach ($result->items as $item)
-                <li class="search-result">
+                <li class="search-result" data-search-result>
                     <p class="search-result__type">
                         <span class="type-chip type-chip--{{ $item->type->value }}"><x-icon :name="$item->type->value" />{{ $item->type->label() }}</span>
                         @if ($item->isSample)<x-badge variant="sample">示例內容</x-badge>@endif
                     </p>
-                    <h2 class="search-result__title"><a href="{{ $item->path() }}">{{ $item->title }}</a></h2>
+                    <h2 class="search-result__title"><a href="{{ $item->path() }}" data-search-result-link>{{ $item->title }}</a></h2>
                     @if ($item->excerpt !== '')<p class="search-result__excerpt">{{ $item->excerpt }}</p>@endif
                     <p class="search-result__meta"><time datetime="{{ \App\Domain\Content\Support\DisplayTime::iso($item->publishedAt) }}">{{ \App\Domain\Content\Support\DisplayTime::date($item->publishedAt) }}</time></p>
                 </li>

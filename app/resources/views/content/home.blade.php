@@ -10,7 +10,7 @@
     <section class="hero" aria-labelledby="hero-title">
         <div class="hero__intro">
             <p class="hero__eyebrow">影片．Podcast．文章</p>
-            <h1 id="hero-title" class="hero__title">{{ $site?->name ?? $siteName ?? config('mysite.site_name') }}</h1>
+            <h1 id="hero-title" class="hero__title" data-page-title>{{ $site?->name ?? $siteName ?? config('mysite.site_name') }}</h1>
             @if ($site !== null && $site->tagline !== '')
                 <p class="hero__tagline">{{ $site->tagline }}</p>
             @endif

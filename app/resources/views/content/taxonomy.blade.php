@@ -9,7 +9,7 @@
 @section('content')
     <header class="page-header">
         <p class="page-header__eyebrow">{{ $label }}</p>
-        <h1>{{ $kind === 'tag' ? '#' : '' }}{{ $term->name }}</h1>
+        <h1 data-page-title>{{ $kind === 'tag' ? '#' : '' }}{{ $term->name }}</h1>
         @if ($term->count !== null)
             <p class="page-header__count">共 {{ $term->count }} 則公開內容</p>
         @endif

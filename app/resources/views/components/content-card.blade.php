@@ -5,7 +5,7 @@
     $durationSpoken = \App\Domain\Content\Support\DisplayTime::durationSpoken($item->video?->durationSeconds ?? $item->podcast?->durationSeconds);
     $level = max(2, min(4, (int) $level));
 @endphp
-<article {{ $attributes->class(['card', 'content-card', 'content-card--'.$item->type->value, 'content-card--'.$variant => $variant !== null]) }}>
+<article {{ $attributes->class(['card', 'content-card', 'content-card--'.$item->type->value, 'content-card--'.$variant => $variant !== null]) }} data-content-card>
     <div class="content-card__media">
         <x-image :image="$item->cover" :ratio="$item->type === \App\Domain\Content\ContentType::Podcast && $variant !== 'feature' ? 'square' : 'wide'" :placeholder="$item->type->label()" :eager="$variant === 'feature'" />
         @if ($item->type === \App\Domain\Content\ContentType::Video)
@@ -20,7 +20,7 @@
             <span class="type-chip type-chip--{{ $item->type->value }}"><x-icon :name="$item->type->value" />{{ $item->type->label() }}</span>
             @if ($item->isSample)<x-badge variant="sample">示例內容</x-badge>@endif
         </p>
-        <h{{ $level }} class="card__title"><a href="{{ $item->path() }}">{{ $item->title }}</a></h{{ $level }}>
+        <h{{ $level }} class="card__title"><a href="{{ $item->path() }}" data-content-link>{{ $item->title }}</a></h{{ $level }}>
         @if ($item->excerpt !== '')
             <p class="card__excerpt">{{ $item->excerpt }}</p>
         @endif
