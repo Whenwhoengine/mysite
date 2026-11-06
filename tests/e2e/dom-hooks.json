@@ -412,7 +412,7 @@
           ],
           "blade_now": "app/resources/views/components/image.blade.php:7",
           "blade_element": "app/resources/views/components/image.blade.php:4",
-          "note": "現有掛鉤。alt 照 API；寬高由 API 提供；非首屏 loading=\"lazy\"（v1 §6.4）。"
+          "note": "現有掛鉤。alt 照 API；寬高由 API 提供；捲動後才出現的圖片 loading=\"lazy\"（v1 §6.4）。"
         },
         {
           "id": "content_image.broken",
@@ -1549,10 +1549,10 @@
   ],
 
   "open_issues": [
-    "定案 §4.4（第 252 行）與 §5.1 第 14 條（第 388 行）只寫「輸入框 id=\"search-q\"」，但頁首搜尋框現行是 id=\"site-search-q\"（header.blade.php:36），a11y.spec.mjs:96 依賴它；搜尋頁本身才是 search-q（search.blade.php:14；a11y.spec.mjs:99）。兩個 id 都要保留；若前端把頁首也命名為 search-q，搜尋頁會出現重複 id，a11y 測試也會失敗。",
-    "v1 §6.3（第 391 行）寫 RSS 連結 href=\"/feed.xml\"（相對），現行 Blade 用 url('/feed.xml') 輸出絕對網址（app.blade.php:52）。同樣以 url() 輸出絕對網址的還有品牌連結（header.blade.php:13）、商店連結（header.blade.php:31）、頁尾搜尋與 RSS（footer.blade.php:22、:25），而定案 §4.4 規定站內連結一律相對路徑。E2E 未驗這些連結（shop.spec.mjs:41 用後綴比對，兩種寫法都通過）。需裁定前端照 v1／定案（相對）或照 Blade（絕對）。",
+    "定案 §4.4（第 252 行）與 §5.1 第 14 條（第 388 行）只寫「輸入框 id=\"search-q\"」，但頁首搜尋框現行是 id=\"site-search-q\"（header.blade.php:36），a11y.spec.mjs:96 依賴它；搜尋頁本身才是 search-q（search.blade.php:14；a11y.spec.mjs:99）。兩個 id 都要保留；若前端把頁首也命名為 search-q，搜尋頁會出現重複 id，a11y 測試也會失敗。【已定稿（docs/公開API契約.md 第 10 節）：兩個 id 並存、不得同名】",
+    "v1 §6.3（第 391 行）寫 RSS 連結 href=\"/feed.xml\"（相對），現行 Blade 用 url('/feed.xml') 輸出絕對網址（app.blade.php:52）。同樣以 url() 輸出絕對網址的還有品牌連結（header.blade.php:13）、商店連結（header.blade.php:31）、頁尾搜尋與 RSS（footer.blade.php:22、:25），而定案 §4.4 規定站內連結一律相對路徑。E2E 未驗這些連結（shop.spec.mjs:41 用後綴比對，兩種寫法都通過）。需裁定前端照 v1／定案（相對）或照 Blade（絕對）。【已定稿（docs/公開API契約.md 第 10 節）：前端依定案 §4.4 一律相對路徑；Blade 不改】",
     "seo.spec.mjs:62 的測試名稱寫「預覽、後臺登入、搜尋帶 noindex」，但內文（:63–66）只驗預覽與後臺登入；搜尋頁 noindex 現行沒有 E2E 守護（只有 PHPUnit PublicRoutesTest.php:301 驗空查詢的 /search）。本清單依 v1 §6.3 列為必要（raw_html.robots-noindex）。",
-    "搜尋錯誤分支（role=\"alert\"）在 Blade 由 Laravel 直接產生並回 HTTP 422（ContentController.php:97–102），但 v1 §5.4 的 API 錯誤碼只列 404、503、429，未列 422／輸入驗證錯誤；前端如何得知要畫錯誤分支，需在 F1 契約定稿時對齊。",
+    "搜尋錯誤分支（role=\"alert\"）在 Blade 由 Laravel 直接產生並回 HTTP 422（ContentController.php:97–102），但 v1 §5.4 的 API 錯誤碼只列 404、503、429，未列 422／輸入驗證錯誤；前端如何得知要畫錯誤分支，需在 F1 契約定稿時對齊。【已定稿（docs/公開API契約.md 第 5 節）：API 回 422 SEARCH_INVALID，message 為具體原因】",
     "v1 §6.5 把 .search-result 當成 class 選擇器列出，但 E2E 實際是對原始 HTML 做字面比對 class=\"search-result\"（wp-editor.spec.mjs:13；preview.spec.mjs:138）；只要多一個 class 就失配，所以 F6 前前端不可能通過這兩處檢查，F6 必須改為 data-search-result。",
     "M-10 寫「列表頁原始 HTML 含相對路徑的詳情連結」；site.mjs:29 接受帶主站前綴的絕對網址，但 infra.spec.mjs:46 與 layout.spec.mjs:36 只認相對路徑。清單以較嚴者（相對）為準，與定案 §4.4 一致。",
     "v1 §6.4 YouTubeFacade 只寫伺服器輸出 <a data-youtube-start>、海報與 data-embed-src；E2E（media.spec.mjs:35–40）另要求外層 [data-youtube-player]，data-embed-src 由原始 HTML 讀取、點擊後 iframe 必須建在 [data-youtube-player] 之內。清單已寫明巢狀與同元素關係。",

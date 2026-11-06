@@ -115,12 +115,12 @@
 - 溢位檢查目前豁免 `.skip-link`、`.visually-hidden`（site.mjs:110）。`.visually-hidden` 刻意**不設**掛鉤：1px 的視覺隱藏元素本來就被尺寸條件略過，F6 只把豁免改為 `[data-skip-link]`。
 - 正式建置不得出現 `data-dyad-id`、`data-dyad-name`（v1 §6.5 第 5 點、§6.8 第 7 步、FE-09）。
 
-## 5. 疑點（待裁定或待 F6 處理）
+## 5. 疑點（第 1、2、4 點已在 `docs/公開API契約.md` 第 10 節與第 5 節定稿；其餘待 F6 處理）
 
-1. **兩個搜尋框 id**：定案 §4.4 與 §5.1 第 14 條只寫 `id="search-q"`，但頁首搜尋框現行是 `id="site-search-q"`（header.blade.php:36，a11y.spec.mjs:96 依賴）。兩者都要保留；頁首若也叫 `search-q`，搜尋頁會重複 id。
-2. **絕對或相對連結**：v1 §6.3 寫 RSS `href="/feed.xml"`，Blade 用 `url()` 輸出絕對網址（app.blade.php:52）；品牌、商店、頁尾搜尋與 RSS 連結也是絕對網址（header.blade.php:13、:31；footer.blade.php:22、:25），與定案 §4.4「站內一律相對路徑」不一致。E2E 未驗，需裁定前端照哪一邊。
+1. **兩個搜尋框 id**：定案 §4.4 與 §5.1 第 14 條只寫 `id="search-q"`，但頁首搜尋框現行是 `id="site-search-q"`（header.blade.php:36，a11y.spec.mjs:96 依賴）。兩者都要保留；頁首若也叫 `search-q`，搜尋頁會重複 id。**已定稿**：兩者並存、不得同名。
+2. **絕對或相對連結**：v1 §6.3 寫 RSS `href="/feed.xml"`，Blade 用 `url()` 輸出絕對網址（app.blade.php:52）；品牌、商店、頁尾搜尋與 RSS 連結也是絕對網址（header.blade.php:13、:31；footer.blade.php:22、:25），與定案 §4.4「站內一律相對路徑」不一致。E2E 未驗。**已定稿**：前端依定案 §4.4 一律相對路徑；Blade 不改。
 3. **搜尋頁 noindex 無 E2E**：seo.spec.mjs:62 的測試名稱提到搜尋，但內文只驗預覽與後臺登入。清單依 v1 §6.3 列為必要，建議 F6 補測。
-4. **搜尋錯誤分支的資料來源**：Blade 由 Laravel 判定並回 422（`app/app/Http/Controllers/Content/ContentController.php` 第 97–102 行，提交 71d4b46），v1 §5.4 的 API 錯誤碼未列 422；F1 契約定稿時要定出前端如何得知該畫 `role="alert"`。
+4. **搜尋錯誤分支的資料來源**：Blade 由 Laravel 判定並回 422（`app/app/Http/Controllers/Content/ContentController.php` 第 97–102 行，提交 71d4b46），v1 §5.4 的 API 錯誤碼未列 422；**已定稿**：API 回 422 `SEARCH_INVALID`，`message` 為具體原因，前端在搜尋頁以 `role="alert"` 顯示。
 5. **`.search-result` 是字面比對**：E2E 比對原始 HTML 的 `class="search-result"`，多一個 class 就失配；F6 前前端無法通過，F6 必須改用 `data-search-result`。
 6. **相對路徑以嚴者為準**：site.mjs:29 接受絕對網址，infra.spec.mjs:46、layout.spec.mjs:36 只認相對路徑；清單採相對（與 M-10、定案 §4.4 一致）。
 7. **YouTube 巢狀關係**：v1 §6.4 未寫明，E2E 要求 `data-embed-src` 與 `[data-youtube-player]` 同元素、`[data-youtube-start]` 與點擊後的 `iframe` 都在它之內；清單已寫明。

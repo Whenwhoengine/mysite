@@ -15,13 +15,13 @@
 
 ## 1. 原則
 
-1. 只有 GET（HEAD 隨 GET 提供）；其他方法（含 OPTIONS 預檢）回 405（`HTTP_405`，帶 `Allow: GET, HEAD`）。經「`/index.php/api/…`」進來的請求一律 404：這種寫法會被 Laravel 當成 `/api/…`，可繞過依路徑前綴設的規則，所以 gateway、app-web、Laravel 三層都擋（全域中介層 `PublicApiHeaders`）。
+1. 只有 GET（HEAD 隨 GET 提供）；其他方法（含 OPTIONS 預檢）回 405（`HTTP_405`，帶 `Allow: GET, HEAD`）。經「`/index.php/api/…`」進來的請求一律 404：這種寫法會被 Laravel 當成 `/api/…`，可繞過依路徑前綴設的規則，所以 gateway、app-web、Laravel 三層都會擋下（全域中介層 `PublicApiHeaders`）。
 2. 路由不經 web 群組：沒有 Session、CSRF，回應不帶 `Set-Cookie`；一律 `Cache-Control: no-store`，並帶 `X-Robots-Tag: noindex, nofollow`——路由不存在、方法不符、維護模式的回應也一樣。不提供跨來源讀取：框架預設對 `api/*` 開放所有來源，本站以 `app/config/cors.php` 關閉（定案 C-12）。
 3. 走與 Blade 公開頁同一條路：`ContentQueryService` → `ContentRepository` → `WordPressRestClient`。可見性證明、淨化、錯誤分類全部重用，不另寫讀 WordPress 的路；沿用既有的內容快取與可見性租約（撤下保證不變），不另加任何快取。
 4. 只回公開內容與畫面需要的欄位。不輸出內部 ID、WordPress 的 api slug、內容版本、預覽或快照資訊、服務帳號、email、內部診斷（PAPI-05）。
 5. 時間一律 UTC，格式 `YYYY-MM-DDTHH:MM:SSZ`（ADR-012）。前端以 `formatTaipeiDate()` 換成臺北時間顯示。
 6. 富文字只有 `content_html` 一個欄位，內容是唯一淨化器 `Sanitizer` 的輸出。前端只能經 `SafeHtml` 輸出，不再淨化、也不自行組 HTML。
-7. 媒體一律經 `App\Domain\Content\Media\MediaPolicy`（Blade 元件與 API 共用同一份，PAPI-06）。不合政策的值輸出 null，並以 `video_unavailable`、`audio_unavailable` 標示；不合政策的圖片整個輸出 null（前端顯示佔位，與 Blade 相同）。
+7. 媒體一律經 `App\Domain\Content\Media\MediaPolicy`（Blade 元件與 API 共用同一份，PAPI-06）。影片 ID 或音訊來源不合政策時輸出 null，並以 `video_unavailable`、`audio_unavailable` 標示；音訊來源合格但 MIME 不在白名單時，保留 `audio_url`、`audio_mime` 為 null、不標失效（與 Blade 相同：播放器照常，只是不帶 `type`）；不合政策的圖片整個輸出 null（前端顯示佔位，與 Blade 相同）。
 8. 參數規則與 Blade 公開頁共用 `PublicContentInput`；對不合法參數的狀態碼與錯誤訊息兩邊一致（PAPI-07）。
 9. 頁面中繼資料由 `PageMetaFactory` 統一產生，Blade 與 API 的 SEO 結果相同。
 10. 不裝 Sanctum、不需要認證（v1 §5.1 第 7 點）。
@@ -85,7 +85,9 @@
 |---|---|---|
 | `author_bio_html` | `author_bio`（純文字） | 現行 WordPress 欄位是純文字，頁尾以跳脫後輸出（`app/resources/views/layouts/partials/footer.blade.php`）；不新增 HTML 欄位 |
 | `video.youtube_url` | `watch_url`、`embed_url`（由驗證過的 ID 產生） | 網址樣式屬政策，集中在 `MediaPolicy`，前端不自己拼 |
-| `seo.canonical_path`、Open Graph 欄位 | 照草案；另有 `title`、`description`、`noindex`、`og_type` | 前端 `<head>` 逐項比照 Blade 版型 |
+| `seo` 的 `title`、`description`、`canonical_path`、Open Graph 欄位、`noindex` | 照草案；另加 `og_type` | 前端 `<head>` 逐項比照 Blade 版型 |
+| Podcast「MIME 不合政策時 `audio_url` 為 null 並附 `audio_unavailable`」 | 只有來源不合政策時才如此；來源合格而 MIME 不在白名單時保留 `audio_url`、`audio_mime` 為 null | PAPI-06 要求與 Blade 相同：現行 `AudioPlayer` 只在來源不合格時顯示失效，MIME 不在白名單時仍播放、只是不帶 `type` |
+| 「API Resource 對應既有 DTO」（v1 F2 第 3 步） | 以 `PublicApiPresenter` 一個類別轉換全部 DTO | 回應形狀由契約與測試鎖定；一個轉換類別比多個 Resource 更容易逐欄比對契約 |
 | 未列 | 摘要加 `duration_seconds` | 卡片顯示片長（`app/resources/views/components/content-card.blade.php`） |
 | 未列 | `Site.fallback` | 讓前端知道是內建後備，不影響畫面 |
 | 未列 | 列表加 `collection`（型別標題與引言） | 標題與引言是 Laravel 現有字串（`ContentType`），不在前端另寫一份 |
@@ -136,7 +138,7 @@
 - 位置：`app/resources/contracts/public-api-v1/samples/`，`manifest.json` 列出每個樣本的 operation、狀態碼與用途。
 - 樣本檢查的是「回應形狀」。`articles.show.slug200` 的 200 字元 slug 形狀合法，但真實 API 的單篇查詢只接受 190 字元以內的英數 slug（第 3 節），所以這份樣本只用來測前端組網址與版面，真實資料不會出現。
 - 圖片 `url`、`og_image`、`audio_url` 在真實 API 一律是政策核准的絕對網址；假資料改寫成站內相對路徑 `/mock-media/…`（M-19）。契約對這三個欄位不限定絕對網址，前端兩種都要能處理；日後若要加限制，須同步調整假資料轉換層。
-- **有效** 53 個：每個端點至少一個正常樣本；每個端點都附 503 樣本（`/api/v1/site` 的 503 只在維護模式）；除 `/api/v1/site` 與首頁外都附 404 樣本；搜尋附 422；文章、影片、Podcast 列表、分類指定型別、標籤總覽都附空列表樣本；邊界案例有超長中文標題、超長網址、無封面、零篇列表、影片 ID 不合法、音訊不可播、沒有內文、中文 slug（百分比編碼）、200 字 slug、WordPress 讀不到時的網站後備。
+- **有效** 54 個：每個端點至少一個正常（非空）樣本；每個端點都附 503 樣本（`/api/v1/site` 的 503 只在維護模式）；除 `/api/v1/site` 與首頁外都附 404 樣本；搜尋附 422；文章、影片、Podcast 列表、分類指定型別、標籤總覽都附空列表樣本；邊界案例有超長中文標題、超長網址、無封面、零篇列表、影片 ID 不合法、音訊不可播、沒有內文、中文 slug（百分比編碼）、200 字 slug、WordPress 讀不到時的網站後備。
 - **無效** 16 個：多出內部 id、多出 email、時間不是 UTC、canonical 不是站內路徑、缺正文欄位、影片 ID 不合政策、嵌入網址不是 youtube-nocookie、音訊 MIME 不在白名單、列表缺分頁、列表超過 12 筆、首頁文章超過 6 筆、網站缺 `fallback`、社群連結不是 https、`q` 超過 100 字、錯誤的 request_id、錯誤回應多出診斷欄位。
 - PHP 端：`app/tests/Feature/Api/PublicApiSamplesTest.php` 驗證有效樣本全部通過、無效樣本全部被擋下。前端 F3 的 zod 用同一批驗證。
 - 有內容的有效樣本都帶假資料哨兵字串 `MSMOCK-7F3A9C1E`（定案 M-19、FE-09：前端建置產物與正式映像全文搜尋它，出現即失敗）。媒體網址一律 `/mock-media/…` 相對路徑。
@@ -176,7 +178,7 @@ mysite 首頁的 E2E（`tests/e2e/specs/media.spec.mjs` 的 `@DAT-04`）只許�
 | 兩個搜尋框 | 搜尋頁表單 `id="search-q"`（定案 §4.4、AI_RULES 第 14 條）；頁首搜尋框 `id="site-search-q"`（現行 `a11y.spec.mjs` 依賴）。兩者並存，不得同名 |
 | 站內連結絕對或相對 | 前端依定案 §4.4 一律輸出相對路徑（含品牌、商店、RSS `/feed.xml`）。Blade 現行部分連結用 `url()` 產生絕對網址，E2E 沒有斷言這一點，Blade 不改 |
 | 搜尋錯誤分支 | 由 API 的 422 `SEARCH_INVALID` 得知（第 5 節） |
-| 唯一性 | `main`、首頁的 `header`、`[data-audio-error]`、零結果時 `main` 內的 `[role="status"]`、`h1` 在頁面上各只能有一個（E2E 以嚴格模式斷言） |
+| 唯一性 | `main`、首頁的 `header`、`[data-audio-error]`、播放器內的 `audio`、零結果時 `main` 內的 `[role="status"]`、`h1` 在頁面上各只能有一個（E2E 以嚴格模式斷言） |
 | CSS 變數 | `a11y.spec.mjs` 直接讀 `--duration` 與 `--color-focus`；前端的設計變數可自訂名稱（M-12），但這兩個名稱必須保留 |
 
 ## 11. 驗證
@@ -190,6 +192,6 @@ mysite 首頁的 E2E（`tests/e2e/specs/media.spec.mjs` 的 `@DAT-04`）只許�
 | PAPI-05 不外洩 | 回應不含 email、服務帳號、金鑰、內部 id、預覽或快照資訊、內部路徑；錯誤只有三個欄位 |
 | PAPI-06 媒體政策 | 與 Blade 同一份 `MediaPolicy`；`app/tests/Unit/Content/MediaPolicyTest.php` 另逐項比對 Blade 元件 |
 | PAPI-07 參數 | 9 種不合法參數，API 與 Blade 公開頁狀態碼相同；422 的訊息與搜尋頁相同 |
-| PAPI-08 網路存取 | 已做的部分：gateway 對外 `/api/` 與 `/index.php/` 一律 404（doctor `GW-API` 以專屬標記證明上游收不到）；Laravel 擋 `/index.php/api/…`、Host 標頭不影響回應（`PublicApiHardeningTest`）。網段規則與跨網隔離在 F6 驗收（定案 M-06） |
+| PAPI-08 網路存取 | 已做的部分：gateway 對外 `/api/` 與 `/index.php/` 一律 404（doctor `GW-API` 以專屬標記證明上游收不到）；Laravel 擋下 `/index.php/api/…`、Host 標頭不影響回應（`PublicApiHardeningTest`）。網段規則與跨網隔離在 F6 驗收（定案 M-06） |
 
 語意金絲雀（定案 §6 F2）：暫時把影片失效旗標寫死、把 API 的 404 錯誤碼改回 `HTTP_404`、拿掉 no-store、在摘要多送內部 id、拿掉 `/index.php` 檢查、關掉假資料的 CMS 網址全文檢查、不改寫正文連結，七種改壞都讓對應測試變紅；改回後全綠，檔案逐位元組復原。紀錄見 `docs/MySiteReact施工紀錄/F1F2施工紀錄.md`。

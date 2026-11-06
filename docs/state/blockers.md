@@ -10,6 +10,13 @@
 | BLK-ALERT-01 | 核准告警通道（郵件或其他） | OPS-10 告警送達 | 未提供，且正式郵件服務未核准 | 告警事件產生、捕捉與測試介面 | 核准通道並提供受控憑證 |
 | BLK-PRODSECRET-01 | 正式環境秘密與發布簽章金鑰（GitHub environment） | 正式部署簽章、OPS-01 正式隔離驗證 | 不得進 Claude 開發會話 | 以合成金鑰測試簽章與驗簽流程 | 委託人在 GitHub environments 介面建立 staging／production 秘密 |
 | BLK-APPROVAL-01 | 正式發布核准、管理員 2FA 實際登記 | M10、WP-10 正式部分 | 尚未上線 | 2FA 外掛與流程、測試帳號驗證 | 上線時由委託人核准並親自登記第二因素 |
+
+## MySite React 前端專案（委託人動作或待提供文件，不是主機阻擋）
+
+下列項目只卡 React 前端專案的特定步驟，不阻擋 mysite 主站的程式、測試與部署工具；與上表的主機類外部阻擋分開列。
+
+| ID | 缺什麼 | 影響範圍 | 證據 | 仍可進行 | 解除方式 |
+|---|---|---|---|---|---|
 | BLK-REACT-DOCS-01 | MySite React 前端專案的 `MySiteReact前端專案v1.md`（完整正文）與 `MySiteReact前端專案v2.md`（D1～D17 裁定）全文 | React 前端專案 F0 其餘項目（v1 §1.4 範圍表與修訂註記、兩份入 docs/）、F1（公開 API 契約）、F2（Laravel 公開 API）、F3（MySiteStorage 前端骨架）、F6（併入 mysite） | 2026-11-06 只收到定案執行書；repo、對話、GitHub 皆無 v1、v2（已搜尋）；定案執行書 §10 明定不得憑檔名猜測內容 | 定案執行書本身可獨立落實的項目：gateway 敏感檔與 `.php` 規則（§4.6）、ADR-015、D13c 呼叫次數試算（§4.8） | 委託人上傳 v1、v2 全文。**已於 2026-11-06 解除**：委託人上傳兩份全文，逐位元組收進 `docs/MySiteReact前端專案v1.md`、`docs/MySiteReact前端專案v2.md`（雜湊見 `docs/sources/來源紀錄.md`）；ADR-015 範圍表與 v1 §1.4 各處修訂註記已補 |
 | BLK-REACT-POLICY-01 | MySiteStorage 的 Actions 事件政策：只允許守門工作流程檔使用 `pull_request_target` | React 前端專案 F3 第 1 步（寫守門工作流程之前） | 儲存庫設定變更，定案執行書 §0、§5.2 第 7 項規定由委託人親手設定或當次授權本機 Claude Code 代設 | F3 其他準備 | 委託人在 GitHub 網頁設定，或授權本機 Claude Code 代設 |
 

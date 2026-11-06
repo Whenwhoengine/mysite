@@ -54,6 +54,13 @@
       "note": "Podcast 列表"
     },
     {
+      "file": "valid/videos.index.json",
+      "operation": "/api/v1/videos",
+      "method": "get",
+      "status": 200,
+      "note": "影片列表"
+    },
+    {
       "file": "valid/videos.index.empty.json",
       "operation": "/api/v1/videos",
       "method": "get",

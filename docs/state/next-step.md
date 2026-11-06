@@ -8,7 +8,7 @@
   - 治理與弱點掃描 36 項
   - 證據：`docs/evidence/gha-41984011065-1-*`、`docs/evidence/bootstrap-source-41973465852/`
 - 驗收登錄表：PASS 89、BLOCKED_EXTERNAL 7（OPS-02、08、09、10、13、14、WP-10）、FAIL 0、NOT_RUN 0。
-- 程式已合併到 main：PR #1（`aad927e`）、PR #2（本次）。工作分支在每次合併後從 main 重新起算。
+- 程式已合併到 main：PR #1（`aad927e`）、PR #2（`98bd557`）。React 前端專案 F0～F2 在 PR Whenwhoengine/mysite#3，待委託人合併。工作分支在每次合併後從 main 重新起算。
 - 目前任務：`M9A-01`（staging 主機開通與部署），被 BLK-HOST-01、BLK-DNS-01 阻擋，等委託人提供主機與網域。
 - 第一個可執行的下一步：委託人提供常駐 Linux 主機（或核准供應商與月費上限）與網域後，依 `docs/runbooks/主機開通.md` 的 P0–P8 進行，再跑 staging 驗收（OPS-02、08、09、10、13）。
 - 尚待真實環境的其他驗收：
@@ -19,13 +19,13 @@
   - `dependency-audit.yml` 每週排程已生效。
   - `sandbox.yml` 可手動觸發。
 - 恢復服務：`bash scripts/cloud/session-start.sh`；首次或缺件：`bash scripts/cloud/bootstrap.sh --env=development`。
-- 本 VM 的 testing 環境：子代理實測輪替後，金鑰與 APP_KEY 已換過；需要乾淨狀態時，重跑 `bootstrap.sh --env=testing` 即可，CI 不受影響。
+- 本 VM 的 testing 環境：目前停止中（見下方 React 段落的磁碟說明）；釋放空間後重跑 `bootstrap.sh --env=testing` 即可恢復，CI 不受影響。
 - 不可重跑的破壞性動作：無。開發資料卷只能由委託人明確要求後手動清除；正式環境不存在 reset。
 - 尚未推送的內容：以 `git status` 與 `git log origin/claude/happy-euler-evh676..HEAD` 檢查。
 - **MySite React 前端專案**（`docs/MySiteReact前端專案定案執行.md`，ADR-015）：
   - F0 已做：定案執行書、v1、v2 三份原文逐位元組入 docs/；ADR-015（裁定紀錄＋v1 §1.4 範圍表）；v1 §1.4 各處行內修訂註記（原件雜湊以 `scripts/lib/plan_digest.py` 去註記後比對）；`claude/happy-euler-evh676` 依委託人裁定保留並併入 F0 PR。
   - 已先行落實（與 blade 模式等價）：gateway 主站區塊照搬 app-web 的敏感檔與 `.php` 規則，doctor 新增 GW-PROBES 檢查；D13c 呼叫次數試算見 `docs/MySiteReact施工紀錄/D13c逾時試算.md`。
-  - F1 已做：契約 `app/resources/contracts/public-api-v1.openapi.json`（OpenAPI 3.0.3）＋樣本集（有效 27、無效 16）＋說明 `docs/公開API契約.md`（畫面欄位對照、導航狀態矩陣、`@DAT-04` 邊界）＋DOM 掛鉤清單 `tests/e2e/dom-hooks.json`。
+  - F1 已做：契約 `app/resources/contracts/public-api-v1.openapi.json`（OpenAPI 3.0.3）＋樣本集（有效 54、無效 16）＋說明 `docs/公開API契約.md`（畫面欄位對照、導航狀態矩陣、`@DAT-04` 邊界）＋DOM 掛鉤清單 `tests/e2e/dom-hooks.json`。
   - F2 已做：`/api/v1/*`（`app/routes/api.php`）、`MediaPolicy`／`PageMetaFactory`／`PublicContentInput` 與 Blade 共用、gateway 對外 `/api/` 回 404、假資料匯出指令 `content:export-api-mocks`；PAPI-01～07 在 development 實跑 PASS，PAPI-08 留 F6。紀錄 `docs/MySiteReact施工紀錄/F1F2施工紀錄.md`。
   - 下一步：F0～F2 在 PR Whenwhoengine/mysite#3 待委託人合併；F3 寫守門工作流程之前需委託人設定 MySiteStorage 事件政策（BLK-REACT-POLICY-01），F3 其他準備可先做；F6 的網路與限流數值待委託人裁定 D13a、D13f（`docs/MySiteReact施工紀錄/D13呈報.md`）；F7 需主機（BLK-HOST-01）。
   - 本 VM 的 testing 環境：2026-11-06 因磁碟配額不足（剩約 0.7 GB）重建映像失敗，目前已停止（資料卷保留）。CI 不受影響；要在本 VM 跑 testing 前須先釋放空間（Docker 建置快取約 9 GB 可回收、先前會話的 composer git 快取約 7 GB，清除須委託人同意）。

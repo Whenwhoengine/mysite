@@ -88,6 +88,16 @@ final class PublicApiSamplesTest extends TestCase
     }
 
     #[Test]
+    #[Group('PAPI-01')]
+    public function contract_file_is_a_valid_openapi_3_0_document(): void
+    {
+        // F1 驗收「契約檔語法檢查通過」：以 OpenAPI 3.0 規格驗證契約檔本身（每次 CI 都跑）
+        $spec = \cebe\openapi\Reader::readFromJsonFile((string) realpath(self::DIR.'/public-api-v1.openapi.json'));
+        $this->assertSame('3.0.3', $spec->openapi);
+        $this->assertTrue($spec->validate(), implode('；', $spec->getErrors()));
+    }
+
+    #[Test]
     public function sample_set_is_complete_and_carries_the_sentinel(): void
     {
         $m = self::manifest();

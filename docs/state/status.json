@@ -35,8 +35,7 @@
     "BLK-BACKUP-01",
     "BLK-ALERT-01",
     "BLK-PRODSECRET-01",
-    "BLK-APPROVAL-01",
-    "BLK-REACT-POLICY-01"
+    "BLK-APPROVAL-01"
   ],
   "next_action": "等待委託人提供常駐主機與網域（BLK-HOST-01、BLK-DNS-01）後依 docs/runbooks/主機開通.md 進行 M9-A staging；M2（WP-10 正式 2FA 登記）與 M8-B（HTTPS 與續期演練）只剩真實主機上的驗收。React 前端專案：F0～F2 在 PR Whenwhoengine/mysite#3 待委託人合併；F3 寫守門工作流程前需委託人設定 MySiteStorage 事件政策（BLK-REACT-POLICY-01）；D13a、D13f 提議值待裁定（docs/MySiteReact施工紀錄/D13呈報.md）"
 }
