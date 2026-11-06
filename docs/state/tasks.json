@@ -1448,8 +1448,8 @@
     {
       "id": "REACT-F3",
       "milestone": "REACT",
-      "title": "React 前端專案 F3：MySiteStorage 骨架（守門工作流程前需事件政策）",
-      "status": "BLOCKED_EXTERNAL",
+      "title": "React 前端專案 F3：MySiteStorage 骨架（寫守門工作流程前需委託人設定事件政策 BLK-REACT-POLICY-01；其他準備可先做）",
+      "status": "NOT_STARTED",
       "depends_on": [
         "REACT-F1"
       ],
@@ -1480,8 +1480,8 @@
     },
     {
       "id": "REACT-F7",
-      "milestone": "REACT",
-      "title": "React 前端專案 F7：staging 驗收",
+      "milestone": "M9-A",
+      "title": "React 前端專案 F7：staging 驗收（隨 M9-A staging 開通）",
       "status": "BLOCKED_EXTERNAL",
       "depends_on": [
         "REACT-F6"
