@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\View\Components;
 
 use App\Domain\Content\Dto\Image as ImageDto;
-use App\Domain\Content\Media\MediaPolicy;
 use App\Domain\Content\Dto\VideoInfo;
+use App\Domain\Content\Media\MediaPolicy;
 use App\Domain\Content\Support\DisplayTime;
 use Illuminate\View\Component;
 use Illuminate\View\View;

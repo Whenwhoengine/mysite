@@ -15,9 +15,9 @@
 
 ## 1. 原則
 
-1. 只有 GET（HEAD 隨 GET 提供）；其他方法回 405（`HTTP_405`）。
-2. 路由不經 web 群組：沒有 Session、CSRF，回應不帶 `Set-Cookie`；一律 `Cache-Control: no-store`，並帶 `X-Robots-Tag: noindex, nofollow`。
-3. 走與 Blade 公開頁同一條路：`ContentQueryService` → `ContentRepository` → `WordPressRestClient`。可見性證明、淨化、錯誤分類全部重用，不另寫讀 WordPress 的路，也不快取正文。
+1. 只有 GET（HEAD 隨 GET 提供）；其他方法（含 OPTIONS 預檢）回 405（`HTTP_405`，帶 `Allow: GET, HEAD`）。經「`/index.php/api/…`」進來的請求一律 404：這種寫法會被 Laravel 當成 `/api/…`，可繞過依路徑前綴設的規則，所以 gateway、app-web、Laravel 三層都擋（全域中介層 `PublicApiHeaders`）。
+2. 路由不經 web 群組：沒有 Session、CSRF，回應不帶 `Set-Cookie`；一律 `Cache-Control: no-store`，並帶 `X-Robots-Tag: noindex, nofollow`——路由不存在、方法不符、維護模式的回應也一樣。不提供跨來源讀取：框架預設對 `api/*` 開放所有來源，本站以 `app/config/cors.php` 關閉（定案 C-12）。
+3. 走與 Blade 公開頁同一條路：`ContentQueryService` → `ContentRepository` → `WordPressRestClient`。可見性證明、淨化、錯誤分類全部重用，不另寫讀 WordPress 的路；沿用既有的內容快取與可見性租約（撤下保證不變），不另加任何快取。
 4. 只回公開內容與畫面需要的欄位。不輸出內部 ID、WordPress 的 api slug、內容版本、預覽或快照資訊、服務帳號、email、內部診斷（PAPI-05）。
 5. 時間一律 UTC，格式 `YYYY-MM-DDTHH:MM:SSZ`（ADR-012）。前端以 `formatTaipeiDate()` 換成臺北時間顯示。
 6. 富文字只有 `content_html` 一個欄位，內容是唯一淨化器 `Sanitizer` 的輸出。前端只能經 `SafeHtml` 輸出，不再淨化、也不自行組 HTML。
@@ -42,7 +42,7 @@
 
 | 端點 | 用途 | 參數 | 可能狀態 |
 |---|---|---|---|
-| `GET /api/v1/site` | 網站資訊、主選單、頁尾選單、商店是否開啟 | 無 | 200（WordPress 讀不到時 `fallback: true`，用內建後備，不回 503） |
+| `GET /api/v1/site` | 網站資訊、主選單、頁尾選單、商店是否開啟 | 無 | 200（WordPress 讀不到時 `fallback: true`，用內建後備，不回 503）；只有 Laravel 維護模式（換版）時回 503（`HTTP_503`） |
 | `GET /api/v1/home` | 首頁區塊：精選 1 筆、文章 6 筆、影片 4 筆、Podcast 4 筆 | 無 | 200、503 |
 | `GET /api/v1/articles`、`/videos`、`/podcasts` | 列表，每頁 12 筆 | `page` | 200、404、503 |
 | `GET /api/v1/articles/{slug}`、`/videos/{slug}`、`/podcasts/{slug}` | 單篇 | — | 200、404、503 |
@@ -52,7 +52,7 @@
 
 參數規則（與 Blade 相同）：
 - `page`：`^[1-9]\d{0,3}$` 且不超過 1000；其他值、以及超過總頁數，一律 404。
-- `slug`：路由接受 1～200 個非斜線字元（`[^/]{1,200}`），超過回 404。能對應到內容的 slug 還要符合 WordPress 格式（`app/app/Domain/Content/Support/Slug.php`）：純英數與連字號最長 190 字元；中文 slug 以小寫百分比編碼後最長 200 字元（一個中文字編碼後 9 字元，約 22 個中文字）。不符合的一律 404、不送往上游，與 Blade 公開頁相同（現行行為，本案不改）。
+- `slug`：路由接受 1～200 個非斜線字元（`[^/]{1,200}`），超過回 404。能對應到內容的 slug 還要符合 WordPress 格式（`app/app/Domain/Content/Support/Slug.php`）：小寫英數與連字號（`[a-z0-9-]`）最長 190 字元，含大寫一律不存在；中文 slug 以小寫百分比編碼後最長 200 字元（一個中文字編碼後 9 字元，約 22 個中文字）。不符合的一律 404、不送往上游，與 Blade 公開頁相同（現行行為，本案不改）。
 - `q`：去頭尾空白、合併連續空白後計算長度；超過 100 字回 422（`SEARCH_INVALID`）。`q` 為空時不查詢上游，`searched: false`。
 - `type`（搜尋）：不認得的值回 422（`SEARCH_INVALID`）；`type`（分類／標籤）：不認得的值回 404。分類／標籤總覽帶 `page` 回 404。
 
@@ -91,6 +91,8 @@
 | 未列 | 列表加 `collection`（型別標題與引言） | 標題與引言是 Laravel 現有字串（`ContentType`），不在前端另寫一份 |
 | 未列 | 分類／標籤回應以 `mode` 區分總覽與列表 | 同一路徑兩種畫面（`app/resources/views/content/taxonomy.blade.php`） |
 | 未列 | 搜尋回應加 `searched` | 區分「還沒查」與「查無結果」 |
+| 未列 | `Term` 加 `count`（只有分類／標籤彙整的主角帶值，內容身上的分類與標籤為 null） | 彙整頁顯示「共 N 則公開內容」（`app/resources/views/content/taxonomy.blade.php`） |
+| 未列 | `SocialLink` 為 `label`、`url`（只收 https） | 照現行 WordPress 欄位與 `ContentMapper` 的過濾規則 |
 
 ## 5. 錯誤碼
 
@@ -134,7 +136,7 @@
 - 位置：`app/resources/contracts/public-api-v1/samples/`，`manifest.json` 列出每個樣本的 operation、狀態碼與用途。
 - 樣本檢查的是「回應形狀」。`articles.show.slug200` 的 200 字元 slug 形狀合法，但真實 API 的單篇查詢只接受 190 字元以內的英數 slug（第 3 節），所以這份樣本只用來測前端組網址與版面，真實資料不會出現。
 - 圖片 `url`、`og_image`、`audio_url` 在真實 API 一律是政策核准的絕對網址；假資料改寫成站內相對路徑 `/mock-media/…`（M-19）。契約對這三個欄位不限定絕對網址，前端兩種都要能處理；日後若要加限制，須同步調整假資料轉換層。
-- **有效** 27 個：每個端點至少一個，另含 404、422、503；邊界案例有超長中文標題、超長網址、無封面、零篇列表、影片 ID 不合法、音訊不可播、沒有內文、中文 slug（百分比編碼）、200 字 slug、WordPress 讀不到時的網站後備。
+- **有效** 53 個：每個端點至少一個正常樣本；每個端點都附 503 樣本（`/api/v1/site` 的 503 只在維護模式）；除 `/api/v1/site` 與首頁外都附 404 樣本；搜尋附 422；文章、影片、Podcast 列表、分類指定型別、標籤總覽都附空列表樣本；邊界案例有超長中文標題、超長網址、無封面、零篇列表、影片 ID 不合法、音訊不可播、沒有內文、中文 slug（百分比編碼）、200 字 slug、WordPress 讀不到時的網站後備。
 - **無效** 16 個：多出內部 id、多出 email、時間不是 UTC、canonical 不是站內路徑、缺正文欄位、影片 ID 不合政策、嵌入網址不是 youtube-nocookie、音訊 MIME 不在白名單、列表缺分頁、列表超過 12 筆、首頁文章超過 6 筆、網站缺 `fallback`、社群連結不是 https、`q` 超過 100 字、錯誤的 request_id、錯誤回應多出診斷欄位。
 - PHP 端：`app/tests/Feature/Api/PublicApiSamplesTest.php` 驗證有效樣本全部通過、無效樣本全部被擋下。前端 F3 的 zod 用同一批驗證。
 - 有內容的有效樣本都帶假資料哨兵字串 `MSMOCK-7F3A9C1E`（定案 M-19、FE-09：前端建置產物與正式映像全文搜尋它，出現即失敗）。媒體網址一律 `/mock-media/…` 相對路徑。
@@ -152,6 +154,8 @@ next 模式下，一次換頁有兩條路：瀏覽器直接請求 HTML 頁，或
 | API 回應不是 JSON、格式不符、連線被拒 | 前端回 503（傳輸層失敗一律 503，v1 §6.3） | 同上，整頁載入後 503 |
 | API 逾時（D13c 裁定值） | 前端回 503 | 同上 |
 | `/api/v1/site` 失敗但內容 200 | 正文照常，頁首頁尾改用內建靜態版（定案 §4.9） | 同上 |
+| API 500（`HTTP_500`，Laravel 未預期例外） | 前端回 503（上游不可用），附請求編號；不顯示任何正文 | 同上，整頁載入後 503 |
+| API 429 | 現行 API 不在 Laravel 限流，不會回 429；萬一出現，視同上游不可用回 503，不得錯映成 404 | 同上 |
 | 前端自身例外 | 500，走 `_error` 伺服器端渲染，附請求編號 | 路由器整頁載入，最後是 500 錯誤頁 |
 | 換版後舊建置編號的資料請求 | — | `/_next/data` 失敗，路由器整頁載入取得新版頁面；不得白屏、不得出現舊正文（FE-17） |
 
@@ -165,7 +169,7 @@ mysite 首頁的 E2E（`tests/e2e/specs/media.spec.mjs` 的 `@DAT-04`）只許�
 
 清單正本：`tests/e2e/dom-hooks.json`；摘要說明：`docs/MySiteReact施工紀錄/DOM測試掛鉤清單.md`。前端 F3 照它實作；Blade 補同名 `data-*`、E2E 改用掛鉤在 F6 進行。
 
-整理清單時發現、在此定案的事項：
+整理清單時發現、在本文件定稿的事項：
 
 | 事項 | 定案 |
 |---|---|
@@ -180,12 +184,12 @@ mysite 首頁的 E2E（`tests/e2e/specs/media.spec.mjs` 的 `@DAT-04`）只許�
 | 項目 | 測試 |
 |---|---|
 | PAPI-01 契約相符（含錯誤回應） | `app/tests/Feature/Api/PublicApiTest.php`（每一個回應以契約驗證）、`app/tests/Feature/Api/PublicApiSamplesTest.php`（樣本集） |
-| PAPI-02 無 Set-Cookie、no-store | `PublicApiTest` 每一個請求都檢查 |
-| PAPI-03 撤下 | 撤下事件後立即 404；事件遺失且 WordPress 失聯時，租約到期後一律 503、不回舊正文 |
+| PAPI-02 無 Set-Cookie、no-store | `PublicApiTest` 每一個請求都檢查（另含 X-Robots-Tag、無 `Access-Control-Allow-Origin`）；`app/tests/Feature/Api/PublicApiHardeningTest.php`：POST、PUT、PATCH、DELETE、OPTIONS 一律 405，路由不存在與參數錯誤的回應標頭相同 |
+| PAPI-03 撤下 | `app/tests/Feature/Api/PublicApiVisibilityTest.php`：逐項比照 Blade 的 `VisibilityLeaseTest` 八項（租約重用、60 秒硬上限、事件遺失且 WordPress 失聯、visible false 清正文、撤下事件立即生效、舊事件不復活、新版本重新取得、列表在事件後立即失效且無事件時不超過租約）；另 `PublicApiTest` 兩項 |
 | PAPI-04 上游失敗 | 連線失敗、逾時、5xx、非 JSON、格式不符各自回 503 並帶請求編號 |
 | PAPI-05 不外洩 | 回應不含 email、服務帳號、金鑰、內部 id、預覽或快照資訊、內部路徑；錯誤只有三個欄位 |
 | PAPI-06 媒體政策 | 與 Blade 同一份 `MediaPolicy`；`app/tests/Unit/Content/MediaPolicyTest.php` 另逐項比對 Blade 元件 |
 | PAPI-07 參數 | 9 種不合法參數，API 與 Blade 公開頁狀態碼相同；422 的訊息與搜尋頁相同 |
-| PAPI-08 網路存取 | F6（定案 M-06） |
+| PAPI-08 網路存取 | 已做的部分：gateway 對外 `/api/` 與 `/index.php/` 一律 404（doctor `GW-API` 以專屬標記證明上游收不到）；Laravel 擋 `/index.php/api/…`、Host 標頭不影響回應（`PublicApiHardeningTest`）。網段規則與跨網隔離在 F6 驗收（定案 M-06） |
 
-語意金絲雀（定案 §6 F2）：暫時把影片失效旗標寫死、把 API 的 404 錯誤碼改回 `HTTP_404`、拿掉 no-store、在摘要多送內部 id，四種改壞都讓對應測試變紅；改回後全綠，檔案逐位元組復原。紀錄見 `docs/MySiteReact施工紀錄/F1F2施工紀錄.md`。
+語意金絲雀（定案 §6 F2）：暫時把影片失效旗標寫死、把 API 的 404 錯誤碼改回 `HTTP_404`、拿掉 no-store、在摘要多送內部 id、拿掉 `/index.php` 檢查、關掉假資料的 CMS 網址全文檢查、不改寫正文連結，七種改壞都讓對應測試變紅；改回後全綠，檔案逐位元組復原。紀錄見 `docs/MySiteReact施工紀錄/F1F2施工紀錄.md`。

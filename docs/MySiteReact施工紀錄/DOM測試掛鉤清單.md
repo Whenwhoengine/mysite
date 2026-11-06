@@ -5,7 +5,7 @@
 日期: 2026-11-06
 正本: tests/e2e/dom-hooks.json（機器可讀；本文件只是摘要，兩者不一致時以 JSON 為準）
 依據: MySiteReact前端專案v1 §6.5、§6.4、§6.3、§7 F1 第 5 步、§9.2 FE-12；定案執行書 §5 M-10、M-09、§4.3、§4.4、§5.1 第 6、10、14 條
-讀碼基準: 分支 claude/happy-euler-evh676，提交 71d4b46（行號一律以此提交為準；當時工作樹的 ContentController.php 有他人未提交的改動，其行號請對照該提交）
+讀碼基準: 分支 claude/happy-euler-evh676，提交 71d4b46（行號一律以此提交為準；整理期間同一施工線正在重構 ContentController.php（後來成為提交 b1a81de），其行號請對照提交 71d4b46）
 範圍: 只新增清單；Blade 樣板補 data-*、E2E 改用掛鉤，都留到 F6
 ```
 

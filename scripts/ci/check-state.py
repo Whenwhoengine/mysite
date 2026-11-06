@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts/lib"))
-from plan_digest import original_digest  # noqa: E402
+from plan_digest import adr_numbers, original_digest  # noqa: E402
 MILESTONE_STATES = {"NOT_STARTED", "IN_PROGRESS", "IMPLEMENTED", "VERIFIED", "BLOCKED_EXTERNAL", "FAILED"}
 TEST_STATES = {"NOT_RUN", "PASS", "FAIL", "BLOCKED_EXTERNAL", "NOT_APPLICABLE"}
 DELIVERY_STATES = {"IMPLEMENTATION_IN_PROGRESS", "CI_VERIFIED", "READY_FOR_STAGING", "STAGING_VERIFIED", "READY_FOR_PRODUCTION", "PRODUCTION_VERIFIED"}
@@ -115,6 +115,20 @@ def main():
                 errors.append(f"規劃書 {plan_rel} 的 SHA-256 與 status.json 紀錄不符（可能被改寫或不是委託人提供的原件）")
     elif not (ROOT / "docs/執行契約.md").is_file():
         errors.append("規劃書原文未取得，且缺少 docs/執行契約.md（無法依內嵌契約開工）")
+    # ADR-015：執行契約（施工 prompt 原件）同樣只能加行內修訂註記；去掉註記後須等於 prompt_sha256
+    contract = ROOT / "docs/執行契約.md"
+    if status.get("prompt_sha256") and contract.is_file():
+        if original_digest(contract.read_bytes()) != status.get("prompt_sha256"):
+            errors.append("docs/執行契約.md 去掉修訂註記後的 SHA-256 與 status.json 的 prompt_sha256 不符（原件被改寫）")
+    # 修訂註記引用的 ADR 必須真的存在於 docs/架構決策.md
+    adr_doc = ROOT / "docs/架構決策.md"
+    adr_text = adr_doc.read_text(encoding="utf-8") if adr_doc.is_file() else ""
+    for rel in filter(None, [plan_rel, "docs/執行契約.md"]):
+        f = ROOT / rel
+        if f.is_file():
+            for num in sorted(set(adr_numbers(f.read_bytes()))):
+                if f"## ADR-{num} " not in adr_text:
+                    errors.append(f"{rel} 的修訂註記引用 ADR-{num}，但 docs/架構決策.md 沒有這條決策")
 
     if errors:
         print("state 檢查失敗：")

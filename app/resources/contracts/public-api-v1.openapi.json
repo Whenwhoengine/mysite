@@ -16,7 +16,7 @@
       "get": {
         "operationId": "getSite",
         "summary": "網站資訊與選單",
-        "description": "WordPress 讀不到時沿用內建後備（fallback 為 true），不回 503。",
+        "description": "WordPress 讀不到時沿用內建後備（fallback 為 true），不回 503；只有 Laravel 維護模式（換版）時回 503（HTTP_503）。",
         "responses": {
           "200": {
             "description": "網站資訊",
@@ -33,6 +33,16 @@
                 "schema": {
                   "type": "string",
                   "pattern": "no-store"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Laravel 維護模式（HTTP_503）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }

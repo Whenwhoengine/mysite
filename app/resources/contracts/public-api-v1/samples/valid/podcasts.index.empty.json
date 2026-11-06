@@ -1,0 +1,24 @@
+{
+  "data": [],
+  "meta": {
+    "page": 1,
+    "per_page": 12,
+    "total": 0,
+    "total_pages": 0
+  },
+  "collection": {
+    "type": "podcast",
+    "label": "Podcast",
+    "title": "Podcast 節目",
+    "lede": "可直接收聽的音訊節目，附節目簡介。"
+  },
+  "seo": {
+    "title": "Podcast 節目",
+    "description": "Podcast 節目的說明。",
+    "canonical_path": "/podcasts",
+    "noindex": false,
+    "og_type": "website",
+    "og_image": null,
+    "og_image_alt": null
+  }
+}

@@ -15,6 +15,7 @@ use Osteel\OpenApi\Testing\ValidatorInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Feature\Api\Concerns\AssertsPublicApiRules;
 use Tests\Feature\Content\Concerns\FakesWordPress;
 use Tests\TestCase;
 
@@ -25,6 +26,7 @@ use Tests\TestCase;
  */
 final class PublicApiTest extends TestCase
 {
+    use AssertsPublicApiRules;
     use FakesWordPress;
     use RefreshDatabase;
 
@@ -51,10 +53,14 @@ final class PublicApiTest extends TestCase
         $this->assertSame([], $response->baseResponse->headers->getCookies(), "{$uri} 不得帶 Set-Cookie");
         $this->assertFalse($response->baseResponse->headers->has('Set-Cookie'), "{$uri} 不得帶 Set-Cookie");
         $this->assertStringContainsString('no-store', (string) $response->headers->get('Cache-Control'), "{$uri} 必須 no-store");
+        $this->assertSame('noindex, nofollow', $response->headers->get('X-Robots-Tag'), "{$uri} 必須帶 X-Robots-Tag");
+        $this->assertFalse($response->headers->has('Access-Control-Allow-Origin'), "{$uri} 不得提供跨來源讀取");
         $this->assertStringStartsWith('application/json', (string) $response->headers->get('Content-Type'));
         $this->assertTrue($this->contract()->validate($response->baseResponse, $operationPath, 'get'));
         if ($status >= 400) {
             $this->assertMatchesRegularExpression('/^[a-f0-9]{32}$/', (string) $response->json('request_id'));
+        } else {
+            $this->assertPublicApiRules((array) $response->json(), $operationPath, $uri);
         }
 
         return $response;

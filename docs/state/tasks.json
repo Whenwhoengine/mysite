@@ -1389,6 +1389,108 @@
       "evidence_refs": [],
       "blocker_id": "BLK-HOST-01",
       "commit": null
+    },
+    {
+      "id": "REACT-F0",
+      "milestone": "REACT",
+      "title": "React 前端專案 F0：三份計畫書入庫、ADR-015、v1 §1.4 修訂註記",
+      "status": "IMPLEMENTED",
+      "depends_on": [],
+      "owned_paths": [
+        "docs/",
+        "CLAUDE.md",
+        "scripts/lib/plan_digest.py"
+      ],
+      "acceptance_ids": [],
+      "evidence_refs": [
+        "GitHub Actions run 42166078410"
+      ],
+      "blocker_id": null,
+      "commit": "71d4b46"
+    },
+    {
+      "id": "REACT-F1",
+      "milestone": "REACT",
+      "title": "React 前端專案 F1：公開 API 契約定稿（OpenAPI、樣本集、DOM 掛鉤清單）",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "REACT-F0"
+      ],
+      "owned_paths": [
+        "app/resources/contracts/",
+        "docs/公開API契約.md",
+        "tests/e2e/dom-hooks.json"
+      ],
+      "acceptance_ids": [],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "REACT-F2",
+      "milestone": "REACT",
+      "title": "React 前端專案 F2：Laravel 公開唯讀 API、共用政策、假資料匯出（PAPI-01～07）",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "REACT-F1"
+      ],
+      "owned_paths": [
+        "app/app/Http/Controllers/Api/",
+        "app/app/Domain/Content/Media/",
+        "app/app/Domain/Content/Mock/",
+        "app/routes/api.php"
+      ],
+      "acceptance_ids": [],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "REACT-F3",
+      "milestone": "REACT",
+      "title": "React 前端專案 F3：MySiteStorage 骨架（守門工作流程前需事件政策）",
+      "status": "BLOCKED_EXTERNAL",
+      "depends_on": [
+        "REACT-F1"
+      ],
+      "owned_paths": [],
+      "acceptance_ids": [],
+      "evidence_refs": [],
+      "blocker_id": "BLK-REACT-POLICY-01",
+      "commit": null
+    },
+    {
+      "id": "REACT-F6",
+      "milestone": "REACT",
+      "title": "React 前端專案 F6：併入 mysite（容器、gateway 開關、建置、CI 雙模式、PAPI-08）",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "REACT-F2",
+        "REACT-F3"
+      ],
+      "owned_paths": [
+        "infra/",
+        "scripts/",
+        ".github/workflows/"
+      ],
+      "acceptance_ids": [],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
+      "id": "REACT-F7",
+      "milestone": "REACT",
+      "title": "React 前端專案 F7：staging 驗收",
+      "status": "BLOCKED_EXTERNAL",
+      "depends_on": [
+        "REACT-F6"
+      ],
+      "owned_paths": [],
+      "acceptance_ids": [],
+      "evidence_refs": [],
+      "blocker_id": "BLK-HOST-01",
+      "commit": null
     }
   ]
 }

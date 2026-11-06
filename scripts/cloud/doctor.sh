@@ -15,6 +15,7 @@ usage() {
   - .env／vendor／.git／composer.json 不可下載（INF-03）
   - uploads 內 PHP／雙副檔名不可執行（INF-04 基礎）
   - 主站敏感檔與 .php 探測由 gateway 直接回 404，上游收不到（定案執行書 §4.6、FE-20）
+  - 公開唯讀 API（/api/）與「/index.php/路徑」由 gateway 直接回 404，上游收不到（MySite React 前端專案 M-06）
   - wp-jobs 心跳、app-worker、app-scheduler 在執行
 EOF
 }
@@ -138,6 +139,27 @@ gateway_blocks_probes() {
   fi
 }
 
+gateway_blocks_public_api() {
+  # MySite React 前端專案 v1 §5.5、M-06：公開唯讀 API 只給前端容器經內部網路呼叫，gateway 對外一律 404；
+  # 「/index.php/路徑」會被 Laravel 當成「/路徑」，可繞過依路徑前綴設的規則，gateway 也必須直接 404。
+  # 以本次專屬標記比對 app-web 存取紀錄，證明是 gateway 擋下、不是上游回的 404。
+  local mark since p c
+  mark="gwapiprobe$(date +%s)$RANDOM"
+  since="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  for p in "/api/v1/${mark}" "/index.php/api/v1/${mark}" "/%69ndex.php/api/v1/${mark}" "/index.php/${mark}"; do
+    c="$(http_code "http://127.0.0.1:${app_port}${p}")"
+    [[ "$c" == 404 ]] || { echo "gateway 對 ${p} 回 $c（應 404）"; return 1; }
+  done
+  for p in "/api/v1/site" "/index.php/api/v1/site"; do
+    c="$(http_code "http://127.0.0.1:${app_port}${p}")"
+    [[ "$c" == 404 ]] || { echo "公開 API ${p} 經 gateway 回 $c（應 404）"; return 1; }
+  done
+  sleep 1
+  if ms_compose logs --no-color --since "$since" app-web 2>/dev/null | grep -q "$mark"; then
+    echo "探測請求到達 app-web（gateway 未直接攔截）"; return 1
+  fi
+}
+
 uploads_not_executable() {
   local dir="/var/www/wp/wp-content/uploads/mysite-doctor"
   ms_compose exec -T -u www-data wp-php sh -c "mkdir -p $dir && printf '<?php echo \"EXECUTED\";' > $dir/probe.php && printf '<?php echo \"EXECUTED\";' > $dir/probe.php.jpg && printf 'GIF89a<?php echo \"EXECUTED\";' > $dir/probe.gif" || return 1
@@ -171,6 +193,7 @@ check INF-02-PORTS "只發布 loopback gateway 埠" no_public_ports
 check INF-03 "敏感檔不可下載" sensitive_blocked
 check INF-04 "uploads 腳本不可執行" uploads_not_executable
 check GW-PROBES "敏感檔與 .php 探測由 gateway 直接回 404" gateway_blocks_probes
+check GW-API "公開 API 與 /index.php/ 路徑由 gateway 直接回 404" gateway_blocks_public_api
 check INF-07 "公開診斷不可經 gateway 存取" expect_code 404 -H "X-Mysite-Diagnostics-Token: ${diag_token}" "http://127.0.0.1:${app_port}/internal/diagnostics/php"
 check JOBS "wp-jobs 心跳、worker、scheduler" jobs_running
 

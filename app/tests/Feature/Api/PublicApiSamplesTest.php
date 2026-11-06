@@ -12,6 +12,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Tests\Feature\Api\Concerns\AssertsPublicApiRules;
 
 /**
  * 契約樣本集（定案執行書 M-18②、F1 驗收）：valid 全部通過契約驗證、invalid 全部失敗。
@@ -19,6 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final class PublicApiSamplesTest extends TestCase
 {
+    use AssertsPublicApiRules;
+
     private const DIR = __DIR__.'/../../../resources/contracts';
 
     private static ?ValidatorInterface $contract = null;
@@ -70,6 +73,9 @@ final class PublicApiSamplesTest extends TestCase
     public function valid_sample_passes_the_contract(string $file, string $operation, int $status): void
     {
         $this->assertTrue(self::contract()->validate(self::response($file, $status), $operation, 'get'), $file);
+        if ($status === 200) {
+            $this->assertPublicApiRules((array) json_decode((string) file_get_contents(self::DIR.'/public-api-v1/samples/'.$file), true), $operation, $file);
+        }
     }
 
     #[Test]
@@ -96,10 +102,15 @@ final class PublicApiSamplesTest extends TestCase
         }
         foreach ($m['valid'] as $e) {
             $body = (string) file_get_contents(self::DIR.'/public-api-v1/samples/'.$e['file']);
-            if ($e['status'] === 200 && ! str_contains($e['file'], 'fallback') && ! str_contains($e['file'], 'empty') && ! str_contains($e['file'], 'initial') && ! str_contains($e['file'], 'zero')) {
+            $noContent = [
+                'valid/site.fallback.json', 'valid/home.empty.json', 'valid/search.initial.json', 'valid/search.zero.json',
+                'valid/articles.index.empty.json', 'valid/videos.index.empty.json', 'valid/podcasts.index.empty.json',
+                'valid/categories.show.listing.empty.json', 'valid/tags.show.overview.empty.json',
+            ];
+            if ($e['status'] === 200 && ! in_array($e['file'], $noContent, true)) {
                 $this->assertStringContainsString('MSMOCK-7F3A9C1E', $body, "{$e['file']} 要帶假資料哨兵字串");
             }
-            $this->assertDoesNotMatchRegularExpression('#https?://(?!example\.com|www\.youtube\.com|www\.youtube-nocookie\.com)#', $body, "{$e['file']} 只能用示例網域或 YouTube");
+            $this->assertDoesNotMatchRegularExpression('#https?://(?!(example\.com|www\.youtube\.com|www\.youtube-nocookie\.com)(/|"|$))#', $body, "{$e['file']} 只能用示例網域或 YouTube");
         }
     }
 }

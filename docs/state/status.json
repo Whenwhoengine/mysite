@@ -5,7 +5,7 @@
   "plan_sha256": "7a9dc8b969010117a9d7e2bef11f92a4eb1ac8a4c0d4c12cc077d512b16b41c1",
   "prompt_sha256": "b92cf5809217107abb54073225db77c99b1ca6782d26a33bb9a6803aab40393b",
   "source_plan_file": "docs/規劃書v5.md",
-  "updated_at": "2026-11-05T07:25:00Z",
+  "updated_at": "2026-11-06T06:40:00Z",
   "execution_backend": "claude-cloud-compose",
   "working_branch": "claude/happy-euler-evh676",
   "source_commit": "529223ab6856e7c0a6e3fcae52e568f68c53d515",
@@ -35,7 +35,8 @@
     "BLK-BACKUP-01",
     "BLK-ALERT-01",
     "BLK-PRODSECRET-01",
-    "BLK-APPROVAL-01"
+    "BLK-APPROVAL-01",
+    "BLK-REACT-POLICY-01"
   ],
-  "next_action": "等待委託人提供常駐主機與網域（BLK-HOST-01、BLK-DNS-01）後依 docs/runbooks/主機開通.md 進行 M9-A staging；M2（WP-10 正式 2FA 登記）與 M8-B（HTTPS 與續期演練）只剩真實主機上的驗收"
+  "next_action": "等待委託人提供常駐主機與網域（BLK-HOST-01、BLK-DNS-01）後依 docs/runbooks/主機開通.md 進行 M9-A staging；M2（WP-10 正式 2FA 登記）與 M8-B（HTTPS 與續期演練）只剩真實主機上的驗收。React 前端專案：F0～F2 在 PR Whenwhoengine/mysite#3 待委託人合併；F3 寫守門工作流程前需委託人設定 MySiteStorage 事件政策（BLK-REACT-POLICY-01）；D13a、D13f 提議值待裁定（docs/MySiteReact施工紀錄/D13呈報.md）"
 }

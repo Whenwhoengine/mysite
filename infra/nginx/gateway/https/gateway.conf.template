@@ -55,6 +55,9 @@ server {
     # 公開唯讀 API 只給前端容器經內部專用網路呼叫，對外一律 404（MySite React 前端專案 v1 §5.5、M-06、PAPI-08）；
     # staging 是否開放（D5：只放行 gateway 固定位址、每 IP 限流）在 F7 依裁定另加，production 不開放。
     location ^~ /api/ { return 404; }
+    # 「/index.php/路徑」會被 Laravel 當成「/路徑」處理，可繞過上面依路徑前綴設的規則（/api/、/internal/、登入限流）；
+    # 前端控制器只接受 /index.php 本身，後面帶路徑一律 404（nginx 比對解碼後的路徑，%69ndex.php 也擋下）。
+    location ^~ /index.php/ { return 404; }
     location / { include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
 }
 

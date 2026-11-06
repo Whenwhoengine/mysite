@@ -9,7 +9,7 @@ usage() {
   cat <<'EOF'
 用法：scripts/ci/verify.sh --scope=content|simulation [--skip-build] [--steps=a,b,...] [--help]
 
-步驟（預設全部）：static、bootstrap、idempotency、doctor、phpunit、wp-contract、e2e、deploy、governance、collect
+步驟（預設全部）：static、bootstrap、idempotency、doctor、phpunit、wp-contract、mock-export、e2e、deploy、governance、collect
   --skip-build   testing 映像已存在時略過重建
   --steps=...    只跑指定步驟（逗號分隔）
 結果：.runtime/results/*.jsonl、junit.xml、coverage；彙整：docs/evidence/<run-id>/（由 collect 步驟產生）
@@ -17,7 +17,7 @@ exit code：0 全部通過；10 參數錯；21 無 Docker（改用 Actions）；
 EOF
 }
 
-scope=""; skip_build=0; steps="static,bootstrap,idempotency,doctor,phpunit,wp-contract,e2e,deploy,governance,collect"
+scope=""; skip_build=0; steps="static,bootstrap,idempotency,doctor,phpunit,wp-contract,mock-export,e2e,deploy,governance,collect"
 for a in "$@"; do
   case "$a" in
     --scope=*) scope="${a#--scope=}" ;;
@@ -174,6 +174,27 @@ wp_contract_step() {
     bash tests/contracts/wp/run.sh
 }
 
+mock_export_step() {
+  # MySite React 前端專案 v1 F2 第 5 步、定案 M-19：在 testing 環境以 WordPress 示例內容呼叫公開 API，匯出前端假資料。
+  # 工具本身只收示例內容、媒體改指合成檔、植入哨兵字串並以契約再驗證，任一不符即非零結束（不寫任何檔）。
+  # 只在 content 範圍執行（simulation 範圍的內容相同，不重複）；產出放在結果目錄，隨證據上傳，F3 匯入前端時取用。
+  if [[ "$scope" != content ]]; then
+    record mock-export export-api-mocks "" PASS "simulation 範圍不執行（content 範圍已匯出）"
+    return 0
+  fi
+  ms_compose_prepare "$root" testing
+  local rc=0 out="mock-export/${run_id}"
+  ms_compose run --rm -T -u www-data -e HOME=/tmp tools \
+    php artisan content:export-api-mocks --out="/opt/mysite/results/${out}" || rc=$?
+  if (( rc == 0 )) && [[ -f "$results/${out}/mocks/manifest.json" ]]; then
+    record mock-export export-api-mocks "" PASS "testing 示例內容匯出 $(jq '.files | length' "$results/${out}/mocks/manifest.json") 份 JSON（${out}）"
+  else
+    record mock-export export-api-mocks "" FAIL "content:export-api-mocks exit ${rc}"
+    rc=$(( rc == 0 ? 30 : rc ))
+  fi
+  return $rc
+}
+
 deploy_step() {
   [[ -f tests/deploy/run.sh ]] || { record deploy runner-missing "" FAIL "tests/deploy/run.sh 不存在"; return 1; }
   MYSITE_RESULTS_DIR="$results" bash tests/deploy/run.sh
@@ -209,13 +230,14 @@ if want bootstrap; then step bootstrap ensure_testing_env; fi
 bootstrap_ok=$(jq -s 'map(select(.step=="bootstrap"))|(length==0 or .[0].exit_code==0)' "$steps_log")
 if [[ "$bootstrap_ok" != true ]]; then
   ms_err "testing 環境建立失敗；略過需要環境的步驟（記為 FAIL）"
-  for s in idempotency doctor phpunit wp-contract e2e; do want "$s" && jq -cn --arg s "$s" --arg at "$(now)" '{step:$s, command:"skipped: bootstrap failed", started_at:$at, finished_at:$at, exit_code:99, status:"FAIL"}' >> "$steps_log"; done
+  for s in idempotency doctor phpunit wp-contract mock-export e2e; do want "$s" && jq -cn --arg s "$s" --arg at "$(now)" '{step:$s, command:"skipped: bootstrap failed", started_at:$at, finished_at:$at, exit_code:99, status:"FAIL"}' >> "$steps_log"; done
   overall=1
 else
   want idempotency && step idempotency idempotency
   want doctor && step doctor doctor_step
   want phpunit && step phpunit phpunit_step
   want wp-contract && step wp-contract wp_contract_step
+  want mock-export && step mock-export mock_export_step
   want e2e && step e2e e2e_step
 fi
 want deploy && step deploy deploy_step

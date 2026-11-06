@@ -1,0 +1,42 @@
+{
+  "data": {
+    "kind": "tag",
+    "label": "標籤",
+    "term": {
+      "slug": "demo",
+      "name": "示例",
+      "path": "/tags/demo",
+      "count": 0
+    },
+    "mode": "overview",
+    "type": null,
+    "overview": {
+      "post": {
+        "items": [],
+        "total": 0,
+        "per_page": 6
+      },
+      "video": {
+        "items": [],
+        "total": 0,
+        "per_page": 6
+      },
+      "podcast": {
+        "items": [],
+        "total": 0,
+        "per_page": 6
+      }
+    },
+    "items": null
+  },
+  "meta": null,
+  "seo": {
+    "title": "標籤：示例",
+    "description": "標籤：示例的說明。",
+    "canonical_path": "/tags/demo",
+    "noindex": false,
+    "og_type": "website",
+    "og_image": null,
+    "og_image_alt": null
+  }
+}

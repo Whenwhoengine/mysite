@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
  * 公開唯讀 JSON API（MySite React 前端專案 v1 §5、F2）。
  *
  * 與 Blade 公開頁走同一條路：ContentQueryService → ContentRepository → WordPressRestClient，
- * 可見性證明、淨化、錯誤分類全部重用；不另寫讀 WordPress 的路、不快取。參數規則與 Blade 相同（PublicContentInput）。
+ * 可見性證明、淨化、錯誤分類全部重用；不另寫讀 WordPress 的路，沿用既有內容快取與可見性租約、不另加快取。參數規則與 Blade 相同（PublicContentInput）。
  */
 final class PublicContentController extends Controller
 {

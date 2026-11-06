@@ -49,7 +49,8 @@ final class ErrorRenderer
             }
             // 4xx 一律使用本站正體中文錯誤頁；只有 5xx 系統錯誤在除錯模式下沿用框架除錯頁
             $isClientError = $e instanceof HttpExceptionInterface && $e->getStatusCode() < 500;
-            if (config('app.debug') && ! $isClientError && ! $e instanceof \Illuminate\Session\TokenMismatchException) {
+            // 公開 API 即使在除錯模式也只回固定格式的 JSON 錯誤，不交給框架除錯頁（避免露出內部路徑）
+            if (config('app.debug') && ! $isClientError && ! self::isPublicApi($request) && ! $e instanceof \Illuminate\Session\TokenMismatchException) {
                 return null;
             }
             if ($e instanceof \Illuminate\Session\TokenMismatchException) {

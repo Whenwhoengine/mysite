@@ -163,6 +163,7 @@ claims：
 | `COMMERCE_DISABLED` | 404 | `COMMERCE_MODE=disabled` 時所有商店路由 |
 | `SIMULATION_ONLY` | 422 | 嘗試真實交易語意（例如 real 模式或付款欄位） |
 | `SEARCH_INVALID` | 422 | 公開唯讀 API `/api/v1/search` 的 `q` 超過 100 字或 `type` 不正確（2026-11-06 新增，MySite React 前端專案；訊息為具體原因，與 Blade 搜尋頁相同，見 `docs/公開API契約.md`） |
+| `HTTP_{狀態碼}` | 該狀態碼 | 框架層的錯誤（例如 `HTTP_405` 方法不符、`HTTP_500` 未預期例外、`HTTP_503` 維護模式），由 `ErrorRenderer` 統一產生（既有行為，2026-11-06 補記）。公開 API 的路由層 404 一律改用 `CONTENT_NOT_FOUND` |
 
 公開錯誤頁顯示正體中文訊息與隨機 request ID，不含 stack trace、路徑或上游細節。
 
@@ -186,4 +187,4 @@ claims：
 
 ## 8. 公開唯讀 API（2026-11-06，MySite React 前端專案 F1／F2）
 
-主站另開給前端容器使用的公開唯讀 JSON API `/api/v1/*`，契約正本為 `app/resources/contracts/public-api-v1.openapi.json`（OpenAPI 3.0.3），說明見 `docs/公開API契約.md`。它沿用本文件的內容物件與錯誤碼語意；新增的錯誤碼只有 §6 的 `SEARCH_INVALID`。
+主站另開給前端容器使用的公開唯讀 JSON API `/api/v1/*`，契約正本為 `app/resources/contracts/public-api-v1.openapi.json`（OpenAPI 3.0.3），說明見 `docs/公開API契約.md`。它沿用本文件的內容物件與錯誤碼語意；新增的錯誤碼只有 §6 的 `SEARCH_INVALID`，另會回 §6 的 `HTTP_405`、`HTTP_500`、`HTTP_503`。

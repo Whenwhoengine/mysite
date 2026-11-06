@@ -2,9 +2,13 @@
 """委託人原件（規劃書v5、執行契約）的「原文雜湊」。
 
 ADR-015（2026-11-06，委託人裁定 D1）要求在原件被取代的句子旁加修訂註記、原文不刪。
-註記一律寫成行內標記 `〔ADR-nnn 修訂註記（日期）：…〕`（標記內不含 `〕` 與換行），
-去掉全部標記後，必須與委託人提供的原件逐位元組相同。本工具輸出去掉標記後的 SHA-256，
-供 session-start、check-state 與治理檢查比對 status.json 的 plan_sha256。
+註記一律寫成行內標記 `〔ADR-nnn 修訂註記（YYYY-MM-DD）：說明〕`，去掉全部標記後，
+必須與委託人提供的原件逐位元組相同。本工具輸出去掉標記後的 SHA-256，
+供 session-start、check-state 與治理檢查比對 status.json 的 plan_sha256、prompt_sha256。
+
+標記格式刻意收窄，避免拿註記藏住原文：說明裡不得有換行或其他控制字元，也不得有
+Markdown／HTML 會解讀的符號（< > ` * _ ~ | [ ] \）；不合格式的標記不會被去掉，雜湊就對不上。
+標記引用的 ADR 編號必須真的存在於 docs/架構決策.md（由 check-state 檢查）。
 
 用法：python3 scripts/lib/plan_digest.py <檔案>（exit 0 輸出雜湊；10 參數錯誤；30 檔案讀不到）
 """
@@ -13,11 +17,16 @@ import re
 import sys
 
 # 以字元（不是位元組）比對：〕 的 UTF-8 位元組也出現在其他中文字裡。
-MARK = re.compile("〔ADR-[0-9]{3} 修訂註記[^〕\n]*〕")
+MARK = re.compile("〔ADR-([0-9]{3}) 修訂註記（[0-9]{4}-[0-9]{2}-[0-9]{2}）：[^〕\x00-\x1f\x7f<>`*_~|\\[\\]\\\\]*〕")
 
 
 def original_bytes(data: bytes) -> bytes:
     return MARK.sub("", data.decode("utf-8")).encode("utf-8")
+
+
+def adr_numbers(data: bytes) -> list[str]:
+    """檔案內所有修訂註記引用的 ADR 編號（例如 "015"），依出現順序。"""
+    return MARK.findall(data.decode("utf-8"))
 
 
 def original_digest(data: bytes) -> str:

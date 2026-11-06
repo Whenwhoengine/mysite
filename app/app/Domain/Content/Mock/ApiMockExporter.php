@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * 假資料匯出（MySite React 前端專案 v1 §7 F2 第 5 步、定案執行書 §5 M-19）。
  *
- * 1. 在程序內以 HTTP kernel 直接呼叫公開 API（不經網路、不經 gateway），依序取：
+ * 1. 在 Laravel 行程內以 HTTP kernel 直接呼叫公開 API（不經網路、不經 gateway），依序取：
  *    site → home → 三種列表第 1 頁 → 列表中每一篇的單篇 → 選單找得到的一般頁面 → 分類／標籤總覽 → 搜尋（空查詢＋一個有結果的查詢）。
  * 2. 每個回應先以契約驗證，再交 MockTransformer（只收示例內容、媒體改寫、哨兵字串），轉換後再以契約驗證一次。
  * 3. 附上 MockEdgeCases 的合成邊界案例（同一轉換層與契約驗證）。

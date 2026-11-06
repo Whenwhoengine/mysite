@@ -232,6 +232,35 @@ final class ApiMockExportTest extends TestCase
      *
      * @param  (\Closure(array<string, mixed>): array<string, mixed>)|null  $mutate
      */
+    #[Test]
+    public function cms_links_in_content_are_rewritten_and_any_leftover_cms_url_aborts(): void
+    {
+        $this->fakeSampleWordPress(function (array $items): array {
+            $items['post']['body_html'] = '<p><a href="http://cms.mysite.localhost:8081/wp-content/uploads/2026/11/full.png">看大圖</a></p>'
+                .'<blockquote cite="http://cms.mysite.localhost:8081/wp-content/uploads/2026/11/source.pdf"><p>引文</p></blockquote>'
+                .'<p><a href="https://example.com/">外部連結</a></p>';
+
+            return $items;
+        });
+        $payload = (array) $this->get('/api/v1/articles/sample-article')->assertOk()->json();
+        $this->assertStringContainsString('wp-content/uploads/2026/11/full.png', (string) $payload['data']['content_html'], '前提：真實 API 的正文含 CMS 連結');
+
+        $transformer = $this->app->make(MockTransformer::class);
+        $out = $transformer->transform('detail', $payload, '/api/v1/articles/sample-article');
+        $html = (string) $out['data']['content_html'];
+        $this->assertStringNotContainsString('cms.mysite.localhost', $html);
+        $this->assertStringNotContainsString('/wp-content/uploads/', $html);
+        $this->assertStringContainsString('href="'.MockMedia::url(MockMedia::INLINE).'"', $html);
+        $this->assertStringContainsString('cite="'.MockMedia::url(MockMedia::INLINE).'"', $html);
+        $this->assertStringContainsString('href="https://example.com/"', $html, '外部示例連結保留');
+
+        // 轉換層沒處理到的欄位殘留 CMS 網址：全文檢查必須中止
+        $payload['data']['excerpt'] = '摘要提到 http://cms.mysite.localhost:8081/wp-content/uploads/2026/11/x.png';
+        $this->expectException(\App\Domain\Content\Mock\MockExportException::class);
+        $this->expectExceptionMessage('殘留 CMS 網址');
+        $transformer->transform('detail', $payload, '/api/v1/articles/sample-article');
+    }
+
     private function fakeSampleWordPress(?\Closure $mutate = null): void
     {
         $data = [

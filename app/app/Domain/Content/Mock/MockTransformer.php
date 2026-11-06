@@ -47,8 +47,51 @@ final class MockTransformer
             default => throw new MockExportException("未知的回應種類：{$kind}"),
         };
         $this->assertClean($out, $source);
+        $this->assertNoCmsUrls($out, $source);
 
         return $out;
+    }
+
+    /**
+     * 全文檢查：輸出裡不得殘留任何 CMS 網址（WP_PUBLIC_URL 的來源或 /wp-content/uploads/），
+     * 不論出現在哪個欄位（例如正文裡「連結到媒體檔」產生的 <a href>）。前端 CI 不得向外部發請求。
+     *
+     * @param  array<mixed>  $payload
+     *
+     * @throws MockExportException
+     */
+    public function assertNoCmsUrls(array $payload, string $source): void
+    {
+        $json = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+        $needles = ['/wp-content/uploads/'];
+        $origin = self::cmsOrigin();
+        if ($origin !== null) {
+            $needles[] = $origin;
+        }
+        foreach ($needles as $needle) {
+            if (stripos($json, $needle) !== false) {
+                throw new MockExportException("{$source} 殘留 CMS 網址（{$needle}）");
+            }
+        }
+    }
+
+    /** WP_PUBLIC_URL 的來源（scheme://host[:port]）；未設定時為 null。 */
+    private static function cmsOrigin(): ?string
+    {
+        $parts = parse_url((string) config('mysite.wp_public_url'));
+        if (! is_array($parts) || ! isset($parts['scheme'], $parts['host'])) {
+            return null;
+        }
+
+        return strtolower($parts['scheme'].'://'.$parts['host'].(isset($parts['port']) ? ':'.$parts['port'] : ''));
+    }
+
+    /** 指向 CMS（同源或 /wp-content/uploads/）的網址。 */
+    private static function isCmsUrl(string $url): bool
+    {
+        $origin = self::cmsOrigin();
+
+        return stripos($url, '/wp-content/uploads/') !== false || ($origin !== null && str_starts_with(strtolower($url), $origin));
     }
 
     /**
@@ -263,7 +306,7 @@ final class MockTransformer
     }
 
     /**
-     * 富文字：只替換既有 <img> 的 src 值，並在最前面加一個純文字 <p> 哨兵段落。
+     * 富文字：替換既有 <img> 的 src 值、指向 CMS 的 <a href> 與 <blockquote cite>，並在最前面加一個純文字 <p> 哨兵段落。
      * 不新增其他元素或屬性；輸入本來就是 Sanitizer 以同一個 DOM 序列化器產生的輸出。
      */
     private function html(string $html): string
@@ -276,6 +319,15 @@ final class MockTransformer
         foreach (iterator_to_array($body->querySelectorAll('img')) as $img) {
             /** @var Element $img */
             $img->setAttribute('src', MockMedia::url(MockMedia::INLINE));
+        }
+        // 正文裡指向 CMS 的連結（例如圖片設成「連結到媒體檔」）與引用來源，同樣改指合成檔
+        foreach ([['a', 'href'], ['blockquote', 'cite']] as [$tag, $attr]) {
+            foreach (iterator_to_array($body->querySelectorAll($tag.'['.$attr.']')) as $el) {
+                /** @var Element $el */
+                if (self::isCmsUrl((string) $el->getAttribute($attr))) {
+                    $el->setAttribute($attr, MockMedia::url(MockMedia::INLINE));
+                }
+            }
         }
         $sentinel = $doc->createElement('p');
         $sentinel->textContent = self::SENTINEL;
