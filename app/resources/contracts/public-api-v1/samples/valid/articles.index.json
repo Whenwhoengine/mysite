@@ -1,0 +1,176 @@
+{
+  "data": [
+    {
+      "type": "post",
+      "slug": "sample-article",
+      "path": "/articles/sample-article",
+      "title": "示例文章標題",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "long-title",
+      "path": "/articles/long-title",
+      "title": "示例內容：超長中文標題用來測試換行與版面不會撐出水平捲軸超長中文標題用來測試換行與版面不會撐出水平捲軸超長中文標題用來測試換行與版面不會撐出水平捲軸超長中文標題用來測試換行與版面不會撐出水平捲軸超長中文標題用來測試換行與版面不會撐出水平捲軸超長中文標題用來測試換行與版面不會撐出水平捲軸超長中文標題用來測試換行與版面不會撐出水平捲軸超長中文標題用來測試換行與版面不會撐出水平捲軸超長中文標題用來測試換行與版面不會撐出水平捲軸",
+      "excerpt": "MSMOCK-7F3A9C1E 摘要含超長網址 https://example.com/very-long-path-segment-very-long-path-segment-very-long-path-segment-very-long-path-segment-very-long-path-segment-very-long-path-segment-very-long-path-segment-very-long-path-segment-very-long-path-segment-very-long-path-segment-very-long-path-segment-very-long-path-segment-end",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "no-cover",
+      "path": "/articles/no-cover",
+      "title": "沒有封面的示例文章",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": null,
+      "cover": null,
+      "categories": [],
+      "tags": [],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "中文網址示例",
+      "path": "/articles/%E4%B8%AD%E6%96%87%E7%B6%B2%E5%9D%80%E7%A4%BA%E4%BE%8B",
+      "title": "中文 slug 的示例文章",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+      "path": "/articles/ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+      "title": "200 字 slug 的示例文章",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 12,
+    "total": 30,
+    "total_pages": 3
+  },
+  "collection": {
+    "type": "post",
+    "label": "文章",
+    "title": "文章",
+    "lede": "長文、筆記與幕後紀錄。"
+  },
+  "seo": {
+    "title": "文章",
+    "description": "文章的說明。",
+    "canonical_path": "/articles",
+    "noindex": false,
+    "og_type": "website",
+    "og_image": null,
+    "og_image_alt": null
+  }
+}

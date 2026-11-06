@@ -32,6 +32,9 @@ server {
     location ~ \.php$ { return 404; }
     location = /internal/deploy-status { include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
     location ^~ /internal/ { return 404; }
+    # 公開唯讀 API 只給前端容器經內部專用網路呼叫，對外一律 404（MySite React 前端專案 v1 §5.5、M-06、PAPI-08）；
+    # staging 是否開放（D5：只放行 gateway 固定位址、每 IP 限流）在 F7 依裁定另加，production 不開放。
+    location ^~ /api/ { return 404; }
     location / { include /etc/nginx/snippets/gateway-proxy.conf; set $mysite_app_upstream http://app-web:8080; proxy_pass $mysite_app_upstream; }
 }
 

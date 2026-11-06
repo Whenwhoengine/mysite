@@ -1,0 +1,48 @@
+{
+  "data": {
+    "type": "post",
+    "slug": "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+    "path": "/articles/ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+    "title": "200 字 slug 的示例文章",
+    "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+    "published_at": "2026-11-01T02:00:00Z",
+    "modified_at": "2026-11-02T03:00:00Z",
+    "author_name": "編輯部",
+    "cover": {
+      "url": "/mock-media/cover.png",
+      "alt": "示例封面替代文字",
+      "width": 1200,
+      "height": 630
+    },
+    "categories": [
+      {
+        "slug": "news",
+        "name": "新聞",
+        "path": "/categories/news",
+        "count": null
+      }
+    ],
+    "tags": [
+      {
+        "slug": "demo",
+        "name": "示例",
+        "path": "/tags/demo",
+        "count": null
+      }
+    ],
+    "duration_seconds": null,
+    "is_sample": true,
+    "content_html": "<p>MSMOCK-7F3A9C1E</p><p>第一段正文。</p><h2>小標</h2><p>第二段正文。</p>",
+    "video": null,
+    "podcast": null
+  },
+  "seo": {
+    "title": "200 字 slug 的示例文章",
+    "description": "200 字 slug 的示例文章的說明。",
+    "canonical_path": "/articles/ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+    "noindex": false,
+    "og_type": "article",
+    "og_image": null,
+    "og_image_alt": null
+  }
+}

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\View\Components;
 
 use App\Domain\Content\Dto\Image as ImageDto;
-use App\Support\Html\Sanitizer;
+use App\Domain\Content\Media\MediaPolicy;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
@@ -28,7 +28,7 @@ final class Image extends Component
         public bool $preview = false,
         public string $sizes = '(min-width: 1200px) 400px, (min-width: 768px) 50vw, 100vw',
     ) {
-        $this->src = $image !== null && app(Sanitizer::class)->isAllowedMediaUrl($image->url, $preview) ? $image->url : null;
+        $this->src = app(MediaPolicy::class)->imageUrl($image?->url, $preview);
     }
 
     public function render(): View

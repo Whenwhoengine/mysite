@@ -1,0 +1,23 @@
+{
+  "data": {
+    "q": "沒有符合",
+    "type": "post",
+    "searched": true,
+    "items": []
+  },
+  "meta": {
+    "page": 1,
+    "per_page": 12,
+    "total": 0,
+    "total_pages": 0
+  },
+  "seo": {
+    "title": "搜尋「沒有符合」",
+    "description": "搜尋「沒有符合」的說明。",
+    "canonical_path": "/search",
+    "noindex": true,
+    "og_type": "website",
+    "og_image": null,
+    "og_image_alt": null
+  }
+}

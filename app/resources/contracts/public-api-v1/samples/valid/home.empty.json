@@ -1,0 +1,17 @@
+{
+  "data": {
+    "featured": null,
+    "posts": [],
+    "videos": [],
+    "podcasts": []
+  },
+  "seo": {
+    "title": "mysite",
+    "description": "mysite的說明。",
+    "canonical_path": "/",
+    "noindex": false,
+    "og_type": "website",
+    "og_image": null,
+    "og_image_alt": null
+  }
+}

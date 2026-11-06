@@ -20,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->group(base_path('routes/health.php'));
             \Illuminate\Support\Facades\Route::middleware(['internal'])
                 ->group(base_path('routes/internal.php'));
+            // 公開唯讀 API（MySite React 前端專案）：不經 web 群組，沒有 Session、CSRF、cookie
+            \Illuminate\Support\Facades\Route::middleware([\App\Http\Middleware\PublicApiHeaders::class])
+                ->group(base_path('routes/api.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

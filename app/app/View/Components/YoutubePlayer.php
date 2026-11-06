@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\View\Components;
 
 use App\Domain\Content\Dto\Image as ImageDto;
+use App\Domain\Content\Media\MediaPolicy;
 use App\Domain\Content\Dto\VideoInfo;
 use App\Domain\Content\Support\DisplayTime;
 use Illuminate\View\Component;
@@ -16,7 +17,8 @@ use Illuminate\View\View;
  */
 final class YoutubePlayer extends Component
 {
-    public const ID_PATTERN = '/^[A-Za-z0-9_-]{11}$/D';
+    /** 政策本體在 MediaPolicy（v1 §5.6）；保留常數名稱供既有呼叫端使用。 */
+    public const ID_PATTERN = MediaPolicy::YOUTUBE_ID_PATTERN;
 
     public readonly ?string $videoId;
 
@@ -37,17 +39,17 @@ final class YoutubePlayer extends Component
 
     public static function validId(?string $id): ?string
     {
-        return is_string($id) && preg_match(self::ID_PATTERN, $id) === 1 ? $id : null;
+        return MediaPolicy::youtubeId($id);
     }
 
     public function embedUrl(): string
     {
-        return 'https://www.youtube-nocookie.com/embed/'.$this->videoId.'?autoplay=1&rel=0';
+        return MediaPolicy::youtubeEmbedUrl((string) $this->videoId);
     }
 
     public function watchUrl(): string
     {
-        return 'https://www.youtube.com/watch?v='.$this->videoId;
+        return MediaPolicy::youtubeWatchUrl((string) $this->videoId);
     }
 
     public function render(): View

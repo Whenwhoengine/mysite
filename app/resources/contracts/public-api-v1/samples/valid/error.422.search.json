@@ -1,0 +1,5 @@
+{
+  "error": "SEARCH_INVALID",
+  "message": "搜尋字詞最多 100 個字，請縮短後再試。",
+  "request_id": "0123456789abcdef0123456789abcdef"
+}

@@ -1,0 +1,1565 @@
+{
+  "version": "1.0.0",
+  "status": "F1 初版（前端 F3 照此實作；Blade 與 E2E 的對應改寫留到 F6）",
+  "date": "2026-11-06",
+  "source": {
+    "summary": "依 docs/MySiteReact前端專案v1.md §6.5（DOM 測試掛鉤契約）訂定，並依 docs/MySiteReact前端專案定案執行.md §5 M-10 增列（搜尋零結果與結果摘要 role=\"status\"、文字「找不到符合」；錯誤分支 role=\"alert\"；Podcast 詳情原始 HTML 含音訊 src；列表頁原始 HTML 含相對路徑的詳情連結）。",
+    "basis": [
+      "docs/MySiteReact前端專案v1.md §6.5 第 405–411 行（掛鉤契約五點）",
+      "docs/MySiteReact前端專案v1.md §6.4 第 394–403 行（受保護元件行為）",
+      "docs/MySiteReact前端專案v1.md §6.3 第 391 行（<head> 逐項比照 layouts/app.blade.php）",
+      "docs/MySiteReact前端專案v1.md §7 F1 第 5 步與驗收，第 547–548 行（掛鉤清單涵蓋現行 E2E 用到的全部 class 型選擇器）",
+      "docs/MySiteReact前端專案v1.md §9.2 FE-12 第 699 行；FE-09 第 696 行",
+      "docs/MySiteReact前端專案定案執行.md §5 M-10 第 327 行；M-09 第 326 行",
+      "docs/MySiteReact前端專案定案執行.md §4.3 第 236–239 行；§4.4 第 241–254 行",
+      "docs/MySiteReact前端專案定案執行.md §5.1 AI_RULES 第 6、10、14 條（第 380、384、388 行）",
+      "docs/MySiteReact前端專案定案執行.md §6 F1 第 422 行；F3 第 7 步第 438 行"
+    ],
+    "e2e_scanned": [
+      "tests/e2e/specs/a11y.spec.mjs",
+      "tests/e2e/specs/admin-2fa.spec.mjs",
+      "tests/e2e/specs/admin.spec.mjs",
+      "tests/e2e/specs/cookies.spec.mjs",
+      "tests/e2e/specs/infra.spec.mjs",
+      "tests/e2e/specs/layout.spec.mjs",
+      "tests/e2e/specs/media.spec.mjs",
+      "tests/e2e/specs/preview.spec.mjs",
+      "tests/e2e/specs/seo.spec.mjs",
+      "tests/e2e/specs/shop.spec.mjs",
+      "tests/e2e/specs/wp-editor.spec.mjs",
+      "tests/e2e/helpers/admin.mjs",
+      "tests/e2e/helpers/env.mjs",
+      "tests/e2e/helpers/png.mjs",
+      "tests/e2e/helpers/site.mjs",
+      "tests/e2e/helpers/wp.mjs"
+    ],
+    "blade_scanned": [
+      "app/resources/views/layouts/app.blade.php",
+      "app/resources/views/layouts/partials/header.blade.php",
+      "app/resources/views/layouts/partials/footer.blade.php",
+      "app/resources/views/content/home.blade.php",
+      "app/resources/views/content/index.blade.php",
+      "app/resources/views/content/show.blade.php",
+      "app/resources/views/content/partials/entry.blade.php",
+      "app/resources/views/content/taxonomy.blade.php",
+      "app/resources/views/content/search.blade.php",
+      "app/resources/views/errors/mysite.blade.php",
+      "app/resources/views/components/*.blade.php",
+      "app/resources/views/preview/show.blade.php",
+      "app/resources/views/shop/*.blade.php"
+    ],
+    "read_at_commit": "71d4b46（分支 claude/happy-euler-evh676）"
+  },
+  "conventions": {
+    "naming": "新掛鉤一律 data-*、kebab-case、以語意命名；沿用現有 data-* 與 id，不改名。",
+    "boolean_hooks": "布林掛鉤以「存在」判斷（選擇器 [data-x]）。React 請寫 data-x=\"\"（輸出 data-x=\"\"）；Blade 寫 data-x。",
+    "valued_hooks": "帶值的掛鉤只有 data-error-view（值＝HTTP 狀態碼）與既有的 data-embed-src（值＝嵌入網址）。",
+    "design_freedom": "設計可改 class、版面、字級、圖示；不得刪除或改名掛鉤、id、元素角色與指定文字（v1 §6.5 第 4 點；定案 §5.1 第 6 條）。",
+    "required": "required=true：該頁型在 state 所述狀態下必須出現；state=null 表示一律出現。",
+    "blade_now": "現行 Blade 已以「同一選擇器」提供的位置；null 表示現行沒有，F6 在 blade_element 所指元素補上（不改外觀）。",
+    "blade_element": "現行 Blade 中的對應元素（通常帶有 replaces 所列 class）位置；F6 補掛鉤的落點。",
+    "used_by": "現行 E2E 依賴處（檔名:行號）；空陣列表示現行 E2E 未斷言，依據寫在 note。",
+    "paths": "所有路徑相對於 mysite 儲存庫根目錄。",
+    "line_numbers": "行號一律以提交 71d4b46 為準。訂定本清單時，工作樹中 app/app/Http/Controllers/Content/ContentController.php 正被其他施工改動（未提交），引用該檔的行號請以 git show 71d4b46:app/app/Http/Controllers/Content/ContentController.php 對照；E2E、Blade、JS、CSS 與 PHPUnit 測試檔在工作樹中未被改動。"
+  },
+  "hook_fields": {
+    "id": "全清單唯一的掛鉤代號",
+    "selector": "前端與 F6 後的 E2E 應使用的選擇器（null 表示刻意不設掛鉤，理由見 note）",
+    "element": "預期的 HTML 元素",
+    "required": "布林",
+    "state": "只在某狀態出現時填寫",
+    "text": "必須包含的固定文字（null 表示沒有固定文字）",
+    "role": "必須具備的 ARIA 角色（含原生元素隱含角色）",
+    "replaces": "被取代的現行選擇器（class 或標籤定位）",
+    "used_by": "E2E 檔名:行號陣列",
+    "blade_now": "現行 Blade 提供位置或 null",
+    "blade_element": "現行 Blade 對應元素位置",
+    "note": "補充說明"
+  },
+
+  "layout": {
+    "description": "全站共用版面：所有公開頁型（home … error_500）都套用。/api/v1/site 取不到時，ErrorView 改用內建靜態頁首頁尾（v1 §6.3 第 385 行；定案 §4.9 第 288、290 行），此時只要求 state 為 null 的掛鉤。",
+    "blade_view": "app/resources/views/layouts/app.blade.php",
+    "hooks": [
+      {
+        "id": "layout.skip-link",
+        "selector": "[data-skip-link]",
+        "element": "a[href=\"#main\"]",
+        "required": true,
+        "state": null,
+        "text": "跳到主要內容",
+        "role": "link",
+        "replaces": ".skip-link",
+        "used_by": [
+          "tests/e2e/specs/a11y.spec.mjs:65",
+          "tests/e2e/specs/a11y.spec.mjs:67",
+          "tests/e2e/specs/a11y.spec.mjs:68",
+          "tests/e2e/specs/a11y.spec.mjs:69",
+          "tests/e2e/specs/a11y.spec.mjs:70",
+          "tests/e2e/specs/a11y.spec.mjs:71",
+          "tests/e2e/helpers/site.mjs:110"
+        ],
+        "blade_now": null,
+        "blade_element": "app/resources/views/layouts/app.blade.php:57",
+        "note": "必須是 <body> 內第一個可聚焦元素（第一個 Tab）；文字完全等於「跳到主要內容」（a11y.spec.mjs:68 用 toBe）；聚焦時出現在視窗內並有可見焦點樣式。F6：Blade 補 data-skip-link；a11y.spec.mjs:67 改判此屬性；site.mjs:110 的溢位豁免改為 [data-skip-link]。"
+      },
+      {
+        "id": "layout.main",
+        "selector": "main#main",
+        "element": "main",
+        "required": true,
+        "state": null,
+        "text": null,
+        "role": "main",
+        "replaces": null,
+        "used_by": [
+          "tests/e2e/specs/a11y.spec.mjs:72",
+          "tests/e2e/specs/a11y.spec.mjs:100",
+          "tests/e2e/specs/media.spec.mjs:105",
+          "tests/e2e/specs/media.spec.mjs:122",
+          "tests/e2e/specs/media.spec.mjs:123",
+          "tests/e2e/specs/media.spec.mjs:125",
+          "tests/e2e/specs/media.spec.mjs:134",
+          "tests/e2e/specs/wp-editor.spec.mjs:93",
+          "tests/e2e/specs/wp-editor.spec.mjs:94",
+          "tests/e2e/specs/wp-editor.spec.mjs:128",
+          "tests/e2e/specs/wp-editor.spec.mjs:129"
+        ],
+        "blade_now": "app/resources/views/layouts/app.blade.php:60",
+        "blade_element": "app/resources/views/layouts/app.blade.php:60",
+        "note": "全頁唯一的 <main>（E2E 以 page.locator('main') 做嚴格模式斷言）；必須帶 tabindex=\"-1\"，跳過連結按 Enter 後 document.activeElement.id 才會是 main（a11y.spec.mjs:72）。正文、錯誤頁內容、搜尋狀態訊息都放在 main 內。"
+      },
+      {
+        "id": "layout.site-header",
+        "selector": "[data-site-header]",
+        "element": "header",
+        "required": true,
+        "state": null,
+        "text": null,
+        "role": "banner",
+        "replaces": "header（標籤定位）",
+        "used_by": [
+          "tests/e2e/specs/shop.spec.mjs:41",
+          "tests/e2e/specs/shop.spec.mjs:43",
+          "tests/e2e/specs/shop.spec.mjs:60"
+        ],
+        "blade_now": null,
+        "blade_element": "app/resources/views/layouts/partials/header.blade.php:11",
+        "note": "元素本身仍須是 <header>（AI_RULES 第 6 條）。現行 E2E 在首頁以 header 標籤定位，且 shop.spec.mjs:43 的 not.toContainText、:60 的 toBeVisible 為嚴格模式：首頁上的 <header> 必須只有站首一個（Blade 首頁即如此）。若新設計在首頁另放 <header>，F6 改用 [data-site-header] 前現行 E2E 會失敗。"
+      },
+      {
+        "id": "layout.site-nav",
+        "selector": "[data-site-nav]",
+        "element": "nav#site-nav",
+        "required": true,
+        "state": "完整版面（/api/v1/site 取得成功）",
+        "text": null,
+        "role": "navigation",
+        "replaces": null,
+        "used_by": [],
+        "blade_now": "app/resources/views/layouts/partials/header.blade.php:21",
+        "blade_element": "app/resources/views/layouts/partials/header.blade.php:21",
+        "note": "現有掛鉤（app/resources/js/app.js:5 使用；E2E 未直接引用）。aria-label=\"主選單\"、id=\"site-nav\"（切換鈕 aria-controls 指向它）。手機寬收合時隱藏主選單清單與頁首搜尋（layout.css:19、content.css:47）。"
+      },
+      {
+        "id": "layout.site-nav-toggle",
+        "selector": "[data-site-nav-toggle]",
+        "element": "button[type=\"button\"]",
+        "required": true,
+        "state": "完整版面（/api/v1/site 取得成功）",
+        "text": null,
+        "role": "button",
+        "replaces": ".site-nav__toggle",
+        "used_by": [
+          "tests/e2e/specs/a11y.spec.mjs:78",
+          "tests/e2e/specs/a11y.spec.mjs:80",
+          "tests/e2e/specs/a11y.spec.mjs:92",
+          "tests/e2e/specs/a11y.spec.mjs:94",
+          "tests/e2e/specs/a11y.spec.mjs:105",
+          "tests/e2e/specs/a11y.spec.mjs:108",
+          "tests/e2e/specs/a11y.spec.mjs:109",
+          "tests/e2e/specs/a11y.spec.mjs:111",
+          "tests/e2e/specs/a11y.spec.mjs:112",
+          "tests/e2e/specs/a11y.spec.mjs:114",
+          "tests/e2e/specs/a11y.spec.mjs:115",
+          "tests/e2e/specs/a11y.spec.mjs:117",
+          "tests/e2e/specs/a11y.spec.mjs:118",
+          "tests/e2e/specs/a11y.spec.mjs:120",
+          "tests/e2e/specs/shop.spec.mjs:58",
+          "tests/e2e/specs/shop.spec.mjs:59"
+        ],
+        "blade_now": "app/resources/views/layouts/partials/header.blade.php:18",
+        "blade_element": "app/resources/views/layouts/partials/header.blade.php:18",
+        "note": "現有掛鉤。a11y.spec.mjs:78、:92 目前以 class 含 site-nav__toggle 判斷焦點元素（F6 改判 data-site-nav-toggle）。aria-controls=\"site-nav\"、aria-expanded 在 false／true 間切換；寬度 <768 可見且觸控目標 ≥24px（a11y.spec.mjs:118），≥768 隱藏（a11y.spec.mjs:120）。手機寬的 Tab 順序必須是切換鈕在 #site-search-q 之前（a11y.spec.mjs:90–96）。"
+      },
+      {
+        "id": "layout.site-nav-list",
+        "selector": "[data-site-nav-list]",
+        "element": "ul",
+        "required": true,
+        "state": "完整版面（/api/v1/site 取得成功）",
+        "text": null,
+        "role": "list",
+        "replaces": ".site-nav__list",
+        "used_by": [
+          "tests/e2e/specs/a11y.spec.mjs:106",
+          "tests/e2e/specs/a11y.spec.mjs:110",
+          "tests/e2e/specs/a11y.spec.mjs:113",
+          "tests/e2e/specs/a11y.spec.mjs:116",
+          "tests/e2e/specs/a11y.spec.mjs:121"
+        ],
+        "blade_now": null,
+        "blade_element": "app/resources/views/layouts/partials/header.blade.php:22",
+        "note": "手機寬：收合時隱藏、展開時可見；平板與桌面恆可見。"
+      },
+      {
+        "id": "layout.site-nav-link",
+        "selector": "[data-site-nav-link]",
+        "element": "a",
+        "required": true,
+        "state": "完整版面（/api/v1/site 取得成功）",
+        "text": null,
+        "role": "link",
+        "replaces": ".site-nav__link",
+        "used_by": [
+          "tests/e2e/specs/a11y.spec.mjs:82",
+          "tests/e2e/specs/a11y.spec.mjs:83",
+          "tests/e2e/specs/a11y.spec.mjs:84",
+          "tests/e2e/specs/a11y.spec.mjs:133"
+        ],
+        "blade_now": null,
+        "blade_element": "app/resources/views/layouts/partials/header.blade.php:25",
+        "note": "每個主選單連結（含商店連結）都帶。第一個主選單連結用鍵盤 Enter 前往後，目標頁要有可見的 h1（a11y.spec.mjs:85）。目前頁 aria-current=\"page\"、外部連結 rel=\"noopener noreferrer\"（header.blade.php:26–27，E2E 未斷言）。a11y.spec.mjs:133 以 .site-nav__link, .button, a 的第一個元素量測減少動態時的轉場（見 css_contract）。"
+      },
+      {
+        "id": "layout.site-nav-shop",
+        "selector": "[data-site-nav-shop]",
+        "element": "a[href$=\"/shop\"]",
+        "required": true,
+        "state": "commerce_enabled=true（MYSITE_SCOPE=simulation／COMMERCE_MODE=simulation）",
+        "text": "商店",
+        "role": "link",
+        "replaces": ".site-nav__link--shop",
+        "used_by": [
+          "tests/e2e/specs/shop.spec.mjs:41",
+          "tests/e2e/specs/shop.spec.mjs:42",
+          "tests/e2e/specs/shop.spec.mjs:43",
+          "tests/e2e/specs/shop.spec.mjs:60"
+        ],
+        "blade_now": null,
+        "blade_element": "app/resources/views/layouts/partials/header.blade.php:31",
+        "note": "同時帶 data-site-nav-link。simulation 時頁首有名稱為「商店」的連結（shop.spec.mjs:60）；commerce_enabled=false 時整頁不得有 href 以 /shop、/cart 結尾或含 /shop/ 的連結，頁首也不得出現「商店」字樣（shop.spec.mjs:41–43）。資料來源為 /api/v1/site 的 commerce_enabled（v1 §5.3 第 271 行）。PHPUnit app/tests/Feature/Content/PublicRoutesTest.php:359 以 class site-nav__link--shop 斷言 Blade。"
+      },
+      {
+        "id": "layout.site-search-q",
+        "selector": "#site-search-q",
+        "element": "input[type=\"search\"][name=\"q\"]",
+        "required": true,
+        "state": "完整版面（/api/v1/site 取得成功）",
+        "text": null,
+        "role": "searchbox",
+        "replaces": null,
+        "used_by": [
+          "tests/e2e/specs/a11y.spec.mjs:96",
+          "tests/e2e/specs/a11y.spec.mjs:98"
+        ],
+        "blade_now": "app/resources/views/layouts/partials/header.blade.php:36",
+        "blade_element": "app/resources/views/layouts/partials/header.blade.php:36",
+        "note": "頁首搜尋框（現有 id）。所在表單為原生 <form role=\"search\" action=\"/search\" method=\"get\">（header.blade.php:34），有可見或視覺隱藏的 label（:35）；送出後到 /search?q=…（a11y.spec.mjs:98）。注意：頁首用 site-search-q，搜尋頁本身的輸入框才是 search-q；不可把頁首也命名為 search-q，否則搜尋頁會出現重複 id。"
+      },
+      {
+        "id": "layout.site-footer",
+        "selector": "[data-site-footer]",
+        "element": "footer",
+        "required": true,
+        "state": null,
+        "text": null,
+        "role": "contentinfo",
+        "replaces": "footer（標籤定位）",
+        "used_by": [
+          "tests/e2e/specs/media.spec.mjs:132"
+        ],
+        "blade_now": null,
+        "blade_element": "app/resources/views/layouts/partials/footer.blade.php:1",
+        "note": "元素本身仍須是 <footer>。Blade 單篇頁另有 <footer class=\"entry__footer\">（entry.blade.php:51），所以 F6 起 E2E 以 [data-site-footer] 定位。"
+      },
+      {
+        "id": "layout.footer-privacy-link",
+        "selector": "[data-site-footer] a[href=\"/pages/privacy\"]",
+        "element": "a",
+        "required": true,
+        "state": null,
+        "text": "隱私說明",
+        "role": "link",
+        "replaces": null,
+        "used_by": [
+          "tests/e2e/specs/media.spec.mjs:132",
+          "tests/e2e/specs/media.spec.mjs:133"
+        ],
+        "blade_now": "app/resources/views/layouts/partials/footer.blade.php:19",
+        "blade_element": "app/resources/views/layouts/partials/footer.blade.php:19",
+        "note": "完整版面時來自 WordPress 頁尾選單（footer.blade.php:18–19，連結名稱與網址屬資料）；內建靜態頁尾也必須有此連結（v1 §6.3 第 385 行）。點擊後網址以 /pages/privacy 結尾（media.spec.mjs:133）。"
+      },
+      {
+        "id": "layout.sample-badge",
+        "selector": "[data-sample-badge]",
+        "element": "span",
+        "required": true,
+        "state": "is_sample=true（網站或該則內容為示例）",
+        "text": "示例內容",
+        "role": null,
+        "replaces": ".badge--sample",
+        "used_by": [],
+        "blade_now": null,
+        "blade_element": "app/resources/views/components/badge.blade.php:2",
+        "note": "現行 E2E 未斷言；依據定案 §5.1 第 10 條（定案執行書第 384 行）。Blade 出現處：footer.blade.php:6、home.blade.php:23、content-card.blade.php:21、entry.blade.php:13、search.blade.php:45。PHPUnit PublicRoutesTest.php:65、:170 以文字斷言。"
+      }
+    ]
+  },
+
+  "components": {
+    "page_heading": {
+      "description": "列表、彙整、搜尋、首頁的頁面主標題（單篇用 entry.entry-title；錯誤頁用 error_view.error-title）。",
+      "hooks": [
+        {
+          "id": "page_heading.page-title",
+          "selector": "[data-page-title]",
+          "element": "h1",
+          "required": true,
+          "state": null,
+          "text": null,
+          "role": "heading（level 1）",
+          "replaces": ".hero__title／.page-header h1",
+          "used_by": [
+            "tests/e2e/specs/a11y.spec.mjs:85"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/views/content/index.blade.php:8",
+          "note": "全頁唯一 h1。Blade 對應：首頁 home.blade.php:13、列表 index.blade.php:8、分類／標籤 taxonomy.blade.php:12、搜尋 search.blade.php:7。a11y.spec.mjs:85 以 getByRole('heading', { level: 1 }) 斷言（嚴格模式，h1 必須唯一）。"
+        }
+      ]
+    },
+    "content_card": {
+      "description": "列表卡片（首頁、三種列表、分類、標籤）。Blade 元件 app/resources/views/components/content-card.blade.php。",
+      "hooks": [
+        {
+          "id": "content_card.card",
+          "selector": "[data-content-card]",
+          "element": "article",
+          "required": true,
+          "state": "列表非空",
+          "text": null,
+          "role": "article",
+          "replaces": ".content-card",
+          "used_by": [],
+          "blade_now": null,
+          "blade_element": "app/resources/views/components/content-card.blade.php:8",
+          "note": "現行 E2E 以原始 HTML 含標題或 href 正規式判斷，未用卡片選擇器；設此掛鉤供 FE-12 逐元件檢查與 F6 把正規式改為 DOM 查詢（v1 §6.5 第 2 點）。"
+        },
+        {
+          "id": "content_card.link",
+          "selector": "[data-content-link]",
+          "element": "a",
+          "required": true,
+          "state": "列表非空",
+          "text": null,
+          "role": "link",
+          "replaces": ".card__title a（原始 HTML 正規式 href=\"/{type}/…\"）",
+          "used_by": [
+            "tests/e2e/helpers/site.mjs:29",
+            "tests/e2e/helpers/site.mjs:30",
+            "tests/e2e/specs/layout.spec.mjs:36",
+            "tests/e2e/specs/infra.spec.mjs:46",
+            "tests/e2e/specs/wp-editor.spec.mjs:96"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/views/components/content-card.blade.php:23",
+          "note": "href 用 API 的 path 原樣輸出（相對路徑、slug 已百分比編碼，同 app/app/Domain/Content/ContentType.php:79）；經 SiteLink（next/link、prefetch={false}，定案 §4.4）。連結文字只放標題純文字、不夾子元素（layout.spec.mjs:36 的後備正規式要求 >標題</a>）；可存取名稱等於標題（wp-editor.spec.mjs:96 getByRole('link', { name: title })）。原始 HTML 條件見 raw_html.list-detail-links-relative。"
+        }
+      ]
+    },
+    "content_image": {
+      "description": "內容圖片 ContentImage（v1 §6.4）。Blade 元件 app/resources/views/components/image.blade.php。",
+      "hooks": [
+        {
+          "id": "content_image.frame",
+          "selector": "[data-media-frame]",
+          "element": "div",
+          "required": true,
+          "state": "有圖片欄位（含無封面的佔位）",
+          "text": null,
+          "role": null,
+          "replaces": ".media-frame",
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:115"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/views/components/image.blade.php:2",
+          "note": "包住 img[data-media-img] 的外框；失效狀態掛在這一層（見 content_image.broken）。"
+        },
+        {
+          "id": "content_image.img",
+          "selector": "img[data-media-img]",
+          "element": "img",
+          "required": true,
+          "state": "有封面且網址通過政策",
+          "text": null,
+          "role": "img",
+          "replaces": null,
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:113",
+            "tests/e2e/specs/media.spec.mjs:114"
+          ],
+          "blade_now": "app/resources/views/components/image.blade.php:7",
+          "blade_element": "app/resources/views/components/image.blade.php:4",
+          "note": "現有掛鉤。alt 照 API；寬高由 API 提供；非首屏 loading=\"lazy\"（v1 §6.4）。"
+        },
+        {
+          "id": "content_image.broken",
+          "selector": "[data-media-frame][data-media-broken]",
+          "element": "div",
+          "required": true,
+          "state": "圖片載入失敗",
+          "text": null,
+          "role": null,
+          "replaces": ".media-frame.is-broken",
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:115"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/views/components/image.blade.php:2",
+          "note": "圖片 error 事件（或 hydrate 前已失敗：complete 且 naturalWidth===0）時在外框加 data-media-broken，並顯示明確失效狀態、隱藏破圖（現行 app/resources/js/app.js:49–52、:70–73；CSS content.css:94–95；文字「圖片無法載入」image.blade.php:8，E2E 未斷言文字）。E2E 要求 15 秒內可見。F6：app.js 同時加 data-media-broken。"
+        }
+      ]
+    },
+    "entry": {
+      "description": "單篇內容（文章、影片、Podcast、一般頁面）。Blade：app/resources/views/content/show.blade.php＋content/partials/entry.blade.php。",
+      "hooks": [
+        {
+          "id": "entry.root",
+          "selector": "[data-entry]",
+          "element": "article",
+          "required": true,
+          "state": null,
+          "text": null,
+          "role": "article",
+          "replaces": ".entry",
+          "used_by": [],
+          "blade_now": null,
+          "blade_element": "app/resources/views/content/partials/entry.blade.php:7",
+          "note": "現行 E2E 以 main 定位單篇內容；設此掛鉤供 FE-12 與 F6 使用。"
+        },
+        {
+          "id": "entry.title",
+          "selector": "[data-entry-title]",
+          "element": "h1",
+          "required": true,
+          "state": null,
+          "text": null,
+          "role": "heading（level 1）",
+          "replaces": ".entry__title",
+          "used_by": [
+            "tests/e2e/specs/wp-editor.spec.mjs:92",
+            "tests/e2e/specs/wp-editor.spec.mjs:111"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/views/content/partials/entry.blade.php:16",
+          "note": "全頁唯一 h1，文字只含標題本身（wp-editor.spec.mjs:92 用 toHaveText 完全相等，徽章、類型標示不可放進 h1）。標題空白時顯示「（未命名）」（entry.blade.php:16）。"
+        },
+        {
+          "id": "entry.body",
+          "selector": "[data-entry-body]",
+          "element": "div",
+          "required": true,
+          "state": null,
+          "text": null,
+          "role": null,
+          "replaces": ".entry__body／.prose",
+          "used_by": [
+            "tests/e2e/specs/wp-editor.spec.mjs:93",
+            "tests/e2e/specs/wp-editor.spec.mjs:128",
+            "tests/e2e/specs/media.spec.mjs:105",
+            "tests/e2e/specs/media.spec.mjs:134"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/views/content/partials/entry.blade.php:42",
+          "note": "正文唯一出口 SafeHtml（v1 §6.4；Blade 為 components/rich-content.blade.php:3），位於 main 內。寬表格、程式碼區塊在自身框內捲動，不得撐出水平溢位（layout.spec.mjs:19–20 長網址與 Gutenberg 區塊頁；定案 §5.1 第 8 條）。無內文時 Blade 顯示「這個內容目前沒有內文。」（entry.blade.php:46）。"
+        },
+        {
+          "id": "entry.cover",
+          "selector": "[data-entry] img[data-media-img]",
+          "element": "img",
+          "required": true,
+          "state": "文章或一般頁面有封面且網址通過政策",
+          "text": null,
+          "role": "img",
+          "replaces": "main img[alt=…]",
+          "used_by": [
+            "tests/e2e/specs/wp-editor.spec.mjs:94"
+          ],
+          "blade_now": "app/resources/views/components/image.blade.php:7",
+          "blade_element": "app/resources/views/content/partials/entry.blade.php:37",
+          "note": "alt 等於 WordPress 媒體替代文字（wp-editor.spec.mjs:94 以 main img[alt=\"…\"] 斷言可見）。單篇封面 loading=\"eager\"（entry.blade.php:37 :eager=\"true\"）。"
+        }
+      ]
+    },
+    "youtube_player": {
+      "description": "YouTubeFacade（v1 §6.4 第 399 行）。Blade 元件 app/resources/views/components/youtube-player.blade.php；行為 app/resources/js/app.js:24–47。",
+      "hooks": [
+        {
+          "id": "youtube_player.player",
+          "selector": "[data-youtube-player]",
+          "element": "figure",
+          "required": true,
+          "state": "影片 ID 合法",
+          "text": null,
+          "role": "figure",
+          "replaces": null,
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:35"
+          ],
+          "blade_now": "app/resources/views/components/youtube-player.blade.php:3",
+          "blade_element": "app/resources/views/components/youtube-player.blade.php:2",
+          "note": "現有掛鉤。必須是 [data-youtube-start] 與點擊後 iframe 的祖先（media.spec.mjs:36、:40 都從它往下找）。ID 不合法時不得輸出 data-youtube-player 與 data-embed-src（youtube-player.blade.php:3；PHPUnit PublicRoutesTest.php:229）。"
+        },
+        {
+          "id": "youtube_player.embed-src",
+          "selector": "[data-youtube-player][data-embed-src^=\"https://www.youtube-nocookie.com/embed/\"]",
+          "element": "figure",
+          "required": true,
+          "state": "影片 ID 合法",
+          "text": null,
+          "role": null,
+          "replaces": null,
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:11",
+            "tests/e2e/specs/media.spec.mjs:12",
+            "tests/e2e/specs/media.spec.mjs:45"
+          ],
+          "blade_now": "app/resources/views/components/youtube-player.blade.php:3",
+          "blade_element": "app/resources/views/components/youtube-player.blade.php:3",
+          "note": "現有掛鉤，掛在 [data-youtube-player] 同一元素。值為 https://www.youtube-nocookie.com/embed/{11 碼 ID}?autoplay=1&rel=0（v1 §6.4）；伺服器輸出的原始 HTML 就要有（media.spec.mjs:11 以正規式讀原始 HTML），點擊後 iframe 的 src 必須與它完全相同（:45）。"
+        },
+        {
+          "id": "youtube_player.start",
+          "selector": "[data-youtube-player] [data-youtube-start]",
+          "element": "a",
+          "required": true,
+          "state": "影片 ID 合法",
+          "text": null,
+          "role": "link",
+          "replaces": null,
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:36",
+            "tests/e2e/specs/media.spec.mjs:37",
+            "tests/e2e/specs/media.spec.mjs:38",
+            "tests/e2e/specs/media.spec.mjs:39"
+          ],
+          "blade_now": "app/resources/views/components/youtube-player.blade.php:7",
+          "blade_element": "app/resources/views/components/youtube-player.blade.php:7",
+          "note": "現有掛鉤。播放器內唯一；href 完全符合 ^https://www.youtube.com/watch?v=[A-Za-z0-9_-]{11}$；無 JS 時是一般連結；左鍵且無修飾鍵才攔下並建立 iframe（app.js:31）。"
+        },
+        {
+          "id": "youtube_player.iframe",
+          "selector": "[data-youtube-player] iframe",
+          "element": "iframe",
+          "required": true,
+          "state": "點擊 [data-youtube-start] 之後（點擊前全頁不得有任何 iframe）",
+          "text": null,
+          "role": null,
+          "replaces": null,
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:33",
+            "tests/e2e/specs/media.spec.mjs:40",
+            "tests/e2e/specs/media.spec.mjs:41",
+            "tests/e2e/specs/media.spec.mjs:42",
+            "tests/e2e/specs/media.spec.mjs:43",
+            "tests/e2e/specs/media.spec.mjs:44",
+            "tests/e2e/specs/media.spec.mjs:45",
+            "tests/e2e/specs/media.spec.mjs:46",
+            "tests/e2e/specs/media.spec.mjs:47"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/js/app.js:35",
+          "note": "由瀏覽器端在點擊後建立（Blade 由 app.js:35–42 建立，不是 Blade 樣板輸出，所以 blade_now 為 null，F6 無須補）。點擊後播放器內恰一個 iframe；src＝data-embed-src；title 含「YouTube 影片播放器」；referrerpolicy=\"strict-origin-when-cross-origin\"。點擊前對 YouTube 相關網域零請求（media.spec.mjs:32）。"
+        },
+        {
+          "id": "youtube_player.unavailable",
+          "selector": "[data-youtube-unavailable]",
+          "element": "div",
+          "required": true,
+          "state": "影片 ID 缺少或不合法（video_unavailable=true）",
+          "text": "影片目前無法播放",
+          "role": "note",
+          "replaces": ".player--video.is-broken .player__frame--static",
+          "used_by": [],
+          "blade_now": null,
+          "blade_element": "app/resources/views/components/youtube-player.blade.php:29",
+          "note": "現行 E2E 未斷言；依據 v1 §6.4「ID 不合法顯示失效狀態」與 PHPUnit PublicRoutesTest.php:227–230（Blade 文字「影片目前無法播放」，youtube-player.blade.php:32）。說明正文照常顯示。"
+        }
+      ]
+    },
+    "audio_player": {
+      "description": "PodcastPlayer（v1 §6.4 第 400 行；定案 M-09 第 326 行）。Blade 元件 app/resources/views/components/audio-player.blade.php；失效行為 app/resources/js/app.js:54–76。",
+      "hooks": [
+        {
+          "id": "audio_player.player",
+          "selector": "[data-audio-player]",
+          "element": "figure",
+          "required": true,
+          "state": null,
+          "text": null,
+          "role": "figure",
+          "replaces": null,
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:62",
+            "tests/e2e/specs/media.spec.mjs:69",
+            "tests/e2e/specs/media.spec.mjs:72",
+            "tests/e2e/specs/media.spec.mjs:101",
+            "tests/e2e/specs/media.spec.mjs:104"
+          ],
+          "blade_now": "app/resources/views/components/audio-player.blade.php:2",
+          "blade_element": "app/resources/views/components/audio-player.blade.php:2",
+          "note": "現有掛鉤。音訊可播與不可播兩種狀態都輸出這個外框（Blade 同）。"
+        },
+        {
+          "id": "audio_player.audio",
+          "selector": "[data-audio-player] audio",
+          "element": "audio",
+          "required": true,
+          "state": "audio_url 有值",
+          "text": null,
+          "role": null,
+          "replaces": null,
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:62",
+            "tests/e2e/specs/media.spec.mjs:63",
+            "tests/e2e/specs/media.spec.mjs:65",
+            "tests/e2e/specs/media.spec.mjs:66",
+            "tests/e2e/specs/media.spec.mjs:67",
+            "tests/e2e/specs/media.spec.mjs:74",
+            "tests/e2e/specs/media.spec.mjs:77",
+            "tests/e2e/specs/media.spec.mjs:101",
+            "tests/e2e/specs/media.spec.mjs:102"
+          ],
+          "blade_now": "app/resources/views/components/audio-player.blade.php:9",
+          "blade_element": "app/resources/views/components/audio-player.blade.php:9",
+          "note": "播放器內恰一個 <audio controls preload=\"none\">（controls 屬性值為空字串，media.spec.mjs:65）；伺服器輸出的原始 HTML 就帶 <audio src> 或 <source src>（定案 M-09；見 raw_html.podcast-audio-src）。<source> 載入失敗時也要進入失效狀態（error 事件不冒泡，Blade 以捕獲階段監聽 app.js:64–69）。"
+        },
+        {
+          "id": "audio_player.duration",
+          "selector": "[data-audio-duration]",
+          "element": "time[datetime^=\"PT\"]",
+          "required": true,
+          "state": "audio_url 有值且 duration_seconds 有值",
+          "text": null,
+          "role": "time",
+          "replaces": "[data-audio-player] time（第一個）",
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:69",
+            "tests/e2e/specs/media.spec.mjs:70",
+            "tests/e2e/specs/media.spec.mjs:71"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/views/components/audio-player.blade.php:17",
+          "note": "datetime 為 ISO 8601 期間（PT…）。現行 E2E 取 [data-audio-player] 內第一個 <time>，所以在 F6 改用本掛鉤之前，片長必須是播放器內第一個 <time>。"
+        },
+        {
+          "id": "audio_player.download",
+          "selector": "[data-audio-download]",
+          "element": "a[download]",
+          "required": true,
+          "state": "audio_url 有值（音訊失效後仍須可見）",
+          "text": null,
+          "role": "link",
+          "replaces": ".player__audio-meta a[download]",
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:72",
+            "tests/e2e/specs/media.spec.mjs:73",
+            "tests/e2e/specs/media.spec.mjs:74",
+            "tests/e2e/specs/media.spec.mjs:104"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/views/components/audio-player.blade.php:19",
+          "note": "href 與 <source> 的 src（無 <source> 時為 <audio> 的 src）完全相同（media.spec.mjs:74）。<audio> 內給不支援瀏覽器的後備下載連結（audio-player.blade.php:13）不加此掛鉤。"
+        },
+        {
+          "id": "audio_player.error",
+          "selector": "[data-audio-error]",
+          "element": "p",
+          "required": true,
+          "state": "audio_url 有值時一律輸出（初始 hidden）；音訊載入失敗後顯示",
+          "text": null,
+          "role": null,
+          "replaces": null,
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:103"
+          ],
+          "blade_now": "app/resources/views/components/audio-player.blade.php:21",
+          "blade_element": "app/resources/views/components/audio-player.blade.php:21",
+          "note": "現有掛鉤。全頁唯一（media.spec.mjs:103 為嚴格模式）；失敗後 15 秒內可見，且下載連結與節目簡介保留（:104–105）。Blade 文字「這個音訊目前無法播放。您可以改用上方的下載連結，或閱讀下方的節目簡介。」（E2E 未斷言文字）。"
+        },
+        {
+          "id": "audio_player.unavailable",
+          "selector": "[data-audio-unavailable]",
+          "element": "div",
+          "required": true,
+          "state": "audio_url 為 null（audio_unavailable=true）",
+          "text": "音訊目前無法播放",
+          "role": "note",
+          "replaces": ".player--audio.is-broken .player__state",
+          "used_by": [],
+          "blade_now": null,
+          "blade_element": "app/resources/views/components/audio-player.blade.php:23",
+          "note": "現行 E2E 未斷言；依據 v1 §5.3 audio_unavailable 與 PHPUnit PublicRoutesTest.php:252–254（Blade 文字「音訊目前無法播放」，audio-player.blade.php:24；此狀態不輸出 <audio>）。節目簡介照常顯示。"
+        }
+      ]
+    },
+    "error_view": {
+      "description": "ErrorView（v1 §6.4 第 403 行；FE-17）。Blade：app/resources/views/errors/mysite.blade.php。",
+      "hooks": [
+        {
+          "id": "error_view.root",
+          "selector": "[data-error-view]",
+          "element": "section",
+          "required": true,
+          "state": null,
+          "text": null,
+          "role": null,
+          "replaces": ".state",
+          "used_by": [],
+          "blade_now": null,
+          "blade_element": "app/resources/views/errors/mysite.blade.php:25",
+          "note": "值＝HTTP 狀態碼（例如 data-error-view=\"404\"），供 FE-12／FE-17 逐狀態檢查。位於 main 內。"
+        },
+        {
+          "id": "error_view.title",
+          "selector": "[data-error-title]",
+          "element": "h1",
+          "required": true,
+          "state": null,
+          "text": "依狀態：404 含「找不到」；503「內容暫時無法讀取」；500「系統發生錯誤」",
+          "role": "heading（level 1）",
+          "replaces": ".state__title",
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:121"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/views/errors/mysite.blade.php:27",
+          "note": "全頁唯一 h1。Blade 文字見 errors/mysite.blade.php:10、:11、:15。"
+        },
+        {
+          "id": "error_view.home-link",
+          "selector": "[data-error-home-link]",
+          "element": "a[href=\"/\"]",
+          "required": true,
+          "state": null,
+          "text": "回首頁",
+          "role": "link",
+          "replaces": ".state__actions .button--primary",
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:122"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/views/errors/mysite.blade.php:48",
+          "note": "在 main 內；可存取名稱必須「完全等於」回首頁（media.spec.mjs:122 exact: true），不可在連結內再加視覺隱藏文字或有名稱的圖示。"
+        },
+        {
+          "id": "error_view.request-id",
+          "selector": "[data-request-id]",
+          "element": "p",
+          "required": true,
+          "state": null,
+          "text": "請求編號",
+          "role": null,
+          "replaces": ".state__ref",
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:123"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/views/errors/mysite.blade.php:53",
+          "note": "404、503、500 都要顯示「請求編號：」與編號（v1 §6.4；FE-17）；編號即 X-Request-Id／API 錯誤回應的 request_id。"
+        },
+        {
+          "id": "error_view.retry-link",
+          "selector": "[data-error-retry-link]",
+          "element": "a",
+          "required": false,
+          "state": "503",
+          "text": "重新整理",
+          "role": "link",
+          "replaces": ".state__actions .button:not(.button--primary)",
+          "used_by": [],
+          "blade_now": null,
+          "blade_element": "app/resources/views/errors/mysite.blade.php:50",
+          "note": "E2E 未斷言、v1 未要求；Blade 在 503（另含 419、429）輸出，建議 F3 複刻 Blade 時保留。"
+        },
+        {
+          "id": "error_view.state-q",
+          "selector": "#state-q",
+          "element": "input[type=\"search\"][name=\"q\"]",
+          "required": false,
+          "state": "404",
+          "text": null,
+          "role": "searchbox",
+          "replaces": null,
+          "used_by": [],
+          "blade_now": "app/resources/views/errors/mysite.blade.php:36",
+          "blade_element": "app/resources/views/errors/mysite.blade.php:36",
+          "note": "E2E 未斷言、v1 未要求；Blade 404 頁內的原生搜尋表單（errors/mysite.blade.php:34–38），建議 F3 複刻時保留同一 id。"
+        }
+      ]
+    }
+  },
+
+  "pages": {
+    "home": {
+      "path": "/",
+      "blade_view": "app/resources/views/content/home.blade.php",
+      "components": ["layout", "page_heading", "content_card", "content_image"],
+      "hooks": [],
+      "e2e_refs": [
+        "tests/e2e/specs/a11y.spec.mjs:64",
+        "tests/e2e/specs/a11y.spec.mjs:167",
+        "tests/e2e/specs/layout.spec.mjs:12",
+        "tests/e2e/specs/media.spec.mjs:131",
+        "tests/e2e/specs/media.spec.mjs:147",
+        "tests/e2e/specs/shop.spec.mjs:40",
+        "tests/e2e/specs/shop.spec.mjs:56",
+        "tests/e2e/specs/wp-editor.spec.mjs:82"
+      ],
+      "note": "首頁三區（影片、Podcast、文章）以 content_card 呈現；page_heading 對應 hero 標題（home.blade.php:13）。首頁原始 HTML 須含最新內容標題（raw_html.ssr-titles）。"
+    },
+    "articles_index": {
+      "path": "/articles",
+      "blade_view": "app/resources/views/content/index.blade.php",
+      "components": ["layout", "page_heading", "content_card", "content_image"],
+      "hooks": [],
+      "e2e_refs": [
+        "tests/e2e/specs/a11y.spec.mjs:168",
+        "tests/e2e/specs/layout.spec.mjs:13",
+        "tests/e2e/specs/layout.spec.mjs:33",
+        "tests/e2e/specs/layout.spec.mjs:35",
+        "tests/e2e/specs/media.spec.mjs:112",
+        "tests/e2e/specs/wp-editor.spec.mjs:81",
+        "tests/e2e/specs/wp-editor.spec.mjs:95",
+        "tests/e2e/specs/preview.spec.mjs:131"
+      ],
+      "note": "詳情連結見 raw_html.list-detail-links-relative；圖片失效測試在本頁（media.spec.mjs:112–115）。"
+    },
+    "videos_index": {
+      "path": "/videos",
+      "blade_view": "app/resources/views/content/index.blade.php",
+      "components": ["layout", "page_heading", "content_card", "content_image"],
+      "hooks": [],
+      "e2e_refs": [
+        "tests/e2e/specs/layout.spec.mjs:14",
+        "tests/e2e/specs/layout.spec.mjs:42",
+        "tests/e2e/specs/media.spec.mjs:9",
+        "tests/e2e/specs/cookies.spec.mjs:102"
+      ],
+      "note": "以 site.mjs:29 的 detailPaths 取詳情連結。"
+    },
+    "podcasts_index": {
+      "path": "/podcasts",
+      "blade_view": "app/resources/views/content/index.blade.php",
+      "components": ["layout", "page_heading", "content_card", "content_image"],
+      "hooks": [],
+      "e2e_refs": [
+        "tests/e2e/specs/layout.spec.mjs:15",
+        "tests/e2e/specs/layout.spec.mjs:43",
+        "tests/e2e/specs/media.spec.mjs:57",
+        "tests/e2e/specs/media.spec.mjs:98",
+        "tests/e2e/specs/infra.spec.mjs:43",
+        "tests/e2e/specs/infra.spec.mjs:46"
+      ],
+      "note": "infra.spec.mjs:46 只認相對路徑 href=\"/podcasts/…\"，且取第一個符合者當詳情頁。"
+    },
+    "article_detail": {
+      "path": "/articles/{slug}",
+      "blade_view": "app/resources/views/content/show.blade.php",
+      "components": ["layout", "entry", "content_image"],
+      "hooks": [],
+      "e2e_refs": [
+        "tests/e2e/specs/a11y.spec.mjs:168",
+        "tests/e2e/specs/layout.spec.mjs:18",
+        "tests/e2e/specs/layout.spec.mjs:19",
+        "tests/e2e/specs/layout.spec.mjs:20",
+        "tests/e2e/specs/wp-editor.spec.mjs:90",
+        "tests/e2e/specs/wp-editor.spec.mjs:103",
+        "tests/e2e/specs/wp-editor.spec.mjs:110",
+        "tests/e2e/specs/wp-editor.spec.mjs:126"
+      ],
+      "note": "撤下後同一路徑回 404，畫 error_404，main 內不得殘留正文（wp-editor.spec.mjs:117、:126–129）。不存在的單篇也是 error_404（media.spec.mjs:119–123）。"
+    },
+    "video_detail": {
+      "path": "/videos/{slug}",
+      "blade_view": "app/resources/views/content/show.blade.php",
+      "components": ["layout", "entry", "youtube_player", "content_image"],
+      "hooks": [],
+      "e2e_refs": [
+        "tests/e2e/specs/layout.spec.mjs:21",
+        "tests/e2e/specs/media.spec.mjs:10",
+        "tests/e2e/specs/media.spec.mjs:29",
+        "tests/e2e/specs/cookies.spec.mjs:102"
+      ],
+      "note": "影片頁以 youtube_player 取代封面（entry.blade.php:31–32）；海報圖仍走 content_image（youtube-player.blade.php:6）。"
+    },
+    "podcast_detail": {
+      "path": "/podcasts/{slug}",
+      "blade_view": "app/resources/views/content/show.blade.php",
+      "components": ["layout", "entry", "audio_player", "content_image"],
+      "hooks": [],
+      "e2e_refs": [
+        "tests/e2e/specs/layout.spec.mjs:22",
+        "tests/e2e/specs/media.spec.mjs:61",
+        "tests/e2e/specs/media.spec.mjs:100",
+        "tests/e2e/specs/infra.spec.mjs:48"
+      ],
+      "note": "Podcast 頁以 audio_player 取代封面（entry.blade.php:33–34）；節目封面在播放器內（audio-player.blade.php:4）。原始 HTML 音訊 src 見 raw_html.podcast-audio-src。"
+    },
+    "page_detail": {
+      "path": "/pages/{slug}",
+      "blade_view": "app/resources/views/content/show.blade.php",
+      "components": ["layout", "entry", "content_image"],
+      "hooks": [],
+      "e2e_refs": [
+        "tests/e2e/specs/layout.spec.mjs:26",
+        "tests/e2e/specs/media.spec.mjs:133",
+        "tests/e2e/specs/media.spec.mjs:134"
+      ],
+      "note": "一般頁面沒有麵包屑、類型標示與日期（show.blade.php:6；entry.blade.php:10、:20）。隱私說明頁正文在 main 內須可讀出 youtube-nocookie.com、「點擊播放」與 cookie 名稱（media.spec.mjs:134–144；屬 WordPress 內容，非 DOM 結構）。"
+    },
+    "category": {
+      "path": "/categories/{slug}",
+      "blade_view": "app/resources/views/content/taxonomy.blade.php",
+      "components": ["layout", "page_heading", "content_card", "content_image"],
+      "hooks": [],
+      "e2e_refs": [
+        "tests/e2e/specs/layout.spec.mjs:16"
+      ],
+      "note": "現行 E2E 只做版面溢位與 SEO（sitemap 所列頁）。類型篩選分頁籤 <nav aria-label=\"依內容類型篩選\">（taxonomy.blade.php:18）E2E 未斷言。"
+    },
+    "tag": {
+      "path": "/tags/{slug}",
+      "blade_view": "app/resources/views/content/taxonomy.blade.php",
+      "components": ["layout", "page_heading", "content_card", "content_image"],
+      "hooks": [],
+      "e2e_refs": [
+        "tests/e2e/specs/layout.spec.mjs:17"
+      ],
+      "note": "同 category；標題前加 #（taxonomy.blade.php:12）。"
+    },
+    "search": {
+      "path": "/search?q=…&type=…",
+      "blade_view": "app/resources/views/content/search.blade.php",
+      "components": ["layout", "page_heading"],
+      "states": {
+        "results": "q 非空且有結果（HTTP 200）",
+        "empty": "q 非空且零結果（HTTP 200）",
+        "error": "type 不合法或 q 超過 100 字（Blade 回 HTTP 422，app/app/Http/Controllers/Content/ContentController.php:97–102）"
+      },
+      "hooks": [
+        {
+          "id": "search.form",
+          "selector": "[data-search-form]",
+          "element": "form[method=\"get\"][action=\"/search\"]",
+          "required": true,
+          "state": null,
+          "text": null,
+          "role": "search",
+          "replaces": ".search-panel",
+          "used_by": [],
+          "blade_now": null,
+          "blade_element": "app/resources/views/content/search.blade.php:11",
+          "note": "原生表單、不做逐字即時搜尋、不改用程式換頁（定案 §4.4 第 252 行；§5.1 第 14 條第 388 行）。"
+        },
+        {
+          "id": "search.q",
+          "selector": "#search-q",
+          "element": "input[type=\"search\"][name=\"q\"]",
+          "required": true,
+          "state": null,
+          "text": null,
+          "role": "searchbox",
+          "replaces": null,
+          "used_by": [
+            "tests/e2e/specs/a11y.spec.mjs:99"
+          ],
+          "blade_now": "app/resources/views/content/search.blade.php:14",
+          "blade_element": "app/resources/views/content/search.blade.php:14",
+          "note": "現有 id。伺服器輸出時 value 回填目前查詢字詞（a11y.spec.mjs:99 toHaveValue）；有 label（search.blade.php:13）。error 狀態時加 aria-invalid=\"true\"、aria-describedby 指向錯誤訊息（search.blade.php:15）。"
+        },
+        {
+          "id": "search.summary",
+          "selector": "[data-search-summary]",
+          "element": "p",
+          "required": true,
+          "state": "results",
+          "text": null,
+          "role": "status",
+          "replaces": ".search-summary",
+          "used_by": [
+            "tests/e2e/specs/a11y.spec.mjs:100"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/views/content/search.blade.php:39",
+          "note": "在 main 內、role=\"status\"（定案 §4.3、M-10）。Blade 原文「找到 N 則符合「q」的內容」（search.blade.php:39；PHPUnit PublicRoutesTest.php:305）。"
+        },
+        {
+          "id": "search.result",
+          "selector": "[data-search-result]",
+          "element": "li",
+          "required": true,
+          "state": "results",
+          "text": null,
+          "role": "listitem",
+          "replaces": ".search-result（原始 HTML 字面 class=\"search-result\"）",
+          "used_by": [
+            "tests/e2e/specs/wp-editor.spec.mjs:13",
+            "tests/e2e/specs/wp-editor.spec.mjs:83",
+            "tests/e2e/specs/wp-editor.spec.mjs:120",
+            "tests/e2e/specs/preview.spec.mjs:138"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/views/content/search.blade.php:42",
+          "note": "每筆結果一個；伺服器輸出的原始 HTML 就要有（E2E 以 request 讀原始 HTML）。現行正規式是字面 class=\"search-result\"，任何多加的 class 都會失配，F6 必須改為偵測 data-search-result。零結果時不得出現。"
+        },
+        {
+          "id": "search.result-link",
+          "selector": "[data-search-result] [data-search-result-link]",
+          "element": "a",
+          "required": true,
+          "state": "results",
+          "text": null,
+          "role": "link",
+          "replaces": ".search-result__title a",
+          "used_by": [
+            "tests/e2e/specs/wp-editor.spec.mjs:106"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/views/content/search.blade.php:47",
+          "note": "連結文字只放標題純文字，原始 HTML 呈現為 >標題<（wp-editor.spec.mjs:106 以 includes('>標題<') 判斷）；href 為 API path（相對）；用一般 <a>（定案 §4.4：搜尋結果分頁用一般 <a>；結果本身指向公開頁，依 SiteLink 規則）。"
+        },
+        {
+          "id": "search.empty",
+          "selector": "[data-search-empty]",
+          "element": "div",
+          "required": true,
+          "state": "empty",
+          "text": "找不到符合",
+          "role": "status",
+          "replaces": ".empty[role=\"status\"]",
+          "used_by": [
+            "tests/e2e/specs/media.spec.mjs:124",
+            "tests/e2e/specs/media.spec.mjs:125",
+            "tests/e2e/specs/a11y.spec.mjs:100",
+            "tests/e2e/specs/layout.spec.mjs:24"
+          ],
+          "blade_now": null,
+          "blade_element": "app/resources/views/content/search.blade.php:34",
+          "note": "在 main 內、role=\"status\"，文字保留 Blade 原文「找不到符合「q」的內容」（search.blade.php:35；定案 §4.3、M-10、§5.1 第 6 條）。media.spec.mjs:125 對 main [role=\"status\"] 未加 .first()，為嚴格模式：零結果時 main 內只能有這一個 role=\"status\"。"
+        },
+        {
+          "id": "search.error",
+          "selector": "[data-search-error]",
+          "element": "div#search-error",
+          "required": true,
+          "state": "error",
+          "text": null,
+          "role": "alert",
+          "replaces": ".notice--danger[role=\"alert\"]",
+          "used_by": [],
+          "blade_now": null,
+          "blade_element": "app/resources/views/content/search.blade.php:30",
+          "note": "現行 E2E 未斷言；依據定案 §4.3（第 238 行）與 M-10：錯誤分支 role=\"alert\"。Blade 為 <x-notice variant=\"danger\" title=\"無法搜尋\" role=\"alert\" id=\"search-error\">（search.blade.php:30；components/notice.blade.php:2）。上游不可用不走此分支，而是 error_503 整頁。"
+        }
+      ],
+      "e2e_refs": [
+        "tests/e2e/specs/a11y.spec.mjs:98",
+        "tests/e2e/specs/a11y.spec.mjs:169",
+        "tests/e2e/specs/layout.spec.mjs:23",
+        "tests/e2e/specs/layout.spec.mjs:24",
+        "tests/e2e/specs/media.spec.mjs:124",
+        "tests/e2e/specs/wp-editor.spec.mjs:83",
+        "tests/e2e/specs/wp-editor.spec.mjs:106",
+        "tests/e2e/specs/preview.spec.mjs:132",
+        "tests/e2e/specs/cookies.spec.mjs:101"
+      ],
+      "note": "page_heading 對應「搜尋」h1（search.blade.php:7）。q 空白時 Blade 顯示提示「輸入關鍵字開始搜尋…」（search.blade.php:32），E2E 未斷言、不設掛鉤。搜尋頁帶 noindex（raw_html.robots-noindex）。"
+    },
+    "error_404": {
+      "path": "任何不存在的路徑、不存在或已撤下的單篇",
+      "status": 404,
+      "blade_view": "app/resources/views/errors/mysite.blade.php",
+      "components": ["layout", "error_view"],
+      "hooks": [],
+      "e2e_refs": [
+        "tests/e2e/specs/layout.spec.mjs:25",
+        "tests/e2e/specs/layout.spec.mjs:88",
+        "tests/e2e/specs/media.spec.mjs:119",
+        "tests/e2e/specs/media.spec.mjs:120",
+        "tests/e2e/specs/media.spec.mjs:121",
+        "tests/e2e/specs/media.spec.mjs:122",
+        "tests/e2e/specs/media.spec.mjs:123",
+        "tests/e2e/specs/wp-editor.spec.mjs:117",
+        "tests/e2e/specs/wp-editor.spec.mjs:127",
+        "tests/e2e/specs/cookies.spec.mjs:101"
+      ],
+      "note": "data-error-view=\"404\"；h1 含「找不到」（Blade「找不到這個頁面」errors/mysite.blade.php:10）；main 內有名稱完全等於「回首頁」的連結；main 內有「請求編號」。HTTP 狀態碼 404。"
+    },
+    "error_503": {
+      "path": "內容端點回 503、或傳輸層失敗（v1 §6.3 第 384 行）",
+      "status": 503,
+      "blade_view": "app/resources/views/errors/mysite.blade.php",
+      "components": ["layout", "error_view"],
+      "hooks": [],
+      "e2e_refs": [],
+      "note": "現行 E2E 未覆蓋；依據 v1 §6.4 ErrorView、FE-17（第 704 行）與 PHPUnit PublicRoutesTest.php:102–104。data-error-view=\"503\"；h1「內容暫時無法讀取」（errors/mysite.blade.php:11）；有「請求編號」與「回首頁」。"
+    },
+    "error_500": {
+      "path": "前端自身程式錯誤（_error，v1 §4.3 第 202 行）",
+      "status": 500,
+      "blade_view": "app/resources/views/errors/mysite.blade.php",
+      "components": ["layout", "error_view"],
+      "hooks": [],
+      "e2e_refs": [],
+      "note": "現行 E2E 未覆蓋；依據 v1 §6.4、FE-17。data-error-view=\"500\"；h1「系統發生錯誤」（errors/mysite.blade.php:15）；有「請求編號」與「回首頁」。此時 /api/v1/site 可能也取不到，版面可為內建靜態頁首頁尾。"
+    }
+  },
+
+  "raw_html": {
+    "description": "伺服器輸出的原始 HTML（不執行 JavaScript）必須滿足的條件。E2E 以 request.get() 讀原始 HTML 後用正規式比對；v1 §6.5 第 2 點規定 F6 起改為 DOM 查詢，但「伺服器輸出就要有」這個要求不變（定案 M-09、M-10）。",
+    "items": [
+      {
+        "id": "raw_html.html-lang",
+        "requirement": "<html lang=\"zh-Hant-TW\">",
+        "pages": "全部",
+        "current_pattern": null,
+        "used_by": ["tests/e2e/specs/a11y.spec.mjs:156"],
+        "blade_now": "app/resources/views/layouts/app.blade.php:17",
+        "note": "E2E 只經 axe（wcag2a 的 html-has-lang／html-lang-valid 規則）間接檢查；值依 v1 §6.3 第 391 行。"
+      },
+      {
+        "id": "raw_html.title",
+        "requirement": "<title>頁面標題｜站名</title>；首頁只放站名；sitemap 所列各頁 title 非空且彼此不重複",
+        "pages": "全部（唯一性檢查只對 sitemap 所列公開頁）",
+        "current_pattern": "/<title>([^<]*)<\\/title>/",
+        "used_by": [
+          "tests/e2e/specs/seo.spec.mjs:38",
+          "tests/e2e/specs/seo.spec.mjs:39",
+          "tests/e2e/specs/seo.spec.mjs:40",
+          "tests/e2e/specs/seo.spec.mjs:57",
+          "tests/e2e/specs/seo.spec.mjs:58"
+        ],
+        "blade_now": "app/resources/views/layouts/app.blade.php:21",
+        "note": "格式出處：app/app/Domain/Content/Seo/PageMeta.php:47–50；各頁標題字串：ContentController.php:51（列表第 N 頁）、:113（搜尋「q」）、:152、:172（分類／標籤）；錯誤頁為狀態標題（errors/mysite.blade.php:20）。title 內容必須是單一文字節點：React 若以多段 JSX 拼接會插入 <!-- --> 註解，使 [^<]* 正規式失配。"
+      },
+      {
+        "id": "raw_html.canonical",
+        "requirement": "<link rel=\"canonical\" href=\"主站絕對網址\">；主機＝主站；路徑＋查詢字串（解碼後）＝本頁；分頁 >1 才帶 page",
+        "pages": "sitemap 所列公開頁（首頁、列表、單篇、一般頁面、分類、標籤）；搜尋頁也輸出（PHPUnit PublicRoutesTest.php:308）",
+        "current_pattern": "/<link rel=\"canonical\" href=\"([^\"]+)\"/",
+        "used_by": [
+          "tests/e2e/specs/seo.spec.mjs:41",
+          "tests/e2e/specs/seo.spec.mjs:42",
+          "tests/e2e/specs/seo.spec.mjs:44",
+          "tests/e2e/specs/seo.spec.mjs:45",
+          "tests/e2e/specs/seo.spec.mjs:46"
+        ],
+        "blade_now": "app/resources/views/layouts/app.blade.php:33",
+        "note": "現行正規式要求屬性順序 rel 在前、href 在後、中間一個空白；F6 改 DOM 查詢前，前端須照此順序輸出。網址以環境變數設定的主站公開網址組成，不讀 Host 標頭（v1 §6.3 第 390 行）；算法同 PageMeta.php:28–38。"
+      },
+      {
+        "id": "raw_html.og-url",
+        "requirement": "<meta property=\"og:url\" content=\"同 canonical\">",
+        "pages": "有 canonical 的頁面",
+        "current_pattern": "/<meta property=\"og:url\" content=\"([^\"]+)\"/",
+        "used_by": [
+          "tests/e2e/specs/seo.spec.mjs:48",
+          "tests/e2e/specs/seo.spec.mjs:49"
+        ],
+        "blade_now": "app/resources/views/layouts/app.blade.php:34",
+        "note": "若出現，主機必須是主站；屬性順序 property 在前、content 在後。"
+      },
+      {
+        "id": "raw_html.robots-public",
+        "requirement": "公開頁不得有 <meta name=\"robots\" content=\"…noindex…\">",
+        "pages": "sitemap 所列公開頁",
+        "current_pattern": "/<meta name=\"robots\" content=\"[^\"]*noindex/",
+        "used_by": ["tests/e2e/specs/seo.spec.mjs:55"],
+        "blade_now": "app/resources/views/layouts/app.blade.php:27",
+        "note": "Blade 只在 PageMeta.noindex 或 @section('robots') 時輸出（app.blade.php:13、:27–31）。"
+      },
+      {
+        "id": "raw_html.robots-noindex",
+        "requirement": "<meta name=\"robots\" content=\"noindex, nofollow\">",
+        "pages": "search、error_404、error_503、error_500",
+        "current_pattern": null,
+        "used_by": [],
+        "blade_now": "app/resources/views/layouts/app.blade.php:30",
+        "note": "搜尋頁：ContentController.php:116（noindex: true）；錯誤頁：errors/mysite.blade.php:21。v1 §6.3 第 391 行要求搜尋結果頁帶 noindex。現行 E2E 未驗：seo.spec.mjs:62 標題提到搜尋，但內文（:63–66）只驗預覽與後臺登入。"
+      },
+      {
+        "id": "raw_html.description",
+        "requirement": "<meta name=\"description\" content=\"…\">",
+        "pages": "有 PageMeta 的頁面",
+        "current_pattern": null,
+        "used_by": [],
+        "blade_now": "app/resources/views/layouts/app.blade.php:24",
+        "note": "E2E 未驗；v1 §6.3 第 391 行要求比照；PHPUnit PublicRoutesTest.php:165。"
+      },
+      {
+        "id": "raw_html.open-graph",
+        "requirement": "og:type、og:title、og:site_name、og:locale（zh_TW）、og:description、og:image、og:image:alt、twitter:card",
+        "pages": "有 PageMeta 的頁面",
+        "current_pattern": null,
+        "used_by": [],
+        "blade_now": "app/resources/views/layouts/app.blade.php:37",
+        "note": "E2E 未驗；Blade 位置 app.blade.php:36–49；og:type 依內容類型（ContentController.php:187–191）；v1 §6.3 第 391 行。PHPUnit PublicRoutesTest.php:60、:163–164、:221。"
+      },
+      {
+        "id": "raw_html.rss-alternate",
+        "requirement": "<link rel=\"alternate\" type=\"application/rss+xml\" title=\"站名\" href=\"…/feed.xml\">",
+        "pages": "全部",
+        "current_pattern": null,
+        "used_by": [],
+        "blade_now": "app/resources/views/layouts/app.blade.php:52",
+        "note": "E2E 未驗（seo.spec.mjs:26 直接讀 /feed.xml，不經此連結）。Blade 用 url('/feed.xml') 輸出絕對網址；v1 §6.3 第 391 行寫 href=\"/feed.xml\"（相對）——兩者不一致，見 open_issues。"
+      },
+      {
+        "id": "raw_html.list-detail-links-relative",
+        "requirement": "列表頁原始 HTML 含相對路徑的詳情連結 href=\"/{articles|videos|podcasts}/{slug}\"（不帶主機、不帶查詢字串）",
+        "pages": "articles_index、videos_index、podcasts_index（首頁、分類、標籤同規則）",
+        "current_pattern": "site.mjs:29 /href=\"(?:APP_BASE)?(\\/{prefix}\\/[^\"?#]+)\"/g；infra.spec.mjs:46 /href=\"(\\/podcasts\\/[^\"?#]+)\"/；layout.spec.mjs:36 /<a[^>]+href=\"(\\/articles\\/[^\"]+)\"[^>]*>([^<]+)<\\/a>/g",
+        "used_by": [
+          "tests/e2e/helpers/site.mjs:29",
+          "tests/e2e/helpers/site.mjs:30",
+          "tests/e2e/specs/infra.spec.mjs:46",
+          "tests/e2e/specs/layout.spec.mjs:36"
+        ],
+        "blade_now": "app/resources/views/components/content-card.blade.php:23",
+        "note": "定案 M-10（第 327 行）、§4.4（第 247、254 行）。site.mjs:29 允許可選的主站前綴，但 infra.spec.mjs:46、layout.spec.mjs:36 只認相對路徑，以較嚴者為準。href 用 API path（slug 已以 rawurlencode 編碼，ContentType.php:79）。"
+      },
+      {
+        "id": "raw_html.podcast-audio-src",
+        "requirement": "Podcast 詳情原始 HTML 含 <source … src=\"…\"> 或 <audio … src=\"…\">（preload=\"none\"）；該網址以 Range: bytes=0-99 請求須回 206、Content-Type audio/*",
+        "pages": "podcast_detail（audio_url 有值時）",
+        "current_pattern": "/<source[^>]+src=\"([^\"]+)\"/ 或 /<audio[^>]+src=\"([^\"]+)\"/",
+        "used_by": [
+          "tests/e2e/specs/infra.spec.mjs:49",
+          "tests/e2e/specs/infra.spec.mjs:50",
+          "tests/e2e/specs/infra.spec.mjs:51",
+          "tests/e2e/specs/infra.spec.mjs:52",
+          "tests/e2e/specs/infra.spec.mjs:53"
+        ],
+        "blade_now": "app/resources/views/components/audio-player.blade.php:11",
+        "note": "定案 M-09（第 326 行）、M-10。有 MIME 時用 <source src type>（audio-player.blade.php:11），無 MIME 時 <audio src>（:9）。不得延到瀏覽器端才設定 src。"
+      },
+      {
+        "id": "raw_html.video-embed-src",
+        "requirement": "影片詳情原始 HTML 含 data-embed-src=\"https://www.youtube-nocookie.com/embed/{id}?autoplay=1&amp;rel=0\"",
+        "pages": "video_detail（影片 ID 合法時）",
+        "current_pattern": "/data-embed-src=\"([^\"]+)\"/",
+        "used_by": [
+          "tests/e2e/specs/media.spec.mjs:11",
+          "tests/e2e/specs/media.spec.mjs:12"
+        ],
+        "blade_now": "app/resources/views/components/youtube-player.blade.php:3",
+        "note": "E2E 以列表上第一個帶此屬性的影片頁做嵌入測試。PHPUnit PublicRoutesTest.php:217。"
+      },
+      {
+        "id": "raw_html.no-iframe-before-click",
+        "requirement": "影片詳情原始 HTML 與點擊前 DOM 都不得有 <iframe>",
+        "pages": "video_detail",
+        "current_pattern": null,
+        "used_by": [
+          "tests/e2e/specs/media.spec.mjs:32",
+          "tests/e2e/specs/media.spec.mjs:33"
+        ],
+        "blade_now": "app/resources/views/components/youtube-player.blade.php:4",
+        "note": "v1 §6.4 YouTubeFacade；PHPUnit PublicRoutesTest.php:222（assertDontSee('<iframe')）。"
+      },
+      {
+        "id": "raw_html.search-result-marker",
+        "requirement": "搜尋有結果時原始 HTML 含結果項目標記；零結果與撤下後不得出現",
+        "pages": "search",
+        "current_pattern": "/class=\"search-result\"/（F6 起改偵測 data-search-result）",
+        "used_by": [
+          "tests/e2e/specs/wp-editor.spec.mjs:13",
+          "tests/e2e/specs/wp-editor.spec.mjs:83",
+          "tests/e2e/specs/wp-editor.spec.mjs:120",
+          "tests/e2e/specs/preview.spec.mjs:138"
+        ],
+        "blade_now": "app/resources/views/content/search.blade.php:42",
+        "note": "對應 search.result 掛鉤。"
+      },
+      {
+        "id": "raw_html.search-result-title-text",
+        "requirement": "搜尋結果原始 HTML 含 >標題<（標題是元素唯一的文字內容，前後無空白、無註解）",
+        "pages": "search（results）",
+        "current_pattern": "includes(`>${editedTitle}<`)",
+        "used_by": ["tests/e2e/specs/wp-editor.spec.mjs:106"],
+        "blade_now": "app/resources/views/content/search.blade.php:47",
+        "note": "對應 search.result-link 掛鉤。"
+      },
+      {
+        "id": "raw_html.ssr-titles",
+        "requirement": "首頁、文章列表、單篇原始 HTML 含最新公開內容的標題（伺服器端取資料，不由瀏覽器端補）；撤下後不得含",
+        "pages": "home、articles_index、article_detail",
+        "current_pattern": "body.includes(token／title)",
+        "used_by": [
+          "tests/e2e/specs/wp-editor.spec.mjs:81",
+          "tests/e2e/specs/wp-editor.spec.mjs:82",
+          "tests/e2e/specs/wp-editor.spec.mjs:103",
+          "tests/e2e/specs/wp-editor.spec.mjs:104",
+          "tests/e2e/specs/wp-editor.spec.mjs:105",
+          "tests/e2e/specs/wp-editor.spec.mjs:118",
+          "tests/e2e/specs/wp-editor.spec.mjs:119",
+          "tests/e2e/specs/preview.spec.mjs:131",
+          "tests/e2e/specs/preview.spec.mjs:137"
+        ],
+        "blade_now": "app/resources/views/components/content-card.blade.php:23",
+        "note": "單篇標題見 entry.blade.php:16。getServerSideProps 的 props 會原樣出現在 HTML（v1 §6.3 第 387 行），撤下後 API 不再回該筆即可。"
+      },
+      {
+        "id": "raw_html.no-cms-links",
+        "requirement": "頁面上所有 <a href> 不得指向 CMS 主機（/wp-content/uploads/ 媒體檔例外）",
+        "pages": "sitemap 所列公開頁",
+        "current_pattern": "/<a\\s[^>]*href=\"([^\"]+)\"/g",
+        "used_by": [
+          "tests/e2e/specs/seo.spec.mjs:51",
+          "tests/e2e/specs/seo.spec.mjs:52",
+          "tests/e2e/specs/seo.spec.mjs:53",
+          "tests/e2e/specs/seo.spec.mjs:54"
+        ],
+        "blade_now": null,
+        "note": "Blade 無單一位置（選單、正文連結皆適用）；正文連結由 Laravel Sanitizer 處理。"
+      }
+    ]
+  },
+
+  "css_contract": {
+    "description": "a11y.spec.mjs 讀取的 CSS 自訂屬性與焦點樣式。不是 DOM 屬性，但 Tailwind v4 @theme 命名（定案 M-12 由施工者定稿）若改名，現行 E2E 會失敗，所以名稱固定。",
+    "items": [
+      {
+        "id": "css.duration",
+        "requirement": ":root 定義 --duration；一般為非零值，prefers-reduced-motion: reduce 時為 0ms、0s 或 0",
+        "used_by": [
+          "tests/e2e/specs/a11y.spec.mjs:135",
+          "tests/e2e/specs/a11y.spec.mjs:145",
+          "tests/e2e/specs/a11y.spec.mjs:146"
+        ],
+        "blade_now": "app/resources/css/tokens.css:54",
+        "note": "減少動態的覆寫在 tokens.css:59–60。"
+      },
+      {
+        "id": "css.reduced-motion-transition",
+        "requirement": "減少動態時，第一個符合 .site-nav__link, .button, a 的元素 transition-duration ≤ 0.001 秒",
+        "used_by": [
+          "tests/e2e/specs/a11y.spec.mjs:133",
+          "tests/e2e/specs/a11y.spec.mjs:136",
+          "tests/e2e/specs/a11y.spec.mjs:147",
+          "tests/e2e/specs/a11y.spec.mjs:148"
+        ],
+        "blade_now": "app/resources/css/base.css:52",
+        "note": "F6 把選擇器改為 [data-site-nav-link], a。Blade 以全域規則把轉場壓到 0.01ms（base.css:52–54）。"
+      },
+      {
+        "id": "css.color-focus",
+        "requirement": ":root 定義 --color-focus（焦點框顏色）",
+        "used_by": [
+          "tests/e2e/specs/a11y.spec.mjs:23",
+          "tests/e2e/specs/a11y.spec.mjs:31"
+        ],
+        "blade_now": "app/resources/css/tokens.css:23",
+        "note": "只在焦點框畫在外層容器（:focus-within）時用來辨識；焦點框畫在元素本身則不依賴此值。"
+      },
+      {
+        "id": "css.focus-visible",
+        "requirement": "每個 Tab 停點都符合 :focus-visible，且自身有 box-shadow 或 outline（或 4 層內祖先以 --color-focus 畫出焦點框）",
+        "used_by": [
+          "tests/e2e/specs/a11y.spec.mjs:53",
+          "tests/e2e/specs/a11y.spec.mjs:70"
+        ],
+        "blade_now": "app/resources/css/base.css:25",
+        "note": "Blade：:focus-visible { box-shadow: var(--focus-ring) }（base.css:25；tokens.css:53）。"
+      },
+      {
+        "id": "css.overflow-exempt-visually-hidden",
+        "requirement": "版面溢位檢查目前豁免 .skip-link 與 .visually-hidden 內的元素",
+        "used_by": ["tests/e2e/helpers/site.mjs:110"],
+        "blade_now": "app/resources/css/base.css:44",
+        "note": ".skip-link 由 layout.skip-link（data-skip-link）取代。.visually-hidden 刻意不設 data 掛鉤：視覺隱藏元素寬高 1px，已被 site.mjs:106 的尺寸條件略過，其子元素也因父層 overflow:hidden 被 site.mjs:97–103 略過；Tailwind 的 sr-only 同樣如此。F6 把 site.mjs:110 改為只豁免 [data-skip-link]。"
+      }
+    ]
+  },
+
+  "other_requirements": {
+    "description": "E2E 依賴、但不屬 DOM 掛鉤的頁面條件；列此以免遺漏，細節以各 spec 為準。",
+    "items": [
+      {
+        "id": "other.status-codes",
+        "requirement": "公開頁 200；不存在的路徑、不存在或已撤下的單篇 404；sitemap 所列頁直接 200（不轉址）",
+        "used_by": [
+          "tests/e2e/specs/layout.spec.mjs:88",
+          "tests/e2e/specs/media.spec.mjs:120",
+          "tests/e2e/specs/wp-editor.spec.mjs:117",
+          "tests/e2e/specs/seo.spec.mjs:22",
+          "tests/e2e/specs/seo.spec.mjs:23"
+        ]
+      },
+      {
+        "id": "other.no-cookies",
+        "requirement": "匿名瀏覽公開頁（含搜尋與不存在的路徑）不設定任何 cookie",
+        "used_by": [
+          "tests/e2e/specs/cookies.spec.mjs:101",
+          "tests/e2e/specs/cookies.spec.mjs:114",
+          "tests/e2e/specs/cookies.spec.mjs:115"
+        ]
+      },
+      {
+        "id": "other.no-third-party",
+        "requirement": "首頁只連線主站與 CMS 主機（無分析、廣告、外部字型）",
+        "used_by": [
+          "tests/e2e/specs/media.spec.mjs:145",
+          "tests/e2e/specs/media.spec.mjs:149",
+          "tests/e2e/specs/media.spec.mjs:150"
+        ]
+      },
+      {
+        "id": "other.unique-landmarks",
+        "requirement": "下列定位在現行 E2E 為 Playwright 嚴格模式，頁面上必須唯一：main；首頁的 header；[data-audio-error]；播放器內的 audio；播放器內的 [data-youtube-start]；零結果時 main 內的 [role=\"status\"]；h1",
+        "used_by": [
+          "tests/e2e/specs/media.spec.mjs:105",
+          "tests/e2e/specs/shop.spec.mjs:43",
+          "tests/e2e/specs/media.spec.mjs:103",
+          "tests/e2e/specs/media.spec.mjs:65",
+          "tests/e2e/specs/media.spec.mjs:37",
+          "tests/e2e/specs/media.spec.mjs:125",
+          "tests/e2e/specs/media.spec.mjs:121"
+        ]
+      }
+    ]
+  },
+
+  "forbidden_in_production": {
+    "description": "正式建置產物（.next/ 與 F6 的正式映像）輸出的 HTML 與程式中不得出現的屬性；CI 全文搜尋，出現即失敗。",
+    "basis": [
+      "docs/MySiteReact前端專案v1.md §6.5 第 5 點（第 411 行）",
+      "docs/MySiteReact前端專案v1.md §6.8 第 7 步（第 483 行）",
+      "docs/MySiteReact前端專案v1.md FE-09（第 696 行）"
+    ],
+    "attributes": [
+      {
+        "name": "data-dyad-id",
+        "reason": "MyDyad 元件標記器只在開發模式加上（v1 §6.5 第 5 點）"
+      },
+      {
+        "name": "data-dyad-name",
+        "reason": "MyDyad 元件標記器只在開發模式加上（v1 §6.5 第 5 點）"
+      }
+    ]
+  },
+
+  "laravel_only": {
+    "description": "現行 E2E 用到、但 next 模式仍由 app-web（Laravel Blade）提供的頁面（v1 §4.2 第 187–188 行：商店、/preview/*）。前端不實作；F6 不需改，列此是為了滿足 F1 驗收「掛鉤清單涵蓋現行 E2E 用到的全部 class 型選擇器」（v1 第 548 行）。",
+    "items": [
+      { "selector": ".preview-banner", "used_by": ["tests/e2e/specs/preview.spec.mjs:91"], "blade_now": "app/resources/views/preview/show.blade.php:12", "action": "不變（預覽頁屬 app-web）" },
+      { "selector": "[data-sim-notice]", "used_by": ["tests/e2e/specs/shop.spec.mjs:63", "tests/e2e/specs/shop.spec.mjs:84", "tests/e2e/specs/shop.spec.mjs:96", "tests/e2e/specs/shop.spec.mjs:107", "tests/e2e/specs/shop.spec.mjs:122"], "blade_now": "app/resources/views/shop/_sim-notice.blade.php:2", "action": "不變（現有掛鉤；v1 §6.5 第 1 點列為沿用）" },
+      { "selector": ".shop-variant", "used_by": ["tests/e2e/specs/shop.spec.mjs:70"], "blade_now": "app/resources/views/shop/show.blade.php:38", "action": "不變" },
+      { "selector": ".shop-stock", "used_by": ["tests/e2e/specs/shop.spec.mjs:72"], "blade_now": "app/resources/views/shop/show.blade.php:42", "action": "不變" },
+      { "selector": ".shop-price", "used_by": ["tests/e2e/specs/shop.spec.mjs:73"], "blade_now": "app/resources/views/shop/show.blade.php:41", "action": "不變" },
+      { "selector": "form.shop-add", "used_by": ["tests/e2e/specs/shop.spec.mjs:88"], "blade_now": "app/resources/views/shop/show.blade.php:33", "action": "不變" },
+      { "selector": ".shop-cart__table", "used_by": ["tests/e2e/specs/shop.spec.mjs:97"], "blade_now": "app/resources/views/shop/cart.blade.php:24", "action": "不變" },
+      { "selector": "#quantity", "used_by": ["tests/e2e/specs/shop.spec.mjs:86"], "blade_now": "app/resources/views/shop/show.blade.php:48", "action": "不變" },
+      { "selector": "#buyer_code", "used_by": ["tests/e2e/specs/shop.spec.mjs:113"], "blade_now": "app/resources/views/shop/checkout.blade.php:45", "action": "不變" },
+      { "selector": "form[data-checkout-form]", "used_by": ["tests/e2e/specs/shop.spec.mjs:112", "tests/e2e/specs/shop.spec.mjs:114"], "blade_now": "app/resources/views/shop/checkout.blade.php:40", "action": "不變" },
+      { "selector": "input[name=\"variant_id\"]", "used_by": ["tests/e2e/specs/shop.spec.mjs:71", "tests/e2e/specs/shop.spec.mjs:85", "tests/e2e/specs/shop.spec.mjs:152"], "blade_now": "app/resources/views/shop/show.blade.php:39", "action": "不變" },
+      { "selector": "input[name=\"idempotency_key\"]", "used_by": ["tests/e2e/specs/shop.spec.mjs:111", "tests/e2e/specs/shop.spec.mjs:155"], "blade_now": "app/resources/views/shop/checkout.blade.php:42", "action": "不變" }
+    ]
+  },
+
+  "out_of_scope": {
+    "description": "Laravel 後臺（/admin，v1 §4.2 第 186 行）與 WordPress 後臺／核心的選擇器；不屬公開頁，與前端無關，F6 不需改。",
+    "items": [
+      { "selector": "#email, #password", "used_by": ["tests/e2e/helpers/admin.mjs:28", "tests/e2e/helpers/admin.mjs:29", "tests/e2e/specs/admin-2fa.spec.mjs:33"], "owner": "Laravel 後臺登入" },
+      { "selector": "#code", "used_by": ["tests/e2e/specs/admin-2fa.spec.mjs:43", "tests/e2e/specs/admin-2fa.spec.mjs:57"], "owner": "Laravel 後臺 2FA" },
+      { "selector": "input[name=\"_token\"]", "used_by": ["tests/e2e/specs/admin.spec.mjs:9", "tests/e2e/specs/shop.spec.mjs:35"], "owner": "Laravel 後臺登入頁 CSRF" },
+      { "selector": "main table, main .empty", "used_by": ["tests/e2e/specs/admin.spec.mjs:29"], "owner": "Laravel 後臺商品列表" },
+      { "selector": "main a[href*=\"/admin/products/\"][href$=\"/edit\"]", "used_by": ["tests/e2e/specs/admin.spec.mjs:47"], "owner": "Laravel 後臺" },
+      { "selector": "form[action*=\"/admin/variants/\"][action$=\"/stock\"]", "used_by": ["tests/e2e/specs/admin.spec.mjs:51"], "owner": "Laravel 後臺" },
+      { "selector": "main tr", "used_by": ["tests/e2e/specs/admin.spec.mjs:55", "tests/e2e/specs/admin-2fa.spec.mjs:69", "tests/e2e/specs/admin-2fa.spec.mjs:72"], "owner": "Laravel 後臺使用者列表" },
+      { "selector": "main table tbody tr td", "used_by": ["tests/e2e/specs/shop.spec.mjs:126"], "owner": "Laravel 模擬訂單頁" },
+      { "selector": "meta[name=\"robots\"]（後臺、預覽、訂單）", "used_by": ["tests/e2e/specs/admin.spec.mjs:18", "tests/e2e/specs/preview.spec.mjs:92", "tests/e2e/specs/shop.spec.mjs:128", "tests/e2e/specs/seo.spec.mjs:66"], "owner": "Laravel 非公開頁" },
+      { "selector": "#user_login, #user_pass, #wp-submit", "used_by": ["tests/e2e/helpers/wp.mjs:18", "tests/e2e/helpers/wp.mjs:19", "tests/e2e/helpers/wp.mjs:38"], "owner": "WordPress 登入頁" },
+      { "selector": ".media-modal", "used_by": ["tests/e2e/specs/wp-editor.spec.mjs:56"], "owner": "WordPress 核心媒體視窗" },
+      { "selector": ".editor-post-publish-panel", "used_by": ["tests/e2e/helpers/wp.mjs:135", "tests/e2e/helpers/wp.mjs:142"], "owner": "WordPress 區塊編輯器" },
+      { "selector": "iframe[name=\"editor-canvas\"]", "used_by": ["tests/e2e/helpers/wp.mjs:57", "tests/e2e/helpers/wp.mjs:58"], "owner": "WordPress 區塊編輯器" }
+    ]
+  },
+
+  "proposed_data_attributes": [
+    { "name": "data-skip-link", "replaces": ".skip-link" },
+    { "name": "data-site-header", "replaces": "header（標籤定位）" },
+    { "name": "data-site-nav-list", "replaces": ".site-nav__list" },
+    { "name": "data-site-nav-link", "replaces": ".site-nav__link" },
+    { "name": "data-site-nav-shop", "replaces": ".site-nav__link--shop" },
+    { "name": "data-site-footer", "replaces": "footer（標籤定位）" },
+    { "name": "data-sample-badge", "replaces": ".badge--sample" },
+    { "name": "data-page-title", "replaces": ".hero__title／.page-header h1" },
+    { "name": "data-content-card", "replaces": ".content-card" },
+    { "name": "data-content-link", "replaces": ".card__title a" },
+    { "name": "data-media-frame", "replaces": ".media-frame" },
+    { "name": "data-media-broken", "replaces": ".media-frame.is-broken（is-broken 部分）" },
+    { "name": "data-entry", "replaces": ".entry" },
+    { "name": "data-entry-title", "replaces": ".entry__title" },
+    { "name": "data-entry-body", "replaces": ".entry__body／.prose" },
+    { "name": "data-youtube-unavailable", "replaces": ".player--video.is-broken .player__frame--static" },
+    { "name": "data-audio-duration", "replaces": "[data-audio-player] time" },
+    { "name": "data-audio-download", "replaces": ".player__audio-meta a[download]" },
+    { "name": "data-audio-unavailable", "replaces": ".player--audio.is-broken .player__state" },
+    { "name": "data-error-view", "replaces": ".state" },
+    { "name": "data-error-title", "replaces": ".state__title" },
+    { "name": "data-error-home-link", "replaces": ".state__actions .button--primary" },
+    { "name": "data-request-id", "replaces": ".state__ref" },
+    { "name": "data-error-retry-link", "replaces": ".state__actions .button:not(.button--primary)" },
+    { "name": "data-search-form", "replaces": ".search-panel" },
+    { "name": "data-search-summary", "replaces": ".search-summary" },
+    { "name": "data-search-result", "replaces": ".search-result（原始 HTML 字面 class=\"search-result\"）" },
+    { "name": "data-search-result-link", "replaces": ".search-result__title a" },
+    { "name": "data-search-empty", "replaces": ".empty[role=\"status\"]" },
+    { "name": "data-search-error", "replaces": ".notice--danger[role=\"alert\"]" }
+  ],
+
+  "existing_hooks_kept": [
+    "data-site-nav",
+    "data-site-nav-toggle",
+    "data-youtube-player",
+    "data-youtube-start",
+    "data-embed-src",
+    "data-audio-player",
+    "data-audio-error",
+    "data-media-img",
+    "data-sim-notice（laravel_only）",
+    "id=\"main\"",
+    "id=\"search-q\"",
+    "id=\"site-search-q\"",
+    "id=\"state-q\""
+  ],
+
+  "open_issues": [
+    "定案 §4.4（第 252 行）與 §5.1 第 14 條（第 388 行）只寫「輸入框 id=\"search-q\"」，但頁首搜尋框現行是 id=\"site-search-q\"（header.blade.php:36），a11y.spec.mjs:96 依賴它；搜尋頁本身才是 search-q（search.blade.php:14；a11y.spec.mjs:99）。兩個 id 都要保留；若前端把頁首也命名為 search-q，搜尋頁會出現重複 id，a11y 測試也會失敗。",
+    "v1 §6.3（第 391 行）寫 RSS 連結 href=\"/feed.xml\"（相對），現行 Blade 用 url('/feed.xml') 輸出絕對網址（app.blade.php:52）。同樣以 url() 輸出絕對網址的還有品牌連結（header.blade.php:13）、商店連結（header.blade.php:31）、頁尾搜尋與 RSS（footer.blade.php:22、:25），而定案 §4.4 規定站內連結一律相對路徑。E2E 未驗這些連結（shop.spec.mjs:41 用後綴比對，兩種寫法都通過）。需裁定前端照 v1／定案（相對）或照 Blade（絕對）。",
+    "seo.spec.mjs:62 的測試名稱寫「預覽、後臺登入、搜尋帶 noindex」，但內文（:63–66）只驗預覽與後臺登入；搜尋頁 noindex 現行沒有 E2E 守護（只有 PHPUnit PublicRoutesTest.php:301 驗空查詢的 /search）。本清單依 v1 §6.3 列為必要（raw_html.robots-noindex）。",
+    "搜尋錯誤分支（role=\"alert\"）在 Blade 由 Laravel 直接產生並回 HTTP 422（ContentController.php:97–102），但 v1 §5.4 的 API 錯誤碼只列 404、503、429，未列 422／輸入驗證錯誤；前端如何得知要畫錯誤分支，需在 F1 契約定稿時對齊。",
+    "v1 §6.5 把 .search-result 當成 class 選擇器列出，但 E2E 實際是對原始 HTML 做字面比對 class=\"search-result\"（wp-editor.spec.mjs:13；preview.spec.mjs:138）；只要多一個 class 就失配，所以 F6 前前端不可能通過這兩處檢查，F6 必須改為 data-search-result。",
+    "M-10 寫「列表頁原始 HTML 含相對路徑的詳情連結」；site.mjs:29 接受帶主站前綴的絕對網址，但 infra.spec.mjs:46 與 layout.spec.mjs:36 只認相對路徑。清單以較嚴者（相對）為準，與定案 §4.4 一致。",
+    "v1 §6.4 YouTubeFacade 只寫伺服器輸出 <a data-youtube-start>、海報與 data-embed-src；E2E（media.spec.mjs:35–40）另要求外層 [data-youtube-player]，data-embed-src 由原始 HTML 讀取、點擊後 iframe 必須建在 [data-youtube-player] 之內。清單已寫明巢狀與同元素關係。",
+    "定案 §4.3 只要求零結果提示帶 role=\"status\"；media.spec.mjs:125 對 main [role=\"status\"] 沒有加 .first()，屬嚴格模式，所以零結果時 main 內只能有一個 role=\"status\"。同類唯一性要求見 other_requirements.other.unique-landmarks。",
+    "PHPUnit app/tests/Feature/Content/PublicRoutesTest.php 以完整字串斷言 Blade HTML（例如 :240 \"<audio class=\\\"player__audio-control\\\" controls preload=\\\"none\\\"\"、:59 canonical、:217 data-embed-src、:359 class site-nav__link--shop）。F6 在 Blade 補 data-* 時，若插在這些屬性之間會讓字面斷言失敗；須把新屬性放在不影響這些字串的位置，或同步修改 PHPUnit。",
+    "tests/e2e/helpers/site.mjs:154 的 listItems()（main a[href]）沒有任何 spec 呼叫（查無引用），不列為掛鉤依據。",
+    "media.spec.mjs:111 的圖片失效測試只攔截 /wp-content/uploads/… 路徑；前端假資料媒體在 /mock-media/…（v1 §4.4 第 216 行），前端 CI 若沿用此測試須改攔截規則（不影響掛鉤名稱）。",
+    "a11y.spec.mjs:23、:135 依賴 CSS 自訂屬性 --color-focus、--duration；定案 M-12 規定設計變數名稱由施工者定稿，但這兩個名稱若改掉，現行 a11y 測試會失敗，故列入 css_contract 固定。"
+  ]
+}

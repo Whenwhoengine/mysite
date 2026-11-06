@@ -56,6 +56,12 @@ final class ErrorRenderer
                 return self::respond($request, 419, 'SESSION_EXPIRED', '頁面已逾時，請重新整理後再試一次。');
             }
             $status = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
+            // 公開 API：找不到的路由（含 slug 超過 200 字）與內容不存在用同一個錯誤碼（PAPI-07）
+            if ($status === 404 && self::isPublicApi($request)) {
+                $code = ErrorCode::ContentNotFound;
+
+                return self::respond($request, 404, $code->value, $code->publicMessage());
+            }
             $message = match (true) {
                 $status === 404 => '找不到這個頁面。',
                 $status === 403 => '您沒有權限檢視這個頁面。',
@@ -70,11 +76,17 @@ final class ErrorRenderer
         });
     }
 
+    /** 公開唯讀 API（routes/api.php）：錯誤一律 JSON。 */
+    public static function isPublicApi(Request $request): bool
+    {
+        return $request->is('api/*');
+    }
+
     public static function respond(Request $request, int $status, string $code, string $message): Response
     {
         $requestId = (string) ($request->attributes->get('request_id') ?? bin2hex(random_bytes(16)));
-        if ($request->is('internal/*') || $request->expectsJson()) {
-            return response()->json(['error' => $code, 'message' => $message, 'request_id' => $requestId], $status, ['Cache-Control' => 'no-store']);
+        if ($request->is('internal/*') || self::isPublicApi($request) || $request->expectsJson()) {
+            return response()->json(['error' => $code, 'message' => $message, 'request_id' => $requestId], $status, ['Cache-Control' => 'no-store'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         }
         $view = view()->exists('errors.mysite') ? 'errors.mysite' : null;
         if ($view === null) {
