@@ -187,7 +187,16 @@ fi
 if [[ "$env_name" == development ]]; then
   if [[ ! -f "$root/app/vendor/autoload.php" || "$root/app/composer.lock" -nt "$root/app/vendor/composer/installed.json" ]]; then
     ms_info "依 composer.lock 安裝 PHP 相依…"
-    bash "$root/scripts/cloud/composer.sh" install --no-interaction --no-scripts
+    # 下載方式跟映像建置一致：經代理時 GitHub dist 受限，ms_compose_prepare 會把 COMPOSER_PREFER 設為 source（ADR-005）。
+    # 代理偶發中斷會讓單一套件逾時：失敗就再試一次（暫定：共 2 次）。已下載的套件留在快取，重試只補缺的部分。
+    prefer="${COMPOSER_PREFER:-dist}"
+    case "$prefer" in source|dist|auto) ;; *) ms_die "$EXIT_USAGE" "COMPOSER_PREFER 只能是 source、dist 或 auto：$prefer" ;; esac
+    composer_try=1
+    until bash "$root/scripts/cloud/composer.sh" install --no-interaction --no-scripts --prefer-install="$prefer"; do
+      (( composer_try < 2 )) || ms_die "$EXIT_EXTERNAL" "Composer 安裝失敗（已試 ${composer_try} 次）；請查代理狀態後重跑 bootstrap"
+      composer_try=$((composer_try + 1))
+      ms_warn "Composer 安裝失敗，重試（第 ${composer_try} 次嘗試）…"
+    done
     bash "$root/scripts/cloud/composer.sh" dump-autoload
   fi
   if [[ ! -d "$root/app/node_modules" || "$root/app/package-lock.json" -nt "$root/app/node_modules/.package-lock.json" ]]; then

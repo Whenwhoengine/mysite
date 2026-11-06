@@ -301,12 +301,15 @@ for mode in ("http", "https"):
         chk(not any(f(p) for f in am), f"{mode}：主站 {p} 不應套用登入限流")
     # /index.php/<路徑> 會被 Laravel 視為 <路徑>（前端控制器別名），必須在 gateway 直接 404，否則可繞過以路徑為準的規則
     chk(re.search(r"^\s*location \^~ /index\.php/ \{ return 404; \}", app, re.M), f"{mode}：主站缺少 location ^~ /index.php/ {{ return 404; }}")
+    # 同一 server 內重複的 location 會讓 nginx 無法啟動（合併其他分支時兩邊都加了這條，最容易出錯）
+    chk(len(re.findall(r"^\s*location \^~ /index\.php/ ", app, re.M)) == 1, f"{mode}：主站 location ^~ /index.php/ 重複")
+    chk(len(re.findall(r"^\s*location ~ \^/admin/\(login\|", app, re.M)) == 1, f"{mode}：主站登入限流 location 重複")
     chk(any(f("/wp-login.php") for f in limited_matchers(cms)), f"{mode}：CMS POST /wp-login.php 未套用 mysite_login 限流")
     lines[mode] = sorted(l.strip() for l in app.splitlines() if "mysite_login" in l or "/index.php/" in l)
 chk(lines["http"] == lines["https"], "http 與 https 模板的登入限流／index.php 規則不一致")
 print("OK")
 PY
-  echo "OK: http／https gateway 模板的登入限流涵蓋結尾斜線與 /index.php/ 別名、兩份一致、未關閉 merge_slashes"
+  echo "OK: http／https gateway 模板的登入限流涵蓋結尾斜線與 /index.php/ 別名、規則不重複、兩份一致、未關閉 merge_slashes"
 }
 
 case_add S01_syntax_and_safety GOV-04 s01_syntax

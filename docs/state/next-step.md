@@ -1,17 +1,24 @@
 # next-step
 
-- 交付狀態：`CI_VERIFIED`。受測 commit `529223a`，GitHub Actions run 41984011065：content 與 simulation 兩個範圍全部步驟通過。
+- 交付狀態：`CI_VERIFIED`。受測 commit `fa0c04d`（PR #4 分支），GitHub Actions run 42181190540：content 與 simulation 兩個範圍全部步驟通過。
   - PHPUnit 356 項，覆蓋率 94.83%
   - WP 契約 31 項
-  - E2E 162／165 項通過
-  - 部署工具 38 項
+  - E2E 162／165 項通過（content／simulation）
+  - doctor 14 項（含新增 GW-LOGIN-LIMIT）
+  - 部署工具 39 項（含新增 S07）
   - 治理與弱點掃描 36 項
-  - 證據：`docs/evidence/gha-41984011065-1-*`、`docs/evidence/bootstrap-source-41973465852/`
+  - 證據：`docs/evidence/gha-42181190540-1-*`、`docs/evidence/bootstrap-source-41973465852/`
 - 驗收登錄表：PASS 89、BLOCKED_EXTERNAL 7（OPS-02、08、09、10、13、14、WP-10）、FAIL 0、NOT_RUN 0。
 - 程式已合併到 main：PR #1（`aad927e`）、PR #2（`98bd557`）。工作分支在每次合併後從 main 重新起算。
-- 進行中切片 `M1-09`（分支 `claude/wonderful-ritchie-jsf1rh`，狀態 IMPLEMENTED，待 CI 讀回後改 VERIFIED）：gateway 登入限流原本只比對精確路徑，`POST /admin/login/`（結尾斜線）與 `/index.php/admin/login`（前端控制器別名）都能繞過 gateway 進到 Laravel 登入處理程式。已改為接受結尾斜線、`/index.php/` 前綴一律 404，並新增 doctor `GW-LOGIN-LIMIT`（實測）與部署工具 `S07`（http／https 模板一致性）。
-  - 本 VM 已驗證：修正前 doctor `GW-LOGIN-LIMIT` FAIL（8 項：結尾斜線 6 項、`/index.php/` 別名 2 項），重建 gateway 後 PASS；`verify.sh --scope=content --steps=static` 通過；部署工具 38 項 PASS（I01 未跑）；https 模板以 gateway 映像 `nginx -t` 通過。
-  - 未在本 VM 跑：完整 `verify.sh`（PHPUnit、WP 契約、E2E、治理），交給 CI。
+- 切片 `M1-09`（PR #4，分支 `claude/wonderful-ritchie-jsf1rh`，VERIFIED，尚未合併到 main）：gateway 登入限流原本只比對精確路徑，`POST /admin/login/`（結尾斜線）與 `/index.php/admin/login`（前端控制器別名）都能繞過 gateway 進到 Laravel 登入處理程式。已改為接受結尾斜線、`/index.php/` 前綴一律 404，並新增 doctor `GW-LOGIN-LIMIT`（實測）與部署工具 `S07`（http／https 模板一致性、規則不可重複）。
+- 切片 `M1-10`（同一分支，IMPLEMENTED）：全新開發環境的 `bootstrap.sh --env=development` 原本在 PHP 相依安裝失敗——沒帶 ADR-005 規定的 source 模式（代理擋 GitHub zipball），且 `dump-autoload` 後的 `package:discover` 在無設定的工具容器內被執行期設定檢查擋下。已改為依 `COMPOSER_PREFER` 加 `--prefer-install`、失敗重試一次，`composer.sh` 比照映像建置帶 `MYSITE_SKIP_CONFIG_VALIDATION=1`。
+  - 本 VM 實測：清空 `app/vendor` 後重跑 bootstrap 成功、doctor 14 項全過；重試邏輯另以假 composer 測過四種情況。CI 只跑 testing 環境，不涵蓋這條 development 路徑。
+  - 注意：source 模式的 `app/vendor` 約 7.5GB（含完整 git 歷史），Composer 快取約 6.7GB；VM 磁碟額度有限，不要另外複製 vendor。
+- 與 PR #3（`claude/happy-euler-evh676`）合併時必定衝突，已在本 VM 演練並驗證解法：
+  - 衝突檔：兩份 gateway 模板、`scripts/cloud/doctor.sh`（只有 `--help` 說明）、`docs/state/next-step.md`、`docs/state/status.json`。
+  - gateway 模板：登入 location 用 PR #4 的 `/?$` 版（含註解）；PR #4 自己的 `location ^~ /index.php/` 與其註解**刪掉**，因為 PR #3 在 `/api/` 之後已有同一條且會自動併入。兩條都留會讓 nginx 報 `duplicate location` 無法啟動（S07 會擋）。PR #3 的 `deny-sensitive`、`= /index.php`、`\.php$`、`/api/` 照留。
+  - doctor：`--help` 兩段說明都留；GW-PROBES、GW-API、GW-LOGIN-LIMIT 三項檢查會自動並存。
+  - 照此解法的模板已通過 S07 與 http／https `nginx -t`。state 檔依合併當下的 CI 結果重寫。
 - 目前任務：`M9A-01`（staging 主機開通與部署），被 BLK-HOST-01、BLK-DNS-01 阻擋，等委託人提供主機與網域。
 - 第一個可執行的下一步：委託人提供常駐 Linux 主機（或核准供應商與月費上限）與網域後，依 `docs/runbooks/主機開通.md` 的 P0–P8 進行，再跑 staging 驗收（OPS-02、08、09、10、13）。
 - 尚待真實環境的其他驗收：
