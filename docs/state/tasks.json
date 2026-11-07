@@ -1496,8 +1496,8 @@
     {
       "id": "REACT-F3",
       "milestone": "REACT",
-      "title": "React 前端專案 F3：MySiteStorage 骨架與受保護路徑守門（已合併；FE-11 ②「無法合併」待委託人設定必要檢查 BLK-REACT-REQCHECK-01）",
-      "status": "IMPLEMENTED",
+      "title": "React 前端專案 F3：MySiteStorage 骨架與受保護路徑守門（已合併；事件政策與必要檢查已設定；FE-11 通過）",
+      "status": "VERIFIED",
       "depends_on": [
         "REACT-F1"
       ],
@@ -1507,9 +1507,10 @@
       "acceptance_ids": [],
       "evidence_refs": [
         "Whenwhoengine/MySiteStorage#1 已合併（main ed20bcc，CI run 42367447389 全綠）；合併前 b5c1ce0 的 CI run 42346173567 全綠（單元 754、守門模擬 18、E2E 146）",
-        "FE-11 實測：測試 PR Whenwhoengine/MySiteStorage#2～#6（關閉未合併），守門 run 42380146629～42380340196；docs/MySiteReact施工紀錄/F3施工紀錄.md 第 15 節"
+        "FE-11 實測：測試 PR Whenwhoengine/MySiteStorage#2～#6（關閉未合併），守門 run 42380146629～42380340196；docs/MySiteReact施工紀錄/F3施工紀錄.md 第 15 節",
+        "必要檢查 frontend-ci、protected-paths 已設定（公開 API 讀回）；重開測試 PR #3 判定 blocked（FE-11 ②）"
       ],
-      "blocker_id": "BLK-REACT-REQCHECK-01",
+      "blocker_id": null,
       "commit": "ed20bcc"
     },
     {

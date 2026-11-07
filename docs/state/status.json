@@ -5,7 +5,7 @@
   "plan_sha256": "7a9dc8b969010117a9d7e2bef11f92a4eb1ac8a4c0d4c12cc077d512b16b41c1",
   "prompt_sha256": "b92cf5809217107abb54073225db77c99b1ca6782d26a33bb9a6803aab40393b",
   "source_plan_file": "docs/規劃書v5.md",
-  "updated_at": "2026-11-07T14:16:01Z",
+  "updated_at": "2026-11-07T14:58:03Z",
   "execution_backend": "claude-cloud-compose",
   "working_branch": "claude/happy-euler-evh676",
   "source_commit": "93740934565b6187a92a2badc2f6714671960171",
@@ -37,5 +37,5 @@
     "BLK-PRODSECRET-01",
     "BLK-APPROVAL-01"
   ],
-  "next_action": "等待委託人提供常駐主機與網域（BLK-HOST-01、BLK-DNS-01）後依 docs/runbooks/主機開通.md 進行 M9-A staging；M2（WP-10 正式 2FA 登記）與 M8-B（HTTPS 與續期演練）只剩真實主機上的驗收。React 前端專案：F0～F3 已合併（mysite PR #3、MySiteStorage PR #1），事件政策已建立，FE-11 已實測；委託人設定 MySiteStorage main 必要檢查（BLK-REACT-REQCHECK-01）後即可在 design/work 用 MyDyad 設計（F4、F5）；F6 待設計定稿"
+  "next_action": "等待委託人提供常駐主機與網域（BLK-HOST-01、BLK-DNS-01）後依 docs/runbooks/主機開通.md 進行 M9-A staging；M2（WP-10 正式 2FA 登記）與 M8-B（HTTPS 與續期演練）只剩真實主機上的驗收。React 前端專案：F0～F3 已合併（mysite PR #3、MySiteStorage PR #1），事件政策已建立，FE-11 已實測；事件政策與 main 必要檢查已設定；委託人在 design/work 用 MyDyad 設計（F4、F5）；F6 待設計定稿"
 }
