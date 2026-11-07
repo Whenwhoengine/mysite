@@ -1496,7 +1496,7 @@
     {
       "id": "REACT-F3",
       "milestone": "REACT",
-      "title": "React 前端專案 F3：MySiteStorage 骨架（守門工作流程待委託人設定事件政策 BLK-REACT-POLICY-01）",
+      "title": "React 前端專案 F3：MySiteStorage 骨架與受保護路徑守門（FE-11 實測待委託人設定事件政策 BLK-REACT-POLICY-01）",
       "status": "IN_PROGRESS",
       "depends_on": [
         "REACT-F1"
@@ -1506,10 +1506,10 @@
       ],
       "acceptance_ids": [],
       "evidence_refs": [
-        "Whenwhoengine/MySiteStorage#1（提交 d1336cf）：CI run 42277177242 全綠（單元 318、E2E 123）；docs/MySiteReact施工紀錄/F3施工紀錄.md"
+        "Whenwhoengine/MySiteStorage#1（提交 b5c1ce0）：CI run 42346173567 全綠（單元 754、守門模擬 18、E2E 146）；先前 d1336cf 的 run 42277177242；docs/MySiteReact施工紀錄/F3施工紀錄.md"
       ],
       "blocker_id": "BLK-REACT-POLICY-01",
-      "commit": "d1336cf"
+      "commit": "b5c1ce0"
     },
     {
       "id": "REACT-F6",
