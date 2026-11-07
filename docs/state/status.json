@@ -5,10 +5,10 @@
   "plan_sha256": "7a9dc8b969010117a9d7e2bef11f92a4eb1ac8a4c0d4c12cc077d512b16b41c1",
   "prompt_sha256": "b92cf5809217107abb54073225db77c99b1ca6782d26a33bb9a6803aab40393b",
   "source_plan_file": "docs/規劃書v5.md",
-  "updated_at": "2026-11-07T06:18:20Z",
+  "updated_at": "2026-11-07T14:16:01Z",
   "execution_backend": "claude-cloud-compose",
   "working_branch": "claude/happy-euler-evh676",
-  "source_commit": "7b07163e8f9e5cf5ddcd8e6ea65ee349716720f8",
+  "source_commit": "93740934565b6187a92a2badc2f6714671960171",
   "delivery_state": "CI_VERIFIED",
   "milestones": {
     "M0": "VERIFIED",
@@ -27,7 +27,7 @@
     "M10-B": "BLOCKED_EXTERNAL"
   },
   "active_task_id": "M9A-01",
-  "last_verification_ref": "GitHub Actions run 42341629307（push，受測 commit 7b07163＝PR #3 併入 main 27b6662 後）：content 與 simulation 全部步驟通過；PR 輪 run 42341633222 同樣全綠；證據 docs/evidence/gha-42341629307-1-*；EXEC-03 證據 docs/evidence/bootstrap-source-41973465852/；登錄表 PASS 89、BLOCKED_EXTERNAL 7、FAIL 0、NOT_RUN 0",
+  "last_verification_ref": "GitHub Actions run 42367975052（push，受測 commit 9374093＝PR #5 語系包重新固定；main 合併提交 3aa3ade 內容相同）：content 與 simulation 全部步驟通過；PR 輪 run 42374411355 同樣全綠；證據 docs/evidence/gha-42367975052-1-*；EXEC-03 證據 docs/evidence/bootstrap-source-41973465852/；登錄表 PASS 89、BLOCKED_EXTERNAL 7、FAIL 0、NOT_RUN 0",
   "production_release_id": null,
   "external_blocker_ids": [
     "BLK-HOST-01",
@@ -37,5 +37,5 @@
     "BLK-PRODSECRET-01",
     "BLK-APPROVAL-01"
   ],
-  "next_action": "等待委託人提供常駐主機與網域（BLK-HOST-01、BLK-DNS-01）後依 docs/runbooks/主機開通.md 進行 M9-A staging；M2（WP-10 正式 2FA 登記）與 M8-B（HTTPS 與續期演練）只剩真實主機上的驗收。React 前端專案：F0～F2 在 PR Whenwhoengine/mysite#3 待委託人合併；MySiteStorage PR #1 待委託人建立事件政策（BLK-REACT-POLICY-01）後合併；D13a、D13c、D13f 已定值（docs/MySiteReact施工紀錄/D13呈報.md §3），D13b、D13d、D13e 待 F6 實測"
+  "next_action": "等待委託人提供常駐主機與網域（BLK-HOST-01、BLK-DNS-01）後依 docs/runbooks/主機開通.md 進行 M9-A staging；M2（WP-10 正式 2FA 登記）與 M8-B（HTTPS 與續期演練）只剩真實主機上的驗收。React 前端專案：F0～F3 已合併（mysite PR #3、MySiteStorage PR #1），事件政策已建立，FE-11 已實測；委託人設定 MySiteStorage main 必要檢查（BLK-REACT-REQCHECK-01）後即可在 design/work 用 MyDyad 設計（F4、F5）；F6 待設計定稿"
 }
