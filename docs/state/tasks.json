@@ -351,7 +351,9 @@
       ],
       "evidence_refs": [
         "docs/evidence/gha-42181190540-1-content/summary.json",
-        "docs/evidence/gha-42181190540-1-simulation/summary.json"
+        "docs/evidence/gha-42181190540-1-simulation/summary.json",
+        "docs/evidence/gha-42203612453-1-content/summary.json",
+        "docs/evidence/gha-42203612453-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "commit": "fa0c04d58a554bfba7c99cfc34f7a480a85c132b"

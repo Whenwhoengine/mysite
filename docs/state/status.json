@@ -8,7 +8,7 @@
   "updated_at": "2026-11-06T10:33:41Z",
   "execution_backend": "claude-cloud-compose",
   "working_branch": "claude/wonderful-ritchie-jsf1rh",
-  "source_commit": "fa0c04d58a554bfba7c99cfc34f7a480a85c132b",
+  "source_commit": "b2a91af6abcf5305e8f81a47070535e3435fe84c",
   "delivery_state": "CI_VERIFIED",
   "milestones": {
     "M0": "VERIFIED",
@@ -27,7 +27,7 @@
     "M10-B": "BLOCKED_EXTERNAL"
   },
   "active_task_id": "M9A-01",
-  "last_verification_ref": "GitHub Actions run 42181190540（受測 commit fa0c04d）：content 與 simulation 全部步驟通過；證據 docs/evidence/gha-42181190540-1-*；EXEC-03 證據 docs/evidence/bootstrap-source-41973465852/；登錄表 PASS 89、BLOCKED_EXTERNAL 7、FAIL 0、NOT_RUN 0",
+  "last_verification_ref": "GitHub Actions run 42203612453（受測 commit b2a91af）：content 與 simulation 全部步驟通過；證據 docs/evidence/gha-42203612453-1-*；EXEC-03 證據 docs/evidence/bootstrap-source-41973465852/；登錄表 PASS 89、BLOCKED_EXTERNAL 7、FAIL 0、NOT_RUN 0",
   "production_release_id": null,
   "external_blocker_ids": [
     "BLK-HOST-01",
