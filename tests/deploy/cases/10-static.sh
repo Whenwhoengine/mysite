@@ -264,9 +264,58 @@ PY
   fi
 }
 
+s07_gateway_login_limit() {
+  # gateway 登入限流必須涵蓋 Laravel 會路由到同一處理程式的路徑變體（結尾斜線、/index.php/ 前綴別名）；
+  # http（development／testing）與 https（staging／production）兩份模板必須一致。執行期行為另由 doctor GW-LOGIN-LIMIT 實測。
+  python3 -I - "$T_REPO" <<'PY' || return 1
+import glob, re, sys
+root = sys.argv[1]
+def chk(cond, msg):
+    if not cond:
+        print("FAIL: " + msg); sys.exit(1)
+# nginx 以正規化後的 URI 比對 location（解碼 %XX、解析 . 與 ..、merge_slashes 合併連續斜線），關掉合併會讓 //admin/login 繞過
+for f in glob.glob(f"{root}/infra/nginx/**/*", recursive=True):
+    if f.endswith((".conf", ".template")):
+        chk(not re.search(r"^\s*merge_slashes\s+off", open(f, encoding="utf-8").read(), re.M), f"{f} 不得關閉 merge_slashes")
+APP_LIMITED = ["/admin/login", "/admin/login/", "/admin/two-factor-challenge", "/admin/two-factor-challenge/",
+               "/admin/forgot-password", "/admin/forgot-password/", "/admin/reset-password", "/admin/reset-password/"]
+APP_FREE = ["/admin", "/admin/", "/admin/logout", "/admin/loginx", "/admin/login/x", "/x/admin/login", "/admin/user/two-factor-authentication"]
+def limited_matchers(block):
+    ms = []
+    for m in re.finditer(r"^\s*location\s+(=|~\*?)\s+(\S+)\s*\{[^\n]*\blimit_req\s+zone=mysite_login\b", block, re.M):
+        op, pat = m.groups()
+        ms.append((lambda p, pat=pat: p == pat) if op == "=" else (lambda p, pat=pat, op=op: re.search(pat, p, re.I if op == "~*" else 0) is not None))
+    return ms
+lines = {}
+for mode in ("http", "https"):
+    text = open(f"{root}/infra/nginx/gateway/{mode}/gateway.conf.template", encoding="utf-8").read()
+    blocks = re.findall(r"^server \{\n(.*?)^\}", text, re.M | re.S)
+    app = [b for b in blocks if "http://app-web:8080" in b]
+    cms = [b for b in blocks if "http://wp-web:8081" in b]
+    chk(len(app) == 1 and len(cms) == 1, f"{mode}：找不到唯一的主站／CMS server 區塊")
+    app, cms = app[0], cms[0]
+    am = limited_matchers(app)
+    for p in APP_LIMITED:
+        chk(any(f(p) for f in am), f"{mode}：主站 POST {p} 未套用 mysite_login 限流")
+    for p in APP_FREE:
+        chk(not any(f(p) for f in am), f"{mode}：主站 {p} 不應套用登入限流")
+    # /index.php/<路徑> 會被 Laravel 視為 <路徑>（前端控制器別名），必須在 gateway 直接 404，否則可繞過以路徑為準的規則
+    chk(re.search(r"^\s*location \^~ /index\.php/ \{ return 404; \}", app, re.M), f"{mode}：主站缺少 location ^~ /index.php/ {{ return 404; }}")
+    # 同一 server 內重複的 location 會讓 nginx 無法啟動（合併其他分支時兩邊都加了這條，最容易出錯）
+    chk(len(re.findall(r"^\s*location \^~ /index\.php/ ", app, re.M)) == 1, f"{mode}：主站 location ^~ /index.php/ 重複")
+    chk(len(re.findall(r"^\s*location ~ \^/admin/\(login\|", app, re.M)) == 1, f"{mode}：主站登入限流 location 重複")
+    chk(any(f("/wp-login.php") for f in limited_matchers(cms)), f"{mode}：CMS POST /wp-login.php 未套用 mysite_login 限流")
+    lines[mode] = sorted(l.strip() for l in app.splitlines() if "mysite_login" in l or "/index.php/" in l)
+chk(lines["http"] == lines["https"], "http 與 https 模板的登入限流／index.php 規則不一致")
+print("OK")
+PY
+  echo "OK: http／https gateway 模板的登入限流涵蓋結尾斜線與 /index.php/ 別名、規則不重複、兩份一致、未關閉 merge_slashes"
+}
+
 case_add S01_syntax_and_safety GOV-04 s01_syntax
 case_add S02_help_and_argument_validation GOV-04 s02_help_and_args
 case_add S03_release_payload_schema_doc OPS-03,GOV-04 s03_schema_doc
 case_add S04_compose_prod_contract OPS-04,GOV-04 s04_compose_prod
 case_add S05_workflows_pinned_least_privilege OPS-04,GOV-04 s05_workflows
 case_add S06_systemd_units GOV-04 s06_systemd
+case_add S07_gateway_login_limit_paths GOV-04 s07_gateway_login_limit
