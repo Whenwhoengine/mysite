@@ -1,0 +1,1623 @@
+{
+  "schema_version": 1,
+  "run_id": "gha-42181190540-1-content",
+  "source_commit": "fa0c04d58a554bfba7c99cfc34f7a480a85c132b",
+  "execution_backend": "github-actions",
+  "scope": "content",
+  "environment": "testing",
+  "github": {
+    "GITHUB_RUN_ID": "42181190540",
+    "GITHUB_RUN_ATTEMPT": "1",
+    "GITHUB_SHA": "fa0c04d58a554bfba7c99cfc34f7a480a85c132b",
+    "GITHUB_REF": "refs/heads/claude/wonderful-ritchie-jsf1rh",
+    "GITHUB_WORKFLOW": "ci"
+  },
+  "generated_at": "2026-11-06T07:48:18Z",
+  "steps": [
+    {
+      "step": "static",
+      "command": "static_checks",
+      "started_at": "2026-11-06T07:30:27Z",
+      "finished_at": "2026-11-06T07:30:42Z",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "bootstrap",
+      "command": "ensure_testing_env",
+      "started_at": "2026-11-06T07:30:42Z",
+      "finished_at": "2026-11-06T07:33:59Z",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "idempotency",
+      "command": "idempotency",
+      "started_at": "2026-11-06T07:33:59Z",
+      "finished_at": "2026-11-06T07:34:17Z",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "doctor",
+      "command": "doctor_step",
+      "started_at": "2026-11-06T07:34:17Z",
+      "finished_at": "2026-11-06T07:34:20Z",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "phpunit",
+      "command": "phpunit_step",
+      "started_at": "2026-11-06T07:34:20Z",
+      "finished_at": "2026-11-06T07:34:58Z",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "wp-contract",
+      "command": "wp_contract_step",
+      "started_at": "2026-11-06T07:34:58Z",
+      "finished_at": "2026-11-06T07:39:40Z",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "e2e",
+      "command": "e2e_step",
+      "started_at": "2026-11-06T07:39:40Z",
+      "finished_at": "2026-11-06T07:44:01Z",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "deploy",
+      "command": "deploy_step",
+      "started_at": "2026-11-06T07:44:01Z",
+      "finished_at": "2026-11-06T07:46:33Z",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "governance",
+      "command": "governance_step",
+      "started_at": "2026-11-06T07:46:33Z",
+      "finished_at": "2026-11-06T07:48:18Z",
+      "exit_code": 0,
+      "status": "PASS"
+    }
+  ],
+  "lockfiles": {
+    "app/composer.lock": "6aa61d5a9c314b71e5d475f5d2022f36af5c6ecbb43627ad983764a98286e7e0",
+    "app/package-lock.json": "9353ba220e4d217b6f955d5df4bfc5e23bdeb5b159271e9485b0a0f91e129a1a",
+    "tests/e2e/package-lock.json": "9535f18a580128b86196fcf7baedaeb2d4999d8908233e693556d11805e59d8a",
+    "infra/versions.env": "1cdb3a197a60871eff2033f3c2b0a5a1a721c1095965428ddba8bf4e9fec76ec",
+    "docs/versions.lock.json": "e3785fb46d8a6e3a1b3c142af9391cdd76093b43837c1774eeeaa16b4fc527c2"
+  },
+  "coverage": {
+    "lines_percent": 94.83,
+    "covered": 2987,
+    "total": 3150,
+    "scope": "app/app（自製業務程式）"
+  },
+  "counts": {
+    "PASS": 90,
+    "BLOCKED_EXTERNAL": 5,
+    "NOT_RUN": 1
+  },
+  "p0_failures": [],
+  "tests_total": 688,
+  "tests_failed": 0,
+  "acceptance": {
+    "CLD-01": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:linux-only-build"
+      ],
+      "failures": []
+    },
+    "CLD-02": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:readme-and-history-preserved"
+      ],
+      "failures": []
+    },
+    "CLD-03": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:pushed-state-readable"
+      ],
+      "failures": []
+    },
+    "CLD-04": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "static:ignore-rules",
+        "static:secret-scan-tracked"
+      ],
+      "failures": []
+    },
+    "CLD-05": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "bootstrap:second-run-keeps-state",
+        "wp-contract:seed_idempotent_and_refused_in_production"
+      ],
+      "failures": []
+    },
+    "CLD-06": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:fresh-runner-lockfile-rebuild"
+      ],
+      "failures": []
+    },
+    "CLD-07": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:state-resume-in-fresh-clone"
+      ],
+      "failures": []
+    },
+    "CLD-08": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:docker-unavailable-routes-to-actions"
+      ],
+      "failures": []
+    },
+    "CLD-09": {
+      "status": "PASS",
+      "level": "P1",
+      "tests": [
+        "governance:docker-unavailable-routes-to-actions",
+        "governance:no-swallowed-install-errors"
+      ],
+      "failures": []
+    },
+    "CLD-10": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:workflow-secret-isolation"
+      ],
+      "failures": []
+    },
+    "INF-01": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "doctor:INF-01-APP",
+        "doctor:INF-01-WP"
+      ],
+      "failures": []
+    },
+    "INF-02": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "doctor:INF-02-DB",
+        "doctor:INF-02-PORTS",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::root_database_user_is_rejected"
+      ],
+      "failures": []
+    },
+    "INF-03": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "doctor:INF-03",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP"
+      ],
+      "failures": []
+    },
+    "INF-04": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "doctor:INF-04",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP",
+        "wp-contract:wp08_rest_nonce_upload_and_app_password_not_blocked"
+      ],
+      "failures": []
+    },
+    "INF-05": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "doctor:APP-LIVE",
+        "doctor:APP-READY",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › liveness 與 readiness 只回 ok，不帶版本或路徑",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › liveness 與 readiness 只回 ok，不帶版本或路徑",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › liveness 與 readiness 只回 ok，不帶版本或路徑",
+        "phpunit:Tests\\Feature\\System\\HealthTest::liveness_is_ok_without_details",
+        "phpunit:Tests\\Feature\\System\\HealthTest::readiness_is_ok_when_database_ready",
+        "phpunit:Tests\\Feature\\System\\HealthTest::readiness_fails_when_database_unreachable_but_liveness_stays_ok"
+      ],
+      "failures": []
+    },
+    "INF-06": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:state-create-draft-post",
+        "governance:state-import-media",
+        "governance:state-media-http",
+        "governance:state-session-start",
+        "governance:rebuild-force-recreate",
+        "governance:rebuild-volumes-preserved",
+        "governance:rebuild-services-ready",
+        "governance:verify-draft-post",
+        "governance:verify-media",
+        "governance:verify-session"
+      ],
+      "failures": []
+    },
+    "INF-07": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "doctor:INF-07",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:mobile-390 › infra.spec.mjs › gateway 與健康檢查 › 回應帶基本安全標頭且不暴露 PHP 版本",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:tablet-768 › infra.spec.mjs › gateway 與健康檢查 › 回應帶基本安全標頭且不暴露 PHP 版本",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › 主站敏感檔與內部端點不可經 gateway 取得",
+        "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › 回應帶基本安全標頭且不暴露 PHP 版本",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::production_requires_https_secure_cookie_and_no_debug",
+        "phpunit:Tests\\Feature\\System\\ErrorPageTest::server_error_in_production_mode_hides_internals",
+        "phpunit:Tests\\Feature\\System\\HealthTest::internal_diagnostics_requires_token",
+        "phpunit:Tests\\Feature\\System\\HealthTest::internal_routes_reject_forwarded_requests"
+      ],
+      "failures": []
+    },
+    "INF-08": {
+      "status": "PASS",
+      "level": "P1",
+      "tests": [
+        "governance:host-arch-consistent",
+        "governance:image-arch-consistent",
+        "governance:image-size-measured",
+        "governance:container-memory-measured",
+        "governance:volume-size-measured",
+        "governance:host-disk-measured"
+      ],
+      "failures": []
+    },
+    "WP-01": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "wp-contract:wp01_editor_creates_and_edits_via_gateway"
+      ],
+      "failures": []
+    },
+    "WP-02": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "wp-contract:php_syntax_lint",
+        "wp-contract:wp02_types_fields_tables_rebuildable"
+      ],
+      "failures": []
+    },
+    "WP-03": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "wp-contract:wp03_non_public_states_hidden",
+        "wp-contract:production_guards_for_test_hooks"
+      ],
+      "failures": []
+    },
+    "WP-04": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "wp-contract:wp04_editor_privilege_escalation_denied"
+      ],
+      "failures": []
+    },
+    "WP-05": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "wp-contract:wp05_setup_rerun_keeps_admin_and_foreign_caps"
+      ],
+      "failures": []
+    },
+    "WP-06": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "wp-contract:wp06_gutenberg_block_semantics"
+      ],
+      "failures": []
+    },
+    "WP-07": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "wp-contract:wp07_scheduled_post_published_by_cron_utc",
+        "wp-contract:wp07_missed_schedule_recovered_by_sweep",
+        "wp-contract:cms_maintenance_pauses_jobs_and_http_cron"
+      ],
+      "failures": []
+    },
+    "WP-08": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "wp-contract:security_xmlrpc_user_enumeration_jsonp",
+        "wp-contract:wp01_editor_creates_and_edits_via_gateway",
+        "wp-contract:wp08_rest_nonce_upload_and_app_password_not_blocked",
+        "wp-contract:cms_maintenance_blocks_writes_keeps_public_reads"
+      ],
+      "failures": []
+    },
+    "WP-09": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "doctor:WP-CORE",
+        "wp-contract:wp09_acf_version_traceable"
+      ],
+      "failures": []
+    },
+    "WP-10": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "wp-contract:wp10_two_factor_gate_logic"
+      ],
+      "failures": []
+    },
+    "API-01": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "wp-contract:api01_structure_and_full_paths",
+        "phpunit:Tests\\Unit\\Content\\ContentMapperTest::items_map_to_dtos_with_only_contract_fields",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::it_decodes_successful_responses_and_sends_bounded_query",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::lists_and_details_come_from_real_wordpress",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::public_pages_render_real_content_over_http",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::unknown_slug_is_not_found",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::search_taxonomies_menus_and_site_from_real_wordpress"
+      ],
+      "failures": []
+    },
+    "API-02": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "phpunit:Tests\\Unit\\Content\\ContentMapperTest::unsupported_model_or_api_versions_are_rejected",
+        "phpunit:Tests\\Unit\\Content\\ContentMapperTest::missing_or_mistyped_fields_are_rejected",
+        "phpunit:Tests\\Unit\\Content\\ContentMapperTest::visibility_taxonomies_menu_and_site_are_validated",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::it_decodes_successful_responses_and_sends_bounded_query",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::not_found_is_classified_and_not_retried",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::server_errors_are_retried_once_then_fail_with_503",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::connection_failures_are_retried_once",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::total_timeouts_are_not_retried",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::auth_errors_are_logged_as_configuration_errors_and_shown_as_503",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::client_errors_are_not_retried",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::invalid_json_and_non_object_json_are_upstream_errors",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::real_socket_total_timeout_is_bounded_and_not_retried",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::real_refused_connection_is_retried_exactly_once",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::private_reads_require_https_credentials_and_ca",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::upstream_outage_shows_503_without_internal_details",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::unsupported_model_version_is_503_not_empty",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::wp_outage_during_preview_is_503"
+      ],
+      "failures": []
+    },
+    "API-03": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "wp-contract:api03_parameter_bounds",
+        "phpunit:Tests\\Unit\\Content\\SlugAndDisplayTimeTest::slugs_are_bounded_and_normalized_for_the_api",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::oversized_responses_are_rejected",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::request_paths_cannot_be_injected",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::listing_pagination_canonical_and_bounds",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::missing_or_malformed_slugs_are_404"
+      ],
+      "failures": []
+    },
+    "API-04": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::content_api_host_must_be_allowlisted",
+        "phpunit:Tests\\Unit\\Content\\UrlGuardTest::metadata_is_rejected_even_when_listed_in_allowed_hosts",
+        "phpunit:Tests\\Unit\\Content\\UrlGuardTest::fixed_wp_hosts_are_allowed_as_private_network_exception",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::redirects_are_never_followed",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::configured_base_urls_outside_the_allowlist_never_send_requests"
+      ],
+      "failures": []
+    },
+    "API-05": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "static:blade-raw-output",
+        "wp-contract:brand_settings_https_only",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::it_keeps_allowed_structure",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::external_links_get_rel_and_internal_links_do_not",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::image_source_policy_allows_https_or_cms_and_preview_only_cms",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::disallowed_elements_keep_text_but_lose_markup_and_unknown_classes",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::safe_content_cannot_be_built_or_echoed_outside_the_sanitizer",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::long_bodies_are_not_truncated",
+        "phpunit:Tests\\Feature\\Content\\BladeRawCheckTest::the_real_views_pass",
+        "phpunit:Tests\\Feature\\Content\\BladeRawCheckTest::raw_output_outside_rich_content_is_blocked",
+        "phpunit:Tests\\Feature\\Content\\BladeRawCheckTest::rich_content_may_only_output_safe_content",
+        "phpunit:Tests\\Feature\\Content\\BladeRawCheckTest::help_and_usage_errors",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::article_detail_renders_sanitized_body_and_meta"
+      ],
+      "failures": []
+    },
+    "API-06": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "wp-contract:events_body_signature_and_retry_resign",
+        "wp-contract:keyring_loaded_matches_secret_files",
+        "phpunit:Tests\\Unit\\Content\\ContentEventVerificationTest::valid_signature_passes",
+        "phpunit:Tests\\Unit\\Content\\ContentEventVerificationTest::tampering_and_bad_headers_fail",
+        "phpunit:Tests\\Unit\\Content\\ContentEventVerificationTest::payload_structure_is_validated",
+        "phpunit:Tests\\Unit\\Content\\EventKeyRingVerificationTest::add_phase_active_key_signs_and_new_accept_key_is_already_verifiable",
+        "phpunit:Tests\\Unit\\Content\\EventKeyRingVerificationTest::promote_phase_new_key_signs_and_old_key_is_still_accepted",
+        "phpunit:Tests\\Unit\\Content\\EventKeyRingVerificationTest::after_retire_the_old_key_is_rejected",
+        "phpunit:Tests\\Unit\\Content\\EventKeyRingVerificationTest::single_key_mode_keeps_the_legacy_behaviour",
+        "phpunit:Tests\\Feature\\Content\\ContentEventKeyRingTest::each_rotation_phase_accepts_exactly_the_keys_in_the_keyring",
+        "phpunit:Tests\\Feature\\Content\\ContentEventKeyRingTest::without_a_keyring_the_single_key_still_works",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::a_valid_event_is_persisted_then_processed_on_the_content_queue",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::invalid_signatures_are_401_and_never_persisted",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::malformed_bodies_are_422",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::the_endpoint_is_internal_only_and_fails_closed_without_a_key"
+      ],
+      "failures": []
+    },
+    "API-07": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::a_valid_event_is_persisted_then_processed_on_the_content_queue",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::the_job_is_dispatched_to_the_content_queue_after_commit",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::redelivery_with_a_new_timestamp_is_acknowledged_but_applied_once",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::same_id_with_different_content_is_rejected_and_logged",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::failed_processing_is_retried_on_redelivery_but_processed_events_are_not"
+      ],
+      "failures": []
+    },
+    "API-08": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "wp-contract:production_guards_for_test_hooks",
+        "wp-contract:events_body_signature_and_retry_resign",
+        "wp-contract:events_dead_letter_replay_redirect_transport",
+        "phpunit:Tests\\Feature\\Content\\ContentEventTest::redelivery_with_a_new_timestamp_is_acknowledged_but_applied_once"
+      ],
+      "failures": []
+    },
+    "API-09": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "wp-contract:events_reconcile_recovers_after_hook_failure",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::unpublish_event_takes_effect_immediately",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::late_old_events_never_resurrect_taken_down_content"
+      ],
+      "failures": []
+    },
+    "API-10": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "phpunit:Tests\\Feature\\Content\\DatabaseCacheTest::leases_expire_by_clock_on_the_database_store",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::visibility_lease_is_reused_until_it_expires",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::lease_never_exceeds_the_60_second_hard_limit",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::takedown_with_lost_event_and_wp_outage_stops_serving_after_the_lease",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::visible_false_returns_404_and_clears_cached_body"
+      ],
+      "failures": []
+    },
+    "API-11": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:tablet-768 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:desktop-1440 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "wp-contract:php_unit_selftest",
+        "wp-contract:keyring_loaded_matches_secret_files",
+        "wp-contract:preview_ticket_snapshot_and_rejections",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::private_reads_require_https_credentials_and_ca",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::private_forbidden_is_distinct_from_configuration_errors",
+        "phpunit:Tests\\Unit\\Preview\\PreviewKeyRingTest::kid_selects_active_or_accept_keys",
+        "phpunit:Tests\\Unit\\Preview\\PreviewKeyRingTest::retired_kid_is_rejected",
+        "phpunit:Tests\\Unit\\Preview\\PreviewKeyRingTest::tickets_without_kid_use_only_the_active_key",
+        "phpunit:Tests\\Unit\\Preview\\PreviewKeyRingTest::malformed_kid_or_extra_header_fields_are_rejected",
+        "phpunit:Tests\\Unit\\Preview\\PreviewTicketVerifierTest::a_valid_ticket_yields_bound_claims",
+        "phpunit:Tests\\Unit\\Preview\\PreviewTicketVerifierTest::signature_and_format_failures",
+        "phpunit:Tests\\Unit\\Preview\\PreviewTicketVerifierTest::header_must_be_exactly_hs256_mysite_preview",
+        "phpunit:Tests\\Unit\\Preview\\PreviewTicketVerifierTest::claim_failures",
+        "phpunit:Tests\\Unit\\Preview\\PreviewTicketVerifierTest::ttl_hard_limit_is_900_even_if_configured_higher",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::exchange_consumes_the_ticket_sets_a_scoped_cookie_and_strips_the_url",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::replayed_tickets_are_rejected",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::concurrent_exchange_of_the_same_ticket_succeeds_only_once",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::invalid_tickets_are_rejected_without_creating_sessions",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::view_shows_the_exact_snapshot_with_preview_banner_and_no_third_party_resources",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::wp_rejection_or_mismatched_snapshot_is_preview_invalid_never_the_public_article",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::missing_unknown_or_expired_sessions_are_rejected",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::wp_outage_during_preview_is_503",
+        "phpunit:Tests\\Feature\\Preview\\PreviewKeyRingExchangeTest::exchange_follows_the_keyring_through_promote_and_retire",
+        "phpunit:Tests\\Feature\\Preview\\PreviewKeyRingExchangeTest::without_a_keyring_old_and_new_ticket_formats_both_work"
+      ],
+      "failures": []
+    },
+    "API-12": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:tablet-768 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:desktop-1440 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "wp-contract:preview_ticket_snapshot_and_rejections",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::view_shows_the_exact_snapshot_with_preview_banner_and_no_third_party_resources",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::wp_rejection_or_mismatched_snapshot_is_preview_invalid_never_the_public_article"
+      ],
+      "failures": []
+    },
+    "API-13": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "e2e:tablet-768 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "e2e:desktop-1440 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:desktop-1440 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:desktop-1440 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "wp-contract:preview_ticket_snapshot_and_rejections",
+        "phpunit:Tests\\Unit\\Html\\SanitizerTest::image_source_policy_allows_https_or_cms_and_preview_only_cms",
+        "phpunit:Tests\\Feature\\Content\\FeedSitemapTest::rss_feed_is_valid_and_points_to_the_main_site",
+        "phpunit:Tests\\Feature\\Content\\FeedSitemapTest::sitemap_lists_only_public_main_site_urls",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::exchange_consumes_the_ticket_sets_a_scoped_cookie_and_strips_the_url",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::view_shows_the_exact_snapshot_with_preview_banner_and_no_third_party_resources",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::preview_of_a_video_does_not_embed_youtube",
+        "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::scheduled_pruning_removes_expired_preview_data_and_old_receipts"
+      ],
+      "failures": []
+    },
+    "API-14": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "wp-contract:api14_no_sensitive_fields",
+        "phpunit:Tests\\Unit\\Content\\ContentMapperTest::items_map_to_dtos_with_only_contract_fields",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::menu_fallback_commerce_link_and_no_private_fields"
+      ],
+      "failures": []
+    },
+    "API-15": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "wp-contract:events_reconcile_recovers_after_hook_failure",
+        "phpunit:Tests\\Feature\\Content\\DatabaseCacheTest::generation_and_collections_work_on_the_database_store",
+        "phpunit:Tests\\Feature\\Content\\DatabaseCacheTest::pruning_removes_only_expired_content_cache_rows",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::unpublish_event_takes_effect_immediately",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::updated_content_is_refetched_when_visibility_reports_a_newer_version",
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::lists_feeds_and_sitemaps_are_invalidated_by_events_and_bounded_without_them"
+      ],
+      "failures": []
+    },
+    "API-16": {
+      "status": "PASS",
+      "level": "P1",
+      "tests": [
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::server_errors_are_retried_once_then_fail_with_503",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::a_single_server_error_recovers_on_the_second_attempt",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::connection_failures_are_retried_once",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::total_timeouts_are_not_retried",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::worst_case_wait_is_bounded_by_configuration",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::real_socket_total_timeout_is_bounded_and_not_retried",
+        "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::real_refused_connection_is_retried_exactly_once"
+      ],
+      "failures": []
+    },
+    "UI-01": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
+        "phpunit:Tests\\Unit\\Content\\SlugAndDisplayTimeTest::times_are_parsed_as_utc_and_displayed_in_taipei",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::home_renders_real_lists_with_unique_meta",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::listing_pagination_canonical_and_bounds",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::article_detail_renders_sanitized_body_and_meta",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::video_detail_embeds_only_after_click_and_shows_broken_state",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::static_pages_category_and_tag_pages",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::search_states",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::menu_fallback_commerce_link_and_no_private_fields",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::lists_and_details_come_from_real_wordpress",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::public_pages_render_real_content_over_http",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::search_taxonomies_menus_and_site_from_real_wordpress"
+      ],
+      "failures": []
+    },
+    "UI-02": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 首頁",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 分類彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 標籤彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長中文標題）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長網址）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（Gutenberg 區塊）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片詳情",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 詳情",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 搜尋（有結果）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 搜尋（無結果）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 404",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 關於頁",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › sitemap 全部公開頁無水平溢位",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：首頁",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：影片列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：Podcast 列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：分類彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：標籤彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（超長中文標題）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（超長網址）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（Gutenberg 區塊）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：影片詳情",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：Podcast 詳情",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：搜尋（有結果）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：搜尋（無結果）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：404",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：關於頁",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 首頁",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章列表",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片列表",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 列表",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 分類彙整",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 標籤彙整",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長中文標題）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長網址）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（Gutenberg 區塊）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片詳情",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 詳情",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 搜尋（有結果）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 搜尋（無結果）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 404",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 關於頁",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › sitemap 全部公開頁無水平溢位",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：首頁",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章列表",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：影片列表",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：Podcast 列表",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：分類彙整",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：標籤彙整",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（超長中文標題）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（超長網址）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（Gutenberg 區塊）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：影片詳情",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：Podcast 詳情",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：搜尋（有結果）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：搜尋（無結果）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：404",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：關於頁",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 首頁",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章列表",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片列表",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 列表",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 分類彙整",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 標籤彙整",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長中文標題）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長網址）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（Gutenberg 區塊）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片詳情",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 詳情",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 搜尋（有結果）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 搜尋（無結果）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 404",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 關於頁",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › sitemap 全部公開頁無水平溢位",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：首頁",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章列表",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：影片列表",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：Podcast 列表",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：分類彙整",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：標籤彙整",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（超長中文標題）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（超長網址）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（Gutenberg 區塊）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：影片詳情",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：Podcast 詳情",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：搜尋（有結果）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：搜尋（無結果）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：404",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：關於頁"
+      ],
+      "failures": []
+    },
+    "UI-03": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:mobile-390 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:mobile-390 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "e2e:mobile-390 › media.spec.mjs › 失效與空狀態畫面 › 圖片載入失敗顯示明確的失效狀態，不留破圖",
+        "e2e:mobile-390 › media.spec.mjs › 失效與空狀態畫面 › 404 與無搜尋結果有明確畫面",
+        "e2e:tablet-768 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:tablet-768 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:tablet-768 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "e2e:tablet-768 › media.spec.mjs › 失效與空狀態畫面 › 圖片載入失敗顯示明確的失效狀態，不留破圖",
+        "e2e:tablet-768 › media.spec.mjs › 失效與空狀態畫面 › 404 與無搜尋結果有明確畫面",
+        "e2e:desktop-1440 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:desktop-1440 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:desktop-1440 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "e2e:desktop-1440 › media.spec.mjs › 失效與空狀態畫面 › 圖片載入失敗顯示明確的失效狀態，不留破圖",
+        "e2e:desktop-1440 › media.spec.mjs › 失效與空狀態畫面 › 404 與無搜尋結果有明確畫面",
+        "phpunit:Tests\\Feature\\Content\\FeedSitemapTest::feed_fails_closed_when_wordpress_is_down",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::home_with_no_content_shows_empty_state_not_an_error",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::upstream_outage_shows_503_without_internal_details",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::missing_or_malformed_slugs_are_404",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::video_detail_embeds_only_after_click_and_shows_broken_state",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::podcast_player_requires_allowed_audio_host",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::search_states",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::search_is_rate_limited_with_429_page",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::session_expired_and_server_error_pages_are_friendly",
+        "phpunit:Tests\\Feature\\System\\ErrorPageTest::not_found_uses_branded_page_even_in_debug_mode",
+        "phpunit:Tests\\Integration\\Content\\WordPressContentTest::unknown_slug_is_not_found"
+      ],
+      "failures": []
+    },
+    "UI-04": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › a11y.spec.mjs › 鍵盤與焦點 › 第一個 Tab 聚焦「跳到主要內容」且可見，Enter 後焦點移到主要內容",
+        "e2e:mobile-390 › a11y.spec.mjs › 鍵盤與焦點 › 只用鍵盤操作主選單前往文章列表",
+        "e2e:mobile-390 › a11y.spec.mjs › 鍵盤與焦點 › 只用鍵盤送出頁首搜尋表單",
+        "e2e:mobile-390 › a11y.spec.mjs › 鍵盤與焦點 › 手機寬度選單切換可用；平板與桌面直接顯示選單",
+        "e2e:mobile-390 › a11y.spec.mjs › 鍵盤與焦點 › prefers-reduced-motion 生效：動態時間歸零",
+        "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › 第一個 Tab 聚焦「跳到主要內容」且可見，Enter 後焦點移到主要內容",
+        "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › 只用鍵盤操作主選單前往文章列表",
+        "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › 只用鍵盤送出頁首搜尋表單",
+        "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › 手機寬度選單切換可用；平板與桌面直接顯示選單",
+        "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › prefers-reduced-motion 生效：動態時間歸零",
+        "e2e:desktop-1440 › a11y.spec.mjs › 鍵盤與焦點 › 第一個 Tab 聚焦「跳到主要內容」且可見，Enter 後焦點移到主要內容",
+        "e2e:desktop-1440 › a11y.spec.mjs › 鍵盤與焦點 › 只用鍵盤操作主選單前往文章列表",
+        "e2e:desktop-1440 › a11y.spec.mjs › 鍵盤與焦點 › 只用鍵盤送出頁首搜尋表單",
+        "e2e:desktop-1440 › a11y.spec.mjs › 鍵盤與焦點 › 手機寬度選單切換可用；平板與桌面直接顯示選單",
+        "e2e:desktop-1440 › a11y.spec.mjs › 鍵盤與焦點 › prefers-reduced-motion 生效：動態時間歸零"
+      ],
+      "failures": []
+    },
+    "UI-05": {
+      "status": "PASS",
+      "level": "P1",
+      "tests": [
+        "e2e:mobile-390 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：首頁（serious／critical 必須為 0）",
+        "e2e:mobile-390 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：文章詳情（serious／critical 必須為 0）",
+        "e2e:mobile-390 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：搜尋（serious／critical 必須為 0）",
+        "e2e:mobile-390 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：商店（serious／critical 必須為 0）",
+        "e2e:mobile-390 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：後臺登入（serious／critical 必須為 0）",
+        "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：首頁（serious／critical 必須為 0）",
+        "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：文章詳情（serious／critical 必須為 0）",
+        "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：搜尋（serious／critical 必須為 0）",
+        "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：商店（serious／critical 必須為 0）",
+        "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：後臺登入（serious／critical 必須為 0）",
+        "e2e:desktop-1440 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：首頁（serious／critical 必須為 0）",
+        "e2e:desktop-1440 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：文章詳情（serious／critical 必須為 0）",
+        "e2e:desktop-1440 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：搜尋（serious／critical 必須為 0）",
+        "e2e:desktop-1440 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：商店（serious／critical 必須為 0）",
+        "e2e:desktop-1440 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：後臺登入（serious／critical 必須為 0）"
+      ],
+      "failures": []
+    },
+    "UI-06": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › 各公開頁 title 唯一、canonical 指向主站本頁且不指向 CMS",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "e2e:mobile-390 › seo.spec.mjs › SEO 與公開邊界 › CMS 前臺網址 301 到主站對應頁",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › 各公開頁 title 唯一、canonical 指向主站本頁且不指向 CMS",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "e2e:tablet-768 › seo.spec.mjs › SEO 與公開邊界 › CMS 前臺網址 301 到主站對應頁",
+        "e2e:desktop-1440 › seo.spec.mjs › SEO 與公開邊界 › sitemap 只含主站公開網址，不含預覽、後臺、訂單或 CMS",
+        "e2e:desktop-1440 › seo.spec.mjs › SEO 與公開邊界 › 各公開頁 title 唯一、canonical 指向主站本頁且不指向 CMS",
+        "e2e:desktop-1440 › seo.spec.mjs › SEO 與公開邊界 › 非公開頁（預覽、後臺登入、搜尋）帶 noindex 或不被索引",
+        "e2e:desktop-1440 › seo.spec.mjs › SEO 與公開邊界 › CMS 前臺網址 301 到主站對應頁",
+        "wp-contract:cms_frontend_redirects_to_app",
+        "phpunit:Tests\\Unit\\Content\\SlugAndDisplayTimeTest::canonical_urls_use_app_url_and_only_page_above_one",
+        "phpunit:Tests\\Feature\\Content\\FeedSitemapTest::rss_feed_is_valid_and_points_to_the_main_site",
+        "phpunit:Tests\\Feature\\Content\\FeedSitemapTest::sitemap_lists_only_public_main_site_urls",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::home_renders_real_lists_with_unique_meta",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::listing_pagination_canonical_and_bounds",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::article_detail_renders_sanitized_body_and_meta"
+      ],
+      "failures": []
+    },
+    "UI-07": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › infra.spec.mjs › Podcast 音訊傳輸 › 音訊支援 Range／206 並回正確 Content-Type",
+        "e2e:mobile-390 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:mobile-390 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "e2e:tablet-768 › infra.spec.mjs › Podcast 音訊傳輸 › 音訊支援 Range／206 並回正確 Content-Type",
+        "e2e:tablet-768 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:tablet-768 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "e2e:desktop-1440 › infra.spec.mjs › Podcast 音訊傳輸 › 音訊支援 Range／206 並回正確 Content-Type",
+        "e2e:desktop-1440 › media.spec.mjs › Podcast 播放器 › Podcast 詳情有 audio、片長、下載替代連結，且可跳轉播放",
+        "e2e:desktop-1440 › media.spec.mjs › Podcast 播放器 › 音訊來源失效時顯示錯誤訊息並保留下載連結與簡介",
+        "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::podcast_player_requires_allowed_audio_host"
+      ],
+      "failures": []
+    },
+    "UI-08": {
+      "status": "PASS",
+      "level": "P1",
+      "tests": [
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 首頁",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 分類彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 標籤彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長中文標題）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長網址）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（Gutenberg 區塊）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片詳情",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 詳情",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 搜尋（有結果）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 搜尋（無結果）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 404",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 關於頁",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：首頁",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：影片列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：Podcast 列表",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：分類彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：標籤彙整",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（超長中文標題）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（超長網址）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（Gutenberg 區塊）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：影片詳情",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：Podcast 詳情",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：搜尋（有結果）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：搜尋（無結果）",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：404",
+        "e2e:mobile-390 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：關於頁",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 首頁",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章列表",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片列表",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 列表",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 分類彙整",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 標籤彙整",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長中文標題）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長網址）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（Gutenberg 區塊）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片詳情",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 詳情",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 搜尋（有結果）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 搜尋（無結果）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 404",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：無水平溢位與截圖 › 關於頁",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：首頁",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章列表",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：影片列表",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：Podcast 列表",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：分類彙整",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：標籤彙整",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（超長中文標題）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（超長網址）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（Gutenberg 區塊）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：影片詳情",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：Podcast 詳情",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：搜尋（有結果）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：搜尋（無結果）",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：404",
+        "e2e:tablet-768 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：關於頁",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 首頁",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章列表",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片列表",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 列表",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 分類彙整",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 標籤彙整",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長中文標題）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（超長網址）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 文章詳情（Gutenberg 區塊）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片詳情",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › Podcast 詳情",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 搜尋（有結果）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 搜尋（無結果）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 404",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：無水平溢位與截圖 › 關於頁",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：首頁",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章列表",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：影片列表",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：Podcast 列表",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：分類彙整",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：標籤彙整",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（超長中文標題）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（超長網址）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：文章詳情（Gutenberg 區塊）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：影片詳情",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：Podcast 詳情",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：搜尋（有結果）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：搜尋（無結果）",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：404",
+        "e2e:desktop-1440 › layout.spec.mjs › 版面：200% 縮放（720×450） › 200% 縮放：關於頁"
+      ],
+      "failures": []
+    },
+    "COM-01": {
+      "status": "PASS",
+      "level": "P0-B",
+      "tests": [
+        "e2e:mobile-390 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:mobile-390 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::commerce_real_mode_is_rejected",
+        "phpunit:Tests\\Feature\\Commerce\\CommerceFlagTest::disabled_is_the_default_mode",
+        "phpunit:Tests\\Feature\\Commerce\\CommerceFlagTest::simulation_mode_opens_the_shop",
+        "phpunit:Tests\\Feature\\Commerce\\CommerceFlagTest::real_mode_at_runtime_is_rejected_as_simulation_only",
+        "phpunit:Tests\\Feature\\Commerce\\CommerceFlagTest::payment_endpoint_is_always_simulation_only",
+        "phpunit:Tests\\Feature\\System\\CommerceDisabledEarlyTest::disabled_shop_paths_return_404_without_cookies"
+      ],
+      "failures": []
+    },
+    "COM-02": {
+      "status": "PASS",
+      "level": "P0-B",
+      "tests": [
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::parses_decimal_strings_into_minor_units",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::accepts_decimal_12_2_upper_bound_and_rejects_beyond",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::rejects_minor_above_max",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::rejects_float_input",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::rejects_negative_minor_and_unknown_types",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::of_accepts_money_string_and_int_minor",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::adds_subtracts_and_multiplies_exactly",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::detects_overflow_on_add_and_multiply",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::subtraction_below_zero_is_rejected",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::ratio_uses_integer_half_up_rounding",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::half_up_parsing_is_explicit",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::comparisons_and_currency_guard",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::rejects_invalid_currency_code",
+        "phpunit:Tests\\Unit\\Commerce\\MoneyTest::formatting_is_separate_from_storage_precision",
+        "phpunit:Tests\\Feature\\Admin\\AdminCatalogTest::invalid_money_slug_sku_and_cover_values_are_rejected"
+      ],
+      "failures": []
+    },
+    "COM-03": {
+      "status": "PASS",
+      "level": "P0-B",
+      "tests": [
+        "e2e:mobile-390 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "phpunit:Tests\\Unit\\Commerce\\OrderStatusTest::checkout_rejection_messages_are_localized",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::stores_only_variant_quantity_and_price_snapshot",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::enforces_line_quantity_limit",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::enforces_line_count_limit",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::update_remove_and_acknowledge_price",
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::ignores_tampered_or_corrupt_session_lines",
+        "phpunit:Tests\\Feature\\Commerce\\CartTest::add_update_and_remove_items",
+        "phpunit:Tests\\Feature\\Commerce\\CartTest::client_supplied_price_discount_and_total_are_ignored",
+        "phpunit:Tests\\Feature\\Commerce\\CartTest::quantity_must_be_a_bounded_integer",
+        "phpunit:Tests\\Feature\\Commerce\\CartTest::line_count_is_limited",
+        "phpunit:Tests\\Feature\\Commerce\\CartTest::unpurchasable_variants_cannot_be_added",
+        "phpunit:Tests\\Feature\\Commerce\\CartTest::price_change_is_announced_and_server_price_wins",
+        "phpunit:Tests\\Feature\\Commerce\\CartTest::cart_pages_are_not_cacheable",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::full_checkout_creates_order_items_stock_and_mutations",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::tampered_price_total_discount_and_quantity_fields_do_not_affect_pricing",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::server_rejects_checkout_when_price_changed_after_viewing",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::archived_product_is_rejected_at_checkout",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::service_validates_lines_ticket_and_buyer_code",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::empty_cart_or_unknown_ticket_cannot_checkout"
+      ],
+      "failures": []
+    },
+    "COM-04": {
+      "status": "PASS",
+      "level": "P0-B",
+      "tests": [
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::insufficient_stock_rejects_whole_order_without_partial_writes",
+        "phpunit:Tests\\Feature\\Commerce\\DevelopmentSeederTest::seeds_sample_products_including_a_last_item",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::eight_buyers_race_for_the_last_item_and_only_one_wins",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::twelve_buyers_with_held_locks_never_oversell_five_items",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::multi_line_carts_lock_in_fixed_order_without_deadlock_or_oversell",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::a_real_mysql_deadlock_is_detected_and_checkout_still_completes_once",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::checkout_chosen_as_deadlock_victim_is_retried_and_succeeds"
+      ],
+      "failures": []
+    },
+    "COM-05": {
+      "status": "PASS",
+      "level": "P0-B",
+      "tests": [
+        "e2e:mobile-390 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "phpunit:Tests\\Unit\\Commerce\\CommerceSessionTest::tickets_are_random_bounded_and_session_scoped",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::resubmitting_the_same_idempotency_key_returns_the_same_order",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::another_session_cannot_reuse_a_key_to_read_the_result",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::service_level_replay_and_cross_session_isolation",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::unique_constraint_backs_idempotency_at_database_level",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::concurrent_resubmits_with_the_same_key_create_exactly_one_order",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::the_same_key_from_another_session_never_receives_someone_elses_order"
+      ],
+      "failures": []
+    },
+    "COM-06": {
+      "status": "PASS",
+      "level": "P0-B",
+      "tests": [
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::insufficient_stock_rejects_whole_order_without_partial_writes",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::failure_inside_transaction_rolls_back_everything_and_sends_no_notice",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::a_transaction_failing_before_commit_leaves_no_trace_while_a_competitor_succeeds",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::a_failing_transaction_alone_rolls_back_order_items_stock_and_mutations",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::a_real_mysql_deadlock_is_detected_and_checkout_still_completes_once",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::checkout_chosen_as_deadlock_victim_is_retried_and_succeeds"
+      ],
+      "failures": []
+    },
+    "COM-07": {
+      "status": "PASS",
+      "level": "P0-B",
+      "tests": [
+        "phpunit:Tests\\Feature\\Admin\\AdminCatalogTest::updating_product_and_variant_prices_is_audited_and_does_not_touch_order_snapshots",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::later_price_changes_do_not_rewrite_order_item_snapshots"
+      ],
+      "failures": []
+    },
+    "COM-08": {
+      "status": "PASS",
+      "level": "P0-B",
+      "tests": [
+        "phpunit:Tests\\Unit\\Commerce\\OrderStatusTest::only_placed_to_cancelled_is_legal",
+        "phpunit:Tests\\Feature\\Admin\\AdminOrderTest::admin_cancels_once_and_resend_does_not_restock_again",
+        "phpunit:Tests\\Feature\\Admin\\AdminOrderTest::anonymized_orders_cannot_be_cancelled_from_admin",
+        "phpunit:Tests\\Feature\\Commerce\\OrderCancelTest::cancel_restocks_once_and_resend_is_a_noop",
+        "phpunit:Tests\\Feature\\Commerce\\OrderCancelTest::database_constraint_blocks_a_second_restock_row",
+        "phpunit:Tests\\Feature\\Commerce\\OrderCancelTest::anonymized_orders_cannot_transition",
+        "phpunit:Tests\\Feature\\Commerce\\OrderCancelTest::inventory_mutations_are_append_only",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::concurrent_cancellations_restock_only_once"
+      ],
+      "failures": []
+    },
+    "COM-09": {
+      "status": "PASS",
+      "level": "P0-B",
+      "tests": [
+        "e2e:mobile-390 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "phpunit:Tests\\Unit\\Commerce\\CommerceSessionTest::binding_is_stable_per_session_and_differs_between_sessions",
+        "phpunit:Tests\\Unit\\Commerce\\CommerceSessionTest::tickets_are_random_bounded_and_session_scoped",
+        "phpunit:Tests\\Unit\\Commerce\\CommerceSessionTest::corrupt_ticket_and_binding_values_are_ignored",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::another_session_cannot_reuse_a_key_to_read_the_result",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::orders_require_token_and_the_same_session",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::anonymized_order_link_no_longer_works",
+        "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::the_same_key_from_another_session_never_receives_someone_elses_order"
+      ],
+      "failures": []
+    },
+    "COM-10": {
+      "status": "PASS",
+      "level": "P0-B",
+      "tests": [
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › 未登入存取後臺一律導向登入頁",
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403",
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › 登入錯誤多次觸發限流",
+        "e2e:mobile-390 › admin-2fa.spec.mjs › 後臺 2FA（TOTP） › 拋棄式帳號完整啟用 2FA 並以 TOTP 登入，測後由 admin 停用",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › 未登入存取後臺一律導向登入頁",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › 登入錯誤多次觸發限流",
+        "e2e:tablet-768 › admin-2fa.spec.mjs › 後臺 2FA（TOTP） › 拋棄式帳號完整啟用 2FA 並以 TOTP 登入，測後由 admin 停用",
+        "e2e:desktop-1440 › admin.spec.mjs › 後臺存取控制 › 未登入存取後臺一律導向登入頁",
+        "e2e:desktop-1440 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:desktop-1440 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403",
+        "e2e:desktop-1440 › admin.spec.mjs › 後臺存取控制 › 登入錯誤多次觸發限流",
+        "e2e:desktop-1440 › admin-2fa.spec.mjs › 後臺 2FA（TOTP） › 拋棄式帳號完整啟用 2FA 並以 TOTP 登入，測後由 admin 停用",
+        "phpunit:Tests\\Feature\\Admin\\AdminAccessTest::viewer_cannot_write_anything",
+        "phpunit:Tests\\Feature\\Admin\\AdminAccessTest::guessing_admin_urls_does_not_bypass_authorization",
+        "phpunit:Tests\\Feature\\Admin\\AdminAccessTest::there_is_no_public_registration",
+        "phpunit:Tests\\Feature\\Admin\\AdminAccessTest::disabled_user_is_logged_out_immediately",
+        "phpunit:Tests\\Feature\\Admin\\AdminAccessTest::admin_pages_are_private_and_not_indexed",
+        "phpunit:Tests\\Feature\\Admin\\AdminAccessTest::staging_and_production_require_confirmed_two_factor",
+        "phpunit:Tests\\Feature\\Admin\\AdminAuthTest::admin_can_log_in_and_out",
+        "phpunit:Tests\\Feature\\Admin\\AdminAuthTest::failed_logins_share_one_generic_message_and_audit_without_secrets",
+        "phpunit:Tests\\Feature\\Admin\\AdminAuthTest::login_is_rate_limited_with_rate_limited_error",
+        "phpunit:Tests\\Feature\\Admin\\AdminAuthTest::enabling_two_factor_requires_password_confirmation_and_a_valid_code",
+        "phpunit:Tests\\Feature\\Admin\\AdminAuthTest::two_factor_login_with_totp_code",
+        "phpunit:Tests\\Feature\\Admin\\AdminAuthTest::recovery_code_logs_in_once_and_is_then_consumed",
+        "phpunit:Tests\\Feature\\Admin\\AdminAuthTest::password_reset_goes_only_to_the_capture_mailer_and_does_not_enumerate",
+        "phpunit:Tests\\Feature\\Admin\\AdminAuthTest::disabled_accounts_cannot_reset_their_password",
+        "phpunit:Tests\\Feature\\Admin\\AdminAuthTest::admin_can_update_password_with_current_password",
+        "phpunit:Tests\\Feature\\Admin\\AdminCatalogTest::admin_creates_product_with_default_variant_initial_stock_and_audit",
+        "phpunit:Tests\\Feature\\Admin\\AdminCatalogTest::invalid_money_slug_sku_and_cover_values_are_rejected",
+        "phpunit:Tests\\Feature\\Admin\\AdminCatalogTest::updating_product_and_variant_prices_is_audited_and_does_not_touch_order_snapshots",
+        "phpunit:Tests\\Feature\\Admin\\AdminCatalogTest::admin_adds_variants_and_adjusts_stock_without_going_negative",
+        "phpunit:Tests\\Feature\\Admin\\AdminOrderTest::admin_cancels_once_and_resend_does_not_restock_again",
+        "phpunit:Tests\\Feature\\Admin\\AdminOrderTest::export_is_admin_only_audited_and_contains_no_tokens_or_bindings",
+        "phpunit:Tests\\Feature\\Admin\\AdminOrderTest::writes_without_csrf_token_are_rejected",
+        "phpunit:Tests\\Feature\\Admin\\AdminOrderTest::admin_writes_are_rate_limited",
+        "phpunit:Tests\\Feature\\Admin\\AdminOrderTest::checkout_submissions_are_rate_limited",
+        "phpunit:Tests\\Feature\\Admin\\AdminUserTest::admin_disables_and_reenables_another_account",
+        "phpunit:Tests\\Feature\\Admin\\AdminUserTest::admin_cannot_disable_themselves",
+        "phpunit:Tests\\Feature\\Admin\\CreateAdminCommandTest::creates_an_admin_from_a_password_file",
+        "phpunit:Tests\\Feature\\Admin\\CreateAdminCommandTest::existing_account_is_a_noop_and_password_is_not_reset",
+        "phpunit:Tests\\Feature\\Admin\\CreateAdminCommandTest::rejects_invalid_arguments_short_passwords_and_missing_file",
+        "phpunit:Tests\\Feature\\Admin\\CreateAdminCommandTest::password_cannot_be_given_on_the_command_line",
+        "phpunit:Tests\\Feature\\Admin\\CreateAdminCommandTest::viewer_role_is_supported_and_warns_on_world_readable_file",
+        "phpunit:Tests\\Feature\\System\\TrustedProxyTest::test_gateway_forwarded_client_ip_is_used",
+        "phpunit:Tests\\Feature\\System\\TrustedProxyTest::test_other_edge_address_cannot_spoof_client_ip"
+      ],
+      "failures": []
+    },
+    "COM-11": {
+      "status": "PASS",
+      "level": "P0-B",
+      "tests": [
+        "e2e:mobile-390 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:mobile-390 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:tablet-768 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：content 範圍（disabled） › /shop、/cart、/checkout、訂單與付款路由回 404，寫入也被拒，導覽無商店連結",
+        "e2e:desktop-1440 › shop.spec.mjs › 商店：simulation 範圍 › 瀏覽、加入購物車、結帳成功；每個畫面標示模擬且不收敏感資料；篡改價格與重送無效；他人 Session 被拒",
+        "phpunit:Tests\\Unit\\Commerce\\OrderStatusTest::there_is_no_paid_or_shipped_state",
+        "phpunit:Tests\\Feature\\Admin\\AdminAuthTest::password_reset_goes_only_to_the_capture_mailer_and_does_not_enumerate",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::full_checkout_creates_order_items_stock_and_mutations",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::checkout_form_has_no_card_address_or_phone_fields",
+        "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::no_notice_is_sent_when_mailer_is_not_a_capture_mailer",
+        "phpunit:Tests\\Feature\\Commerce\\CommerceFlagTest::real_mode_at_runtime_is_rejected_as_simulation_only",
+        "phpunit:Tests\\Feature\\Commerce\\CommerceFlagTest::payment_endpoint_is_always_simulation_only"
+      ],
+      "failures": []
+    },
+    "COM-12": {
+      "status": "PASS",
+      "level": "P0-B",
+      "tests": [
+        "phpunit:Tests\\Unit\\Commerce\\SessionCartTest::cart_expires_after_retention_days_of_inactivity",
+        "phpunit:Tests\\Feature\\Commerce\\DevelopmentSeederTest::refuses_to_run_in_production",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::retention_anonymizes_old_orders_and_purges_audit_and_sessions",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::anonymized_order_link_no_longer_works",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::retention_runs_daily_from_the_scheduler",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::retention_periods_have_bounded_project_defaults"
+      ],
+      "failures": []
+    },
+    "OPS-01": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "deploy:M03_wrong_or_unknown_key_rejected",
+        "deploy:M04_cross_environment_rejected",
+        "deploy:O03_rotate_db_dual_password",
+        "deploy:O04_rotate_reverts_on_failure",
+        "deploy:O05_rotate_guards_and_keyring_phases",
+        "deploy:H01_bootstrap_host_layout_keys_units",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigKeyRingTest::valid_or_absent_keyrings_pass_and_invalid_ones_refuse_startup",
+        "phpunit:Tests\\Unit\\Content\\EventKeyRingVerificationTest::add_phase_active_key_signs_and_new_accept_key_is_already_verifiable",
+        "phpunit:Tests\\Unit\\Content\\EventKeyRingVerificationTest::promote_phase_new_key_signs_and_old_key_is_still_accepted",
+        "phpunit:Tests\\Unit\\Content\\EventKeyRingVerificationTest::after_retire_the_old_key_is_rejected",
+        "phpunit:Tests\\Unit\\Preview\\PreviewKeyRingTest::kid_selects_active_or_accept_keys",
+        "phpunit:Tests\\Unit\\Preview\\PreviewKeyRingTest::retired_kid_is_rejected",
+        "phpunit:Tests\\Unit\\Secrets\\KeyRingTest::a_valid_keyring_is_parsed_with_exactly_one_active_key",
+        "phpunit:Tests\\Unit\\Secrets\\KeyRingTest::malformed_keyrings_are_rejected",
+        "phpunit:Tests\\Unit\\Secrets\\KeyRingTest::compact_form_round_trips_and_is_validated_as_strictly",
+        "phpunit:Tests\\Unit\\Secrets\\KeyRingTest::single_key_mode_is_one_active_key_for_backward_compatibility",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesKeyRingTest::keyring_files_are_read_into_the_compact_form",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesKeyRingTest::invalid_keyring_files_refuse_startup",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesKeyRingTest::previous_app_keys_file_may_be_missing_or_empty",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesKeyRingTest::invalid_previous_app_keys_are_rejected",
+        "phpunit:Tests\\Feature\\Content\\ContentEventKeyRingTest::each_rotation_phase_accepts_exactly_the_keys_in_the_keyring",
+        "phpunit:Tests\\Feature\\Content\\ContentEventKeyRingTest::keyring_status_command_lists_ids_and_states_without_key_material",
+        "phpunit:Tests\\Feature\\Preview\\PreviewKeyRingExchangeTest::exchange_follows_the_keyring_through_promote_and_retire",
+        "phpunit:Tests\\Feature\\System\\AppPreviousKeysTest::previous_keys_decrypt_old_data_only_until_retire",
+        "phpunit:Tests\\Feature\\System\\AppPreviousKeysTest::app_previous_keys_env_is_parsed_into_the_native_config_key"
+      ],
+      "failures": []
+    },
+    "OPS-02": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "wp-contract:wp_real_ip_from_gateway_not_spoofable"
+      ],
+      "failures": []
+    },
+    "OPS-03": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "deploy:S03_release_payload_schema_doc",
+        "deploy:M01_valid_manifest_accepted",
+        "deploy:M02_one_byte_tamper_rejected",
+        "deploy:M03_wrong_or_unknown_key_rejected",
+        "deploy:M04_cross_environment_rejected",
+        "deploy:M05_expired_or_future_rejected",
+        "deploy:M06_replay_and_sequence_rules",
+        "deploy:M07_unknown_and_dangerous_fields_rejected",
+        "deploy:M09_platform_contract_and_mysql_major",
+        "deploy:M10_envelope_strict_parsing",
+        "deploy:R10_pull_release_fixed_channel_backoff"
+      ],
+      "failures": []
+    },
+    "OPS-04": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "deploy:S04_compose_prod_contract",
+        "deploy:S05_workflows_pinned_least_privilege",
+        "deploy:M08_digest_only_images",
+        "deploy:R01_release_happy_path_order",
+        "phpunit:Tests\\Feature\\System\\DeployStatusTest::it_is_hidden_without_valid_token",
+        "phpunit:Tests\\Feature\\System\\DeployStatusTest::it_is_hidden_when_token_not_configured",
+        "phpunit:Tests\\Feature\\System\\DeployStatusTest::it_reports_release_identity_without_sensitive_details"
+      ],
+      "failures": []
+    },
+    "OPS-05": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "deploy:R02_deploy_lock_single_holder",
+        "deploy:R03_retry_limit_enforced",
+        "deploy:R10_pull_release_fixed_channel_backoff"
+      ],
+      "failures": []
+    },
+    "OPS-06": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "deploy:R01_release_happy_path_order",
+        "deploy:R04_backup_failure_stops_before_switch",
+        "deploy:R05_schema_incompatible_requires_approval",
+        "deploy:R06_first_install_requires_approval",
+        "deploy:R11_cms_maintenance_contract_only",
+        "deploy:R12_cms_maintenance_failure_paths",
+        "wp-contract:cms_maintenance_blocks_writes_keeps_public_reads",
+        "wp-contract:cms_maintenance_pauses_jobs_and_http_cron",
+        "wp-contract:cms_maintenance_cli_state_and_validation",
+        "phpunit:Tests\\Feature\\System\\HealthTest::health_and_deploy_status_stay_available_during_maintenance"
+      ],
+      "failures": []
+    },
+    "OPS-07": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "deploy:O01_backup_records_only_after_check",
+        "deploy:O02_restore_check_refuses_non_isolated",
+        "deploy:I01_real_mysql_backup_isolated_restore"
+      ],
+      "failures": []
+    },
+    "OPS-08": {
+      "status": "BLOCKED_EXTERNAL",
+      "level": "P0",
+      "tests": [],
+      "failures": [],
+      "blocker_id": "BLK-HOST-01"
+    },
+    "OPS-09": {
+      "status": "BLOCKED_EXTERNAL",
+      "level": "P0",
+      "tests": [],
+      "failures": [],
+      "blocker_id": "BLK-HOST-01"
+    },
+    "OPS-10": {
+      "status": "BLOCKED_EXTERNAL",
+      "level": "P0",
+      "tests": [],
+      "failures": [],
+      "blocker_id": "BLK-HOST-01"
+    },
+    "OPS-11": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "deploy:R07_smoke_failure_reverts_program_only",
+        "deploy:R08_rollback_requires_new_sequence",
+        "deploy:R09_rollback_refuses_unsafe_targets",
+        "deploy:R12_cms_maintenance_failure_paths"
+      ],
+      "failures": []
+    },
+    "OPS-12": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › cookies.spec.mjs › Cookie 與快取隔離 › CMS 與主站後臺登入 cookie 皆為 host-only、名稱不同、互不送出",
+        "e2e:mobile-390 › cookies.spec.mjs › Cookie 與快取隔離 › 後臺、預覽、訂單回應為 private／no-store",
+        "e2e:mobile-390 › cookies.spec.mjs › Cookie 與快取隔離 › 匿名瀏覽公開內容頁不設定任何 cookie",
+        "e2e:mobile-390 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:tablet-768 › cookies.spec.mjs › Cookie 與快取隔離 › CMS 與主站後臺登入 cookie 皆為 host-only、名稱不同、互不送出",
+        "e2e:tablet-768 › cookies.spec.mjs › Cookie 與快取隔離 › 後臺、預覽、訂單回應為 private／no-store",
+        "e2e:tablet-768 › cookies.spec.mjs › Cookie 與快取隔離 › 匿名瀏覽公開內容頁不設定任何 cookie",
+        "e2e:tablet-768 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "e2e:desktop-1440 › cookies.spec.mjs › Cookie 與快取隔離 › CMS 與主站後臺登入 cookie 皆為 host-only、名稱不同、互不送出",
+        "e2e:desktop-1440 › cookies.spec.mjs › Cookie 與快取隔離 › 後臺、預覽、訂單回應為 private／no-store",
+        "e2e:desktop-1440 › cookies.spec.mjs › Cookie 與快取隔離 › 匿名瀏覽公開內容頁不設定任何 cookie",
+        "e2e:desktop-1440 › preview.spec.mjs › 草稿預覽 › 編輯器預覽經票券交換顯示草稿精確快照，重播失效且不進公開索引",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::app_and_cms_must_be_different_origins",
+        "phpunit:Tests\\Feature\\Admin\\AdminAccessTest::admin_pages_are_private_and_not_indexed",
+        "phpunit:Tests\\Feature\\Commerce\\CartTest::cart_pages_are_not_cacheable"
+      ],
+      "failures": []
+    },
+    "OPS-13": {
+      "status": "BLOCKED_EXTERNAL",
+      "level": "P0",
+      "tests": [],
+      "failures": [],
+      "blocker_id": "BLK-HOST-01"
+    },
+    "OPS-14": {
+      "status": "BLOCKED_EXTERNAL",
+      "level": "P1",
+      "tests": [],
+      "failures": [],
+      "blocker_id": "BLK-HOST-01"
+    },
+    "GOV-01": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigKeyRingTest::valid_or_absent_keyrings_pass_and_invalid_ones_refuse_startup",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::development_defaults_are_valid",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::commerce_real_mode_is_rejected",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::production_requires_https_secure_cookie_and_no_debug",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::visibility_ttl_cannot_exceed_hard_limit",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::preview_ttl_cannot_exceed_900",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::content_api_host_must_be_allowlisted",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::private_api_must_be_https",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::app_and_cms_must_be_different_origins",
+        "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::root_database_user_is_rejected",
+        "phpunit:Tests\\Unit\\Secrets\\KeyRingTest::a_valid_keyring_is_parsed_with_exactly_one_active_key",
+        "phpunit:Tests\\Unit\\Secrets\\KeyRingTest::malformed_keyrings_are_rejected",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesKeyRingTest::keyring_files_are_read_into_the_compact_form",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesKeyRingTest::invalid_keyring_files_refuse_startup",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesKeyRingTest::previous_app_keys_file_may_be_missing_or_empty",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesKeyRingTest::invalid_previous_app_keys_are_rejected",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesTest::it_reads_and_strips_trailing_newline",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesTest::it_rejects_missing_file",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesTest::it_rejects_empty_or_whitespace",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesTest::it_rejects_world_readable_file",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesTest::it_accepts_group_readable_file",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesTest::it_rejects_multiline_content",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesTest::required_secrets_fail_in_production_when_missing",
+        "phpunit:Tests\\Unit\\Secrets\\SecretFilesTest::unknown_environment_is_rejected",
+        "phpunit:Tests\\Feature\\System\\AppPreviousKeysTest::app_previous_keys_env_is_parsed_into_the_native_config_key"
+      ],
+      "failures": []
+    },
+    "GOV-02": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:image-scan",
+        "governance:composer-audit",
+        "governance:npm-audit",
+        "governance:wp-plugin-scan"
+      ],
+      "failures": []
+    },
+    "GOV-03": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "static:state-registry"
+      ],
+      "failures": []
+    },
+    "GOV-04": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "deploy:S01_syntax_and_safety",
+        "deploy:S02_help_and_argument_validation",
+        "deploy:S03_release_payload_schema_doc",
+        "deploy:S04_compose_prod_contract",
+        "deploy:S05_workflows_pinned_least_privilege",
+        "deploy:S06_systemd_units",
+        "deploy:S07_gateway_login_limit_paths",
+        "deploy:H01_bootstrap_host_layout_keys_units",
+        "deploy:H02_preflight_checks",
+        "static:script-syntax-and-help",
+        "static:doc-references"
+      ],
+      "failures": []
+    },
+    "GOV-05": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:unknowns-marked-no-fabrication"
+      ],
+      "failures": []
+    },
+    "GOV-06": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:mobile-390 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:tablet-768 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403",
+        "e2e:desktop-1440 › admin.spec.mjs › 後臺存取控制 › admin 登入看到儀表板與商品列表；缺 CSRF 的寫入被拒（419）",
+        "e2e:desktop-1440 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403"
+      ],
+      "failures": []
+    },
+    "DAT-01": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:data-inventory-complete"
+      ],
+      "failures": []
+    },
+    "DAT-02": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "deploy:O03_rotate_db_dual_password",
+        "deploy:L02_no_secret_in_runtime_outputs",
+        "governance:artifact-secret-hygiene",
+        "wp-contract:cms_maintenance_cli_state_and_validation",
+        "phpunit:Tests\\Unit\\Commerce\\AuditRedactionTest::masks_secret_like_keys_recursively",
+        "phpunit:Tests\\Unit\\Commerce\\AuditRedactionTest::truncates_long_values_and_limits_depth_and_items",
+        "phpunit:Tests\\Unit\\Commerce\\AuditRedactionTest::minimizes_ip_addresses",
+        "phpunit:Tests\\Feature\\Admin\\AdminAuthTest::failed_logins_share_one_generic_message_and_audit_without_secrets",
+        "phpunit:Tests\\Feature\\Admin\\AdminOrderTest::export_is_admin_only_audited_and_contains_no_tokens_or_bindings"
+      ],
+      "failures": []
+    },
+    "DAT-03": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:rights-request-deadlines"
+      ],
+      "failures": []
+    },
+    "DAT-04": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "e2e:mobile-390 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:mobile-390 › media.spec.mjs › 隱私說明與實際行為一致 › 隱私說明列出 youtube-nocookie 與實際設定的 cookie 名稱",
+        "e2e:tablet-768 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:tablet-768 › media.spec.mjs › 隱私說明與實際行為一致 › 隱私說明列出 youtube-nocookie 與實際設定的 cookie 名稱",
+        "e2e:desktop-1440 › media.spec.mjs › 影片嵌入 › 影片詳情點擊前不連線 YouTube，點擊後建立 youtube-nocookie iframe",
+        "e2e:desktop-1440 › media.spec.mjs › 隱私說明與實際行為一致 › 隱私說明列出 youtube-nocookie 與實際設定的 cookie 名稱",
+        "wp-contract:dat04_privacy_page_reflects_behaviour"
+      ],
+      "failures": []
+    },
+    "DAT-05": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "deploy:L00_deliverables_contain_no_secrets",
+        "deploy:L02_no_secret_in_runtime_outputs",
+        "static:ignore-rules",
+        "static:secret-scan-tracked"
+      ],
+      "failures": []
+    },
+    "DAT-06": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "deploy:I01_real_mysql_backup_isolated_restore",
+        "phpunit:Tests\\Feature\\Commerce\\RetentionTest::deletion_log_is_reapplied_after_restoring_an_old_backup"
+      ],
+      "failures": []
+    },
+    "EXEC-01": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:plan-integrity-and-missing-plan-path"
+      ],
+      "failures": []
+    },
+    "EXEC-02": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:first-run-no-missing-files"
+      ],
+      "failures": []
+    },
+    "EXEC-03": {
+      "status": "NOT_RUN",
+      "level": "P0",
+      "tests": [],
+      "failures": []
+    },
+    "EXEC-04": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:imported-evidence-traceable"
+      ],
+      "failures": []
+    },
+    "EXEC-05": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:external-blockers-scoped"
+      ],
+      "failures": []
+    },
+    "EXEC-06": {
+      "status": "PASS",
+      "level": "P0",
+      "tests": [
+        "governance:artifact-secret-hygiene"
+      ],
+      "failures": []
+    }
+  },
+  "redaction_checked": true
+}

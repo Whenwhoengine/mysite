@@ -334,6 +334,50 @@
       "commit": "529223ab6856e7c0a6e3fcae52e568f68c53d515"
     },
     {
+      "id": "M1-09",
+      "milestone": "M1",
+      "title": "gateway 登入限流涵蓋路徑變體（結尾斜線、/index.php/ 別名）與 doctor GW-LOGIN-LIMIT、部署工具 S07 探測",
+      "status": "VERIFIED",
+      "depends_on": [
+        "M1-03"
+      ],
+      "owned_paths": [
+        "infra/nginx/gateway/",
+        "scripts/cloud/doctor.sh",
+        "tests/deploy/cases/10-static.sh"
+      ],
+      "acceptance_ids": [
+        "GOV-04"
+      ],
+      "evidence_refs": [
+        "docs/evidence/gha-42181190540-1-content/summary.json",
+        "docs/evidence/gha-42181190540-1-simulation/summary.json",
+        "docs/evidence/gha-42203612453-1-content/summary.json",
+        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+      ],
+      "blocker_id": null,
+      "commit": "fa0c04d58a554bfba7c99cfc34f7a480a85c132b"
+    },
+    {
+      "id": "M1-10",
+      "milestone": "M1",
+      "title": "開發環境 bootstrap 的 Composer 安裝：依 COMPOSER_PREFER 加 --prefer-install、失敗重試一次、composer.sh 略過執行期設定檢查",
+      "status": "IMPLEMENTED",
+      "depends_on": [
+        "M1-01"
+      ],
+      "owned_paths": [
+        "scripts/cloud/bootstrap.sh",
+        "scripts/cloud/composer.sh"
+      ],
+      "acceptance_ids": [
+        "CLD-05"
+      ],
+      "evidence_refs": [],
+      "blocker_id": null,
+      "commit": null
+    },
+    {
       "id": "M2-01",
       "milestone": "M2",
       "title": "site-content：video／podcast CPT、taxonomy、capabilities 與可重跑遷移",
