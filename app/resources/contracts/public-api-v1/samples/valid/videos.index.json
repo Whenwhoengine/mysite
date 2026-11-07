@@ -1,0 +1,93 @@
+{
+  "data": [
+    {
+      "type": "video",
+      "slug": "sample-video",
+      "path": "/videos/sample-video",
+      "title": "示例影片",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": 245,
+      "is_sample": true
+    },
+    {
+      "type": "video",
+      "slug": "broken-video",
+      "path": "/videos/broken-video",
+      "title": "影片 ID 不合法的示例",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 12,
+    "total": 2,
+    "total_pages": 1
+  },
+  "collection": {
+    "type": "video",
+    "label": "影片",
+    "title": "影片",
+    "lede": "影片作品與完整說明；點擊播放後才會連線到 YouTube。"
+  },
+  "seo": {
+    "title": "影片",
+    "description": "影片的說明。",
+    "canonical_path": "/videos",
+    "noindex": false,
+    "og_type": "website",
+    "og_image": null,
+    "og_image_alt": null
+  }
+}

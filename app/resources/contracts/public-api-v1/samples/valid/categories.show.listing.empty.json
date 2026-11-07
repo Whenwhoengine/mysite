@@ -1,0 +1,31 @@
+{
+  "data": {
+    "kind": "category",
+    "label": "分類",
+    "term": {
+      "slug": "news",
+      "name": "新聞",
+      "path": "/categories/news",
+      "count": 0
+    },
+    "mode": "listing",
+    "type": "podcast",
+    "overview": null,
+    "items": []
+  },
+  "meta": {
+    "page": 1,
+    "per_page": 12,
+    "total": 0,
+    "total_pages": 0
+  },
+  "seo": {
+    "title": "分類：新聞－Podcast 節目",
+    "description": "分類：新聞－Podcast 節目的說明。",
+    "canonical_path": "/categories/news?type=podcast",
+    "noindex": false,
+    "og_type": "website",
+    "og_image": null,
+    "og_image_alt": null
+  }
+}

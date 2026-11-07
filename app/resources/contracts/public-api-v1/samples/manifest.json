@@ -1,0 +1,500 @@
+{
+  "version": 1,
+  "contract": "app/resources/contracts/public-api-v1.openapi.json",
+  "sentinel": "MSMOCK-7F3A9C1E",
+  "description": "公開 API 契約樣本集（定案執行書 M-18②）：valid 必須全部通過契約驗證，invalid 必須全部失敗。PHP（tests/Feature/Api/PublicApiSamplesTest.php）與前端 zod 用同一批。",
+  "valid": [
+    {
+      "file": "valid/site.ok.json",
+      "operation": "/api/v1/site",
+      "method": "get",
+      "status": 200,
+      "note": "網站資訊與選單"
+    },
+    {
+      "file": "valid/site.fallback.json",
+      "operation": "/api/v1/site",
+      "method": "get",
+      "status": 200,
+      "note": "WordPress 讀不到時的內建後備"
+    },
+    {
+      "file": "valid/home.ok.json",
+      "operation": "/api/v1/home",
+      "method": "get",
+      "status": 200,
+      "note": "首頁"
+    },
+    {
+      "file": "valid/home.empty.json",
+      "operation": "/api/v1/home",
+      "method": "get",
+      "status": 200,
+      "note": "首頁零篇"
+    },
+    {
+      "file": "valid/articles.index.json",
+      "operation": "/api/v1/articles",
+      "method": "get",
+      "status": 200,
+      "note": "文章列表（含超長標題、無封面、中文 slug、200 字 slug）"
+    },
+    {
+      "file": "valid/articles.index.page2.json",
+      "operation": "/api/v1/articles",
+      "method": "get",
+      "status": 200,
+      "note": "文章列表第 2 頁"
+    },
+    {
+      "file": "valid/podcasts.index.json",
+      "operation": "/api/v1/podcasts",
+      "method": "get",
+      "status": 200,
+      "note": "Podcast 列表"
+    },
+    {
+      "file": "valid/videos.index.json",
+      "operation": "/api/v1/videos",
+      "method": "get",
+      "status": 200,
+      "note": "影片列表"
+    },
+    {
+      "file": "valid/videos.index.empty.json",
+      "operation": "/api/v1/videos",
+      "method": "get",
+      "status": 200,
+      "note": "影片列表零篇"
+    },
+    {
+      "file": "valid/articles.show.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "文章單篇"
+    },
+    {
+      "file": "valid/articles.show.cn-slug.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "中文 slug（path 為百分比編碼）"
+    },
+    {
+      "file": "valid/articles.show.slug200.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "200 字元 slug（只測前端組網址與版面；真實 API 單篇查詢只接受 190 字元以內英數 slug）"
+    },
+    {
+      "file": "valid/articles.show.long-title-no-cover.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "超長標題、超長網址、無封面"
+    },
+    {
+      "file": "valid/articles.show.empty-body.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "沒有內文（content_html 為空字串）"
+    },
+    {
+      "file": "valid/videos.show.json",
+      "operation": "/api/v1/videos/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "影片單篇"
+    },
+    {
+      "file": "valid/videos.show.invalid-id.json",
+      "operation": "/api/v1/videos/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "影片 ID 不合法（video_unavailable）"
+    },
+    {
+      "file": "valid/podcasts.show.json",
+      "operation": "/api/v1/podcasts/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "Podcast 單篇"
+    },
+    {
+      "file": "valid/podcasts.show.audio-unavailable.json",
+      "operation": "/api/v1/podcasts/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "音訊不可播（audio_unavailable），簡介照常"
+    },
+    {
+      "file": "valid/pages.show.json",
+      "operation": "/api/v1/pages/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "一般頁面"
+    },
+    {
+      "file": "valid/categories.show.overview.json",
+      "operation": "/api/v1/categories/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "分類總覽"
+    },
+    {
+      "file": "valid/tags.show.listing.json",
+      "operation": "/api/v1/tags/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "標籤列表（帶 type）"
+    },
+    {
+      "file": "valid/search.initial.json",
+      "operation": "/api/v1/search",
+      "method": "get",
+      "status": 200,
+      "note": "搜尋初始（只顯示表單）"
+    },
+    {
+      "file": "valid/search.results.json",
+      "operation": "/api/v1/search",
+      "method": "get",
+      "status": 200,
+      "note": "搜尋有結果"
+    },
+    {
+      "file": "valid/search.zero.json",
+      "operation": "/api/v1/search",
+      "method": "get",
+      "status": 200,
+      "note": "搜尋零結果（前端顯示「找不到符合」）"
+    },
+    {
+      "file": "valid/error.404.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 404,
+      "note": "找不到"
+    },
+    {
+      "file": "valid/error.503.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 503,
+      "note": "上游不可用"
+    },
+    {
+      "file": "valid/error.503.model.json",
+      "operation": "/api/v1/home",
+      "method": "get",
+      "status": 503,
+      "note": "資料格式不符"
+    },
+    {
+      "file": "valid/error.422.search.json",
+      "operation": "/api/v1/search",
+      "method": "get",
+      "status": 422,
+      "note": "搜尋參數不合法"
+    },
+    {
+      "file": "valid/error.404.articles.json",
+      "operation": "/api/v1/articles",
+      "method": "get",
+      "status": 404,
+      "note": "找不到（不存在、不公開、slug 或 page 不合法、page 超過總頁數）"
+    },
+    {
+      "file": "valid/error.404.videos.json",
+      "operation": "/api/v1/videos",
+      "method": "get",
+      "status": 404,
+      "note": "找不到（不存在、不公開、slug 或 page 不合法、page 超過總頁數）"
+    },
+    {
+      "file": "valid/error.404.podcasts.json",
+      "operation": "/api/v1/podcasts",
+      "method": "get",
+      "status": 404,
+      "note": "找不到（不存在、不公開、slug 或 page 不合法、page 超過總頁數）"
+    },
+    {
+      "file": "valid/error.404.articles.show.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 404,
+      "note": "找不到（不存在、不公開、slug 或 page 不合法、page 超過總頁數）"
+    },
+    {
+      "file": "valid/error.404.videos.show.json",
+      "operation": "/api/v1/videos/{slug}",
+      "method": "get",
+      "status": 404,
+      "note": "找不到（不存在、不公開、slug 或 page 不合法、page 超過總頁數）"
+    },
+    {
+      "file": "valid/error.404.podcasts.show.json",
+      "operation": "/api/v1/podcasts/{slug}",
+      "method": "get",
+      "status": 404,
+      "note": "找不到（不存在、不公開、slug 或 page 不合法、page 超過總頁數）"
+    },
+    {
+      "file": "valid/error.404.pages.show.json",
+      "operation": "/api/v1/pages/{slug}",
+      "method": "get",
+      "status": 404,
+      "note": "找不到（不存在、不公開、slug 或 page 不合法、page 超過總頁數）"
+    },
+    {
+      "file": "valid/error.404.categories.show.json",
+      "operation": "/api/v1/categories/{slug}",
+      "method": "get",
+      "status": 404,
+      "note": "找不到（不存在、不公開、slug 或 page 不合法、page 超過總頁數）"
+    },
+    {
+      "file": "valid/error.404.tags.show.json",
+      "operation": "/api/v1/tags/{slug}",
+      "method": "get",
+      "status": 404,
+      "note": "找不到（不存在、不公開、slug 或 page 不合法、page 超過總頁數）"
+    },
+    {
+      "file": "valid/error.404.search.json",
+      "operation": "/api/v1/search",
+      "method": "get",
+      "status": 404,
+      "note": "找不到（不存在、不公開、slug 或 page 不合法、page 超過總頁數）"
+    },
+    {
+      "file": "valid/error.503.home.json",
+      "operation": "/api/v1/home",
+      "method": "get",
+      "status": 503,
+      "note": "上游不可用；絕不回舊正文"
+    },
+    {
+      "file": "valid/error.503.articles.json",
+      "operation": "/api/v1/articles",
+      "method": "get",
+      "status": 503,
+      "note": "上游不可用；絕不回舊正文"
+    },
+    {
+      "file": "valid/error.503.videos.json",
+      "operation": "/api/v1/videos",
+      "method": "get",
+      "status": 503,
+      "note": "上游不可用；絕不回舊正文"
+    },
+    {
+      "file": "valid/error.503.podcasts.json",
+      "operation": "/api/v1/podcasts",
+      "method": "get",
+      "status": 503,
+      "note": "上游不可用；絕不回舊正文"
+    },
+    {
+      "file": "valid/error.503.articles.show.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 503,
+      "note": "上游不可用；絕不回舊正文"
+    },
+    {
+      "file": "valid/error.503.videos.show.json",
+      "operation": "/api/v1/videos/{slug}",
+      "method": "get",
+      "status": 503,
+      "note": "上游不可用；絕不回舊正文"
+    },
+    {
+      "file": "valid/error.503.podcasts.show.json",
+      "operation": "/api/v1/podcasts/{slug}",
+      "method": "get",
+      "status": 503,
+      "note": "上游不可用；絕不回舊正文"
+    },
+    {
+      "file": "valid/error.503.pages.show.json",
+      "operation": "/api/v1/pages/{slug}",
+      "method": "get",
+      "status": 503,
+      "note": "上游不可用；絕不回舊正文"
+    },
+    {
+      "file": "valid/error.503.categories.show.json",
+      "operation": "/api/v1/categories/{slug}",
+      "method": "get",
+      "status": 503,
+      "note": "上游不可用；絕不回舊正文"
+    },
+    {
+      "file": "valid/error.503.tags.show.json",
+      "operation": "/api/v1/tags/{slug}",
+      "method": "get",
+      "status": 503,
+      "note": "上游不可用；絕不回舊正文"
+    },
+    {
+      "file": "valid/error.503.search.json",
+      "operation": "/api/v1/search",
+      "method": "get",
+      "status": 503,
+      "note": "上游不可用；絕不回舊正文"
+    },
+    {
+      "file": "valid/error.503.site.maintenance.json",
+      "operation": "/api/v1/site",
+      "method": "get",
+      "status": 503,
+      "note": "Laravel 維護模式（換版）；WordPress 讀不到時不回 503"
+    },
+    {
+      "file": "valid/articles.index.empty.json",
+      "operation": "/api/v1/articles",
+      "method": "get",
+      "status": 200,
+      "note": "文章列表零篇"
+    },
+    {
+      "file": "valid/podcasts.index.empty.json",
+      "operation": "/api/v1/podcasts",
+      "method": "get",
+      "status": 200,
+      "note": "Podcast 列表零篇"
+    },
+    {
+      "file": "valid/categories.show.listing.empty.json",
+      "operation": "/api/v1/categories/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "分類指定型別零篇"
+    },
+    {
+      "file": "valid/tags.show.overview.empty.json",
+      "operation": "/api/v1/tags/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "標籤總覽零篇"
+    }
+  ],
+  "invalid": [
+    {
+      "file": "invalid/articles.show.extra-internal-id.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "多出內部 id（不得暴露，PAPI-05）"
+    },
+    {
+      "file": "invalid/articles.show.email-field.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "多出 email 欄位"
+    },
+    {
+      "file": "invalid/articles.show.bad-date.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "時間不是 UTC Z 格式"
+    },
+    {
+      "file": "invalid/articles.show.canonical-absolute.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "canonical_path 不是站內路徑"
+    },
+    {
+      "file": "invalid/articles.show.missing-content-html.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "缺 content_html"
+    },
+    {
+      "file": "invalid/videos.show.bad-youtube-id.json",
+      "operation": "/api/v1/videos/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "影片 ID 不合政策"
+    },
+    {
+      "file": "invalid/videos.show.embed-not-nocookie.json",
+      "operation": "/api/v1/videos/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "嵌入網址不是 youtube-nocookie"
+    },
+    {
+      "file": "invalid/podcasts.show.bad-mime.json",
+      "operation": "/api/v1/podcasts/{slug}",
+      "method": "get",
+      "status": 200,
+      "note": "音訊 MIME 不在白名單"
+    },
+    {
+      "file": "invalid/articles.index.missing-meta.json",
+      "operation": "/api/v1/articles",
+      "method": "get",
+      "status": 200,
+      "note": "列表缺分頁 meta"
+    },
+    {
+      "file": "invalid/articles.index.too-many.json",
+      "operation": "/api/v1/articles",
+      "method": "get",
+      "status": 200,
+      "note": "列表超過每頁 12 筆"
+    },
+    {
+      "file": "invalid/home.too-many-posts.json",
+      "operation": "/api/v1/home",
+      "method": "get",
+      "status": 200,
+      "note": "首頁文章超過 6 筆"
+    },
+    {
+      "file": "invalid/site.missing-fallback.json",
+      "operation": "/api/v1/site",
+      "method": "get",
+      "status": 200,
+      "note": "缺 fallback"
+    },
+    {
+      "file": "invalid/site.social-http.json",
+      "operation": "/api/v1/site",
+      "method": "get",
+      "status": 200,
+      "note": "社群連結不是 https"
+    },
+    {
+      "file": "invalid/search.q-too-long.json",
+      "operation": "/api/v1/search",
+      "method": "get",
+      "status": 200,
+      "note": "q 超過 100 字"
+    },
+    {
+      "file": "invalid/error.bad-request-id.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 404,
+      "note": "request_id 不是 32 位小寫十六進位"
+    },
+    {
+      "file": "invalid/error.extra-trace.json",
+      "operation": "/api/v1/articles/{slug}",
+      "method": "get",
+      "status": 503,
+      "note": "錯誤回應多出診斷欄位"
+    }
+  ]
+}

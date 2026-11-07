@@ -1,0 +1,37 @@
+{
+  "data": {
+    "name": "mysite",
+    "tagline": "",
+    "author_bio": "",
+    "social_links": [],
+    "logo": null,
+    "is_sample": false,
+    "fallback": true,
+    "menus": {
+      "primary": [
+        {
+          "label": "文章",
+          "url": "/articles",
+          "external": false
+        },
+        {
+          "label": "影片",
+          "url": "/videos",
+          "external": false
+        },
+        {
+          "label": "Podcast",
+          "url": "/podcasts",
+          "external": false
+        },
+        {
+          "label": "搜尋",
+          "url": "/search",
+          "external": false
+        }
+      ],
+      "footer": []
+    },
+    "commerce_enabled": false
+  }
+}

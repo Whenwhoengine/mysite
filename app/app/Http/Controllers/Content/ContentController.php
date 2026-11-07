@@ -6,12 +6,10 @@ namespace App\Http\Controllers\Content;
 
 use App\Domain\Content\ContentQueryService;
 use App\Domain\Content\ContentType;
-use App\Domain\Content\Dto\ContentItem;
-use App\Domain\Content\Seo\PageMeta;
+use App\Domain\Content\Seo\PageMetaFactory;
 use App\Http\Controllers\Controller;
 use App\Support\Errors\ErrorCode;
 use App\Support\Errors\MysiteException;
-use App\Support\Html\Sanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -20,44 +18,34 @@ use Illuminate\Http\Response;
  */
 final class ContentController extends Controller
 {
-    public const SEARCH_MAX_LENGTH = 100;
+    public const SEARCH_MAX_LENGTH = PublicContentInput::SEARCH_MAX_LENGTH;
 
     public function __construct(
         private readonly ContentQueryService $content,
-        private readonly Sanitizer $sanitizer,
+        private readonly PageMetaFactory $meta,
     ) {}
 
     public function home(): Response
     {
         $home = $this->content->home();
         $site = $this->content->site();
-        $siteName = $site?->name ?? (string) config('mysite.site_name');
 
         return response()->view('content.home', $home + [
             'site' => $site,
-            'meta' => new PageMeta(
-                $siteName,
-                PageMeta::describe($site?->tagline, $siteName.'：影片、Podcast 與文章。'),
-                PageMeta::canonicalUrl('/'),
-            ),
+            'meta' => $this->meta->home($site),
         ]);
     }
 
     public function index(Request $request): Response
     {
         $type = $this->routeType($request);
-        $page = $this->pageNumber($request);
+        $page = PublicContentInput::page($request);
         $result = $this->content->listing($type, $page);
-        $title = $type->collectionTitle().($page > 1 ? "（第 {$page} 頁）" : '');
 
         return response()->view('content.index', [
             'type' => $type,
             'result' => $result,
-            'meta' => new PageMeta(
-                $title,
-                PageMeta::describe($type->collectionLede(), $type->collectionTitle().'列表'),
-                PageMeta::canonicalUrl('/'.$type->pathPrefix(), ['page' => $page]),
-            ),
+            'meta' => $this->meta->listing($type, $page),
         ]);
     }
 
@@ -85,22 +73,11 @@ final class ContentController extends Controller
 
     public function search(Request $request): Response
     {
-        $rawQ = $request->query('q');
-        $q = is_string($rawQ) ? trim((string) preg_replace('/\s+/u', ' ', $rawQ)) : '';
-        $rawType = $request->query('type');
-        $type = is_string($rawType) && $rawType !== '' ? ContentType::tryFrom($rawType) : null;
-        $page = $this->pageNumber($request);
+        ['q' => $q, 'type' => $type, 'page' => $page, 'error' => $error] = PublicContentInput::search($request);
 
-        $error = null;
         $result = null;
-        $status = 200;
-        if (is_string($rawType) && $rawType !== '' && $type === null) {
-            $error = '內容類型不正確，請重新選擇。';
-            $status = 422;
-        } elseif (mb_strlen($q) > self::SEARCH_MAX_LENGTH) {
-            $error = '搜尋字詞最多 '.self::SEARCH_MAX_LENGTH.' 個字，請縮短後再試。';
-            $status = 422;
-        } elseif ($q !== '') {
+        $status = $error !== null ? 422 : 200;
+        if ($error === null && $q !== '') {
             $result = $this->content->search($q, $type, $page);
         }
 
@@ -109,12 +86,7 @@ final class ContentController extends Controller
             'type' => $type,
             'result' => $result,
             'error' => $error,
-            'meta' => new PageMeta(
-                $q !== '' ? '搜尋「'.mb_strimwidth($q, 0, 40, '…').'」'.($page > 1 ? "（第 {$page} 頁）" : '') : '搜尋',
-                '搜尋站內文章、影片與 Podcast。',
-                PageMeta::canonicalUrl('/search'),
-                noindex: true,
-            ),
+            'meta' => $this->meta->search($q, $page),
         ], $status);
     }
 
@@ -124,7 +96,7 @@ final class ContentController extends Controller
 
         return response()->view('content.show', [
             'item' => $item,
-            'meta' => $this->itemMeta($item),
+            'meta' => $this->meta->item($item),
         ]);
     }
 
@@ -133,8 +105,8 @@ final class ContentController extends Controller
     {
         $term = $this->content->term($kind, (string) $request->route('slug'));
         $rawType = $request->query('type');
-        $label = $kind === 'category' ? '分類' : '標籤';
-        $path = '/'.($kind === 'category' ? 'categories' : 'tags').'/'.rawurlencode($term->slug);
+        $label = PageMetaFactory::taxonomyLabel($kind);
+        $path = PageMetaFactory::taxonomyPath($kind, $term);
 
         if ($rawType === null) {
             if ($request->query('page') !== null) {
@@ -149,7 +121,7 @@ final class ContentController extends Controller
                 'overview' => $this->content->termOverview($kind, $term),
                 'type' => null,
                 'result' => null,
-                'meta' => new PageMeta("{$label}：{$term->name}", "{$label}「{$term->name}」的文章、影片與 Podcast。", PageMeta::canonicalUrl($path)),
+                'meta' => $this->meta->taxonomyOverview($kind, $term),
             ]);
         }
 
@@ -157,7 +129,7 @@ final class ContentController extends Controller
         if ($type === null || ! in_array($type, ContentType::listable(), true)) {
             throw new MysiteException(ErrorCode::ContentNotFound, 'taxonomy_type');
         }
-        $page = $this->pageNumber($request);
+        $page = PublicContentInput::page($request);
         $result = $this->content->termListing($kind, $term, $type, $page);
 
         return response()->view('content.taxonomy', [
@@ -168,48 +140,12 @@ final class ContentController extends Controller
             'overview' => null,
             'type' => $type,
             'result' => $result,
-            'meta' => new PageMeta(
-                "{$label}：{$term->name}－{$type->collectionTitle()}".($page > 1 ? "（第 {$page} 頁）" : ''),
-                "{$label}「{$term->name}」的{$type->label()}。",
-                PageMeta::canonicalUrl($path, ['type' => $type->value, 'page' => $page]),
-            ),
+            'meta' => $this->meta->taxonomyListing($kind, $term, $type, $page),
         ]);
-    }
-
-    private function itemMeta(ContentItem $item): PageMeta
-    {
-        $cover = $item->cover !== null && $this->sanitizer->isAllowedMediaUrl($item->cover->url) ? $item->cover : null;
-
-        return new PageMeta(
-            $item->title,
-            PageMeta::describe($item->excerpt !== '' ? $item->excerpt : $item->body?->plainText(), $item->title),
-            PageMeta::canonicalUrl($item->path()),
-            ogType: match ($item->type) {
-                ContentType::Video => 'video.other',
-                ContentType::Page => 'website',
-                default => 'article',
-            },
-            ogImage: $cover?->url,
-            ogImageAlt: $cover?->alt,
-        );
     }
 
     private function routeType(Request $request): ContentType
     {
         return ContentType::from((string) $request->route('type'));
-    }
-
-    /** page 參數：1–1000 的正整數；其他值一律 404（不送往上游，canonical 唯一）。 */
-    private function pageNumber(Request $request): int
-    {
-        $raw = $request->query('page');
-        if ($raw === null) {
-            return 1;
-        }
-        if (! is_string($raw) || preg_match('/^[1-9]\d{0,3}$/D', $raw) !== 1 || (int) $raw > 1000) {
-            throw new MysiteException(ErrorCode::ContentNotFound, 'page_param');
-        }
-
-        return (int) $raw;
     }
 }

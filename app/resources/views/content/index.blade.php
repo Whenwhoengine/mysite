@@ -5,7 +5,7 @@
 @section('content')
     <header class="page-header">
         <p class="page-header__eyebrow"><span class="type-chip type-chip--{{ $type->value }}"><x-icon :name="$type->value" />{{ $type->label() }}</span></p>
-        <h1>{{ $type->collectionTitle() }}@if ($result->page > 1)<span class="page-header__page">第 {{ $result->page }} 頁</span>@endif</h1>
+        <h1 data-page-title>{{ $type->collectionTitle() }}@if ($result->page > 1)<span class="page-header__page">第 {{ $result->page }} 頁</span>@endif</h1>
         @if ($type->collectionLede() !== '')
             <p class="page-header__lede">{{ $type->collectionLede() }}</p>
         @endif

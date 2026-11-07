@@ -1,4 +1,4 @@
-<footer class="site-footer">
+<footer class="site-footer" data-site-footer>
     <div class="container site-footer__grid">
         <section class="site-footer__brand" aria-labelledby="footer-brand">
             <p id="footer-brand" class="site-footer__name">

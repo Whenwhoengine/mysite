@@ -14,13 +14,13 @@
                 </audio>
                 <p class="player__audio-meta">
                     @if ($duration !== null)
-                        <span>片長 <time datetime="{{ $durationIso }}"><span aria-hidden="true">{{ $duration }}</span><span class="visually-hidden">{{ $durationSpoken }}</span></time></span>
+                        <span>片長 <time datetime="{{ $durationIso }}" data-audio-duration><span aria-hidden="true">{{ $duration }}</span><span class="visually-hidden">{{ $durationSpoken }}</span></time></span>
                     @endif
-                    <a href="{{ $src }}" download><x-icon name="download" class="icon--inline" />下載音訊@if ($mimeLabel())（{{ $mimeLabel() }}）@endif</a>
+                    <a href="{{ $src }}" download data-audio-download><x-icon name="download" class="icon--inline" />下載音訊@if ($mimeLabel())（{{ $mimeLabel() }}）@endif</a>
                 </p>
                 <p class="player__error" data-audio-error hidden>這個音訊目前無法播放。您可以改用上方的下載連結，或閱讀下方的節目簡介。</p>
             @else
-                <div class="player__state player__state--inline" role="note">
+                <div class="player__state player__state--inline" role="note" data-audio-unavailable>
                     <p class="player__state-title">音訊目前無法播放</p>
                     <p>音訊來源缺少或不在允許清單內，因此不提供播放；下方保留完整節目簡介。</p>
                 </div>

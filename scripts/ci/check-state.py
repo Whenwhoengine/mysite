@@ -5,16 +5,17 @@
 登錄表恰含 v5 的 90 個 ID＋EXEC 6 個且不重號、狀態值合法、status.json 必要欄位齊全。
 exit 0 通過；30 有違規；10 檔案缺失或格式錯誤。
 """
-import hashlib
 import json
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts/lib"))
+from plan_digest import adr_numbers, original_digest  # noqa: E402
 MILESTONE_STATES = {"NOT_STARTED", "IN_PROGRESS", "IMPLEMENTED", "VERIFIED", "BLOCKED_EXTERNAL", "FAILED"}
 TEST_STATES = {"NOT_RUN", "PASS", "FAIL", "BLOCKED_EXTERNAL", "NOT_APPLICABLE"}
 DELIVERY_STATES = {"IMPLEMENTATION_IN_PROGRESS", "CI_VERIFIED", "READY_FOR_STAGING", "STAGING_VERIFIED", "READY_FOR_PRODUCTION", "PRODUCTION_VERIFIED"}
-STATUS_FIELDS = ["project", "plan_version", "plan_sha256", "updated_at", "execution_backend", "working_branch", "source_commit",
+STATUS_FIELDS = ["project", "plan_version", "plan_sha256", "prompt_sha256", "updated_at", "execution_backend", "working_branch", "source_commit",
                  "delivery_state", "milestones", "active_task_id", "last_verification_ref", "production_release_id",
                  "external_blocker_ids", "next_action"]
 PREFIX_COUNTS = {"CLD": 10, "INF": 8, "WP": 10, "API": 16, "UI": 8, "COM": 12, "OPS": 14, "GOV": 6, "DAT": 6, "EXEC": 6}
@@ -108,11 +109,40 @@ def main():
         if not plan.is_file():
             errors.append(f"status.json 記錄的規劃書 {plan_rel} 不存在；原文未取得時應把 source_plan_file 設為 null 並依 docs/執行契約.md 開工")
         else:
-            digest = hashlib.sha256(plan.read_bytes()).hexdigest()
-            if digest != status.get("plan_sha256"):
+            # ADR-015：原件可帶行內修訂註記；去掉註記後必須與委託人原件逐位元組相同（scripts/lib/plan_digest.py）。
+            try:
+                digest = original_digest(plan.read_bytes())
+            except ValueError as exc:
+                digest = None
+                errors.append(f"規劃書 {plan_rel} 無法讀取：{exc}")
+            if digest is not None and digest != status.get("plan_sha256"):
                 errors.append(f"規劃書 {plan_rel} 的 SHA-256 與 status.json 紀錄不符（可能被改寫或不是委託人提供的原件）")
     elif not (ROOT / "docs/執行契約.md").is_file():
         errors.append("規劃書原文未取得，且缺少 docs/執行契約.md（無法依內嵌契約開工）")
+    # ADR-015：執行契約（施工 prompt 原件）同樣只能加行內修訂註記；去掉註記後須等於 prompt_sha256
+    contract = ROOT / "docs/執行契約.md"
+    if status.get("prompt_sha256"):
+        if not contract.is_file():
+            errors.append("status.json 記錄了 prompt_sha256，但 docs/執行契約.md 不存在")
+        else:
+            try:
+                if original_digest(contract.read_bytes()) != status.get("prompt_sha256"):
+                    errors.append("docs/執行契約.md 去掉修訂註記後的 SHA-256 與 status.json 的 prompt_sha256 不符（原件被改寫）")
+            except ValueError as exc:
+                errors.append(f"docs/執行契約.md 無法讀取：{exc}")
+    # 修訂註記引用的 ADR 必須真的存在於 docs/架構決策.md
+    adr_doc = ROOT / "docs/架構決策.md"
+    adr_text = adr_doc.read_text(encoding="utf-8") if adr_doc.is_file() else ""
+    for rel in filter(None, [plan_rel, "docs/執行契約.md"]):
+        f = ROOT / rel
+        if f.is_file():
+            try:
+                numbers = sorted(set(adr_numbers(f.read_bytes())))
+            except ValueError:
+                numbers = []  # 編碼錯誤已在上面回報
+            for num in numbers:
+                if f"## ADR-{num} " not in adr_text:
+                    errors.append(f"{rel} 的修訂註記引用 ADR-{num}，但 docs/架構決策.md 沒有這條決策")
 
     if errors:
         print("state 檢查失敗：")

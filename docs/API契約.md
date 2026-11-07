@@ -162,6 +162,8 @@ claims：
 | `RATE_LIMITED` | 429 | 超過限流 |
 | `COMMERCE_DISABLED` | 404 | `COMMERCE_MODE=disabled` 時所有商店路由 |
 | `SIMULATION_ONLY` | 422 | 嘗試真實交易語意（例如 real 模式或付款欄位） |
+| `SEARCH_INVALID` | 422 | 公開唯讀 API `/api/v1/search` 的 `q` 超過 100 字或 `type` 不正確（2026-11-06 新增，MySite React 前端專案；訊息為具體原因，與 Blade 搜尋頁相同，見 `docs/公開API契約.md`） |
+| `HTTP_{狀態碼}` | 該狀態碼 | 框架層的錯誤（例如 `HTTP_405` 方法不符、`HTTP_500` 未預期例外、`HTTP_503` 維護模式），由 `ErrorRenderer` 統一產生（既有行為，2026-11-06 補記）。公開 API 的路由層 404 一律改用 `CONTENT_NOT_FOUND` |
 
 公開錯誤頁顯示正體中文訊息與隨機 request ID，不含 stack trace、路徑或上游細節。
 
@@ -182,3 +184,7 @@ claims：
 10. 內容事件（§4）：WP 一律以事件金鑰圈的 `active` key 簽章，並在既有的 `X-Mysite-Key-Id` 送出該 key 的 ID（標頭名稱不變）。Laravel 依 `X-Mysite-Key-Id` 在金鑰圈中找金鑰，`active` 或 `accept` 皆可驗證；key ID 不在金鑰圈（含已 retire 的舊 key）→ 401 `EVENT_SIGNATURE_INVALID`（即 §4 的「key ID 未知」）。`X-Mysite-Key-Id` 仍為必填，缺少時同 §4 回 401。
 11. 預覽票券（§5）：header 新增可選欄位 `kid`，WP 新簽發的票券一律帶 `active` 預覽金鑰的 ID：`{"alg":"HS256","typ":"mysite-preview","kid":"k2"}`。驗證端（Laravel `/preview/exchange`、WP 私密端點 `GET /preview/{type}/{id}`）依 `kid` 找金鑰（`active` 或 `accept`）；`kid` 不在金鑰圈、格式不合法、不是字串，或 header 出現 `alg`／`typ`／`kid` 以外的欄位 → Laravel 403 `PREVIEW_INVALID`、WP 403 `site_content_preview_invalid`。沒有 `kid` 的舊格式票券只以 `active` key 驗證（不嘗試 `accept` key）。
 12. 輪替三期（`scripts/ops/rotate-secrets.sh --kind=event-hmac|preview`）：add（新 key 以 `accept` 加入，接收端先認得）→ promote（新 key 改為 `active` 開始簽章，舊 key 改為 `accept`，在途事件與已核發票券仍可驗證）→ retire（舊 key 移出金鑰圈，之後以它簽的事件與票券一律被拒）。每期先重建接收端（Laravel）再重建發送端（WP）。舊 key 不無期限接受：promote 後須在期限內 retire（見 `docs/runbooks/秘密輪替.md`）。
+
+## 8. 公開唯讀 API（2026-11-06，MySite React 前端專案 F1／F2）
+
+主站另開給前端容器使用的公開唯讀 JSON API `/api/v1/*`，契約正本為 `app/resources/contracts/public-api-v1.openapi.json`（OpenAPI 3.0.3），說明見 `docs/公開API契約.md`。它沿用本文件的內容物件與錯誤碼語意；新增的錯誤碼只有 §6 的 `SEARCH_INVALID`，另會回 §6 的 `HTTP_405`、`HTTP_500`、`HTTP_503`。

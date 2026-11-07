@@ -1,0 +1,18 @@
+{
+  "data": {
+    "q": "",
+    "type": null,
+    "searched": false,
+    "items": []
+  },
+  "meta": null,
+  "seo": {
+    "title": "搜尋",
+    "description": "搜尋的說明。",
+    "canonical_path": "/search",
+    "noindex": true,
+    "og_type": "website",
+    "og_image": null,
+    "og_image_alt": null
+  }
+}

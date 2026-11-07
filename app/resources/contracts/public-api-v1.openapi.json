@@ -1,0 +1,1694 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "mysite 公開唯讀 API",
+    "version": "1.0.0",
+    "description": "MySite React 前端專案 F1 定稿（docs/MySiteReact前端專案v1.md §5、定案執行書 M-18）。只有 GET；回應不帶 Set-Cookie、一律 Cache-Control: no-store；只回公開內容與畫面需要的欄位；時間一律 UTC。破壞性變更須另開 /api/v2。說明見 docs/公開API契約.md；本檔正本位置 app/resources/contracts/public-api-v1.openapi.json。"
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "app-web（只供前端容器經專用網路呼叫；gateway 對外 /api/ 回 404）"
+    }
+  ],
+  "paths": {
+    "/api/v1/site": {
+      "get": {
+        "operationId": "getSite",
+        "summary": "網站資訊與選單",
+        "description": "WordPress 讀不到時沿用內建後備（fallback 為 true），不回 503；只有 Laravel 維護模式（換版）時回 503（HTTP_503）。",
+        "responses": {
+          "200": {
+            "description": "網站資訊",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResponse"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "一律 no-store",
+                "schema": {
+                  "type": "string",
+                  "pattern": "no-store"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Laravel 維護模式（HTTP_503）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/home": {
+      "get": {
+        "operationId": "getHome",
+        "summary": "首頁區塊",
+        "responses": {
+          "200": {
+            "description": "首頁",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeResponse"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "一律 no-store",
+                "schema": {
+                  "type": "string",
+                  "pattern": "no-store"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "WordPress 失聯、逾時、5xx、格式不符，或可見性證明過期且無法重新確認（CONTENT_UPSTREAM_UNAVAILABLE、CONTENT_MODEL_UNSUPPORTED）；絕不回舊正文",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/articles": {
+      "get": {
+        "operationId": "list_articles",
+        "summary": "文章列表（每頁 12）",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$，前後空白先去掉）；其他值與超過總頁數一律 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponse"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "一律 no-store",
+                "schema": {
+                  "type": "string",
+                  "pattern": "no-store"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "找不到（CONTENT_NOT_FOUND）：內容不存在、不公開、slug 或 page 不合法、page 超過總頁數",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "WordPress 失聯、逾時、5xx、格式不符，或可見性證明過期且無法重新確認（CONTENT_UPSTREAM_UNAVAILABLE、CONTENT_MODEL_UNSUPPORTED）；絕不回舊正文",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/articles/{slug}": {
+      "get": {
+        "operationId": "show_articles",
+        "summary": "文章單篇",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "1～200 個非斜線字元（[^/]{1,200}），中文 slug 為百分比編碼",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "單篇",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailResponse"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "一律 no-store",
+                "schema": {
+                  "type": "string",
+                  "pattern": "no-store"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "找不到（CONTENT_NOT_FOUND）：內容不存在、不公開、slug 或 page 不合法、page 超過總頁數",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "WordPress 失聯、逾時、5xx、格式不符，或可見性證明過期且無法重新確認（CONTENT_UPSTREAM_UNAVAILABLE、CONTENT_MODEL_UNSUPPORTED）；絕不回舊正文",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/videos": {
+      "get": {
+        "operationId": "list_videos",
+        "summary": "影片列表（每頁 12）",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$，前後空白先去掉）；其他值與超過總頁數一律 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponse"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "一律 no-store",
+                "schema": {
+                  "type": "string",
+                  "pattern": "no-store"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "找不到（CONTENT_NOT_FOUND）：內容不存在、不公開、slug 或 page 不合法、page 超過總頁數",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "WordPress 失聯、逾時、5xx、格式不符，或可見性證明過期且無法重新確認（CONTENT_UPSTREAM_UNAVAILABLE、CONTENT_MODEL_UNSUPPORTED）；絕不回舊正文",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/videos/{slug}": {
+      "get": {
+        "operationId": "show_videos",
+        "summary": "影片單篇",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "1～200 個非斜線字元（[^/]{1,200}），中文 slug 為百分比編碼",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "單篇",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailResponse"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "一律 no-store",
+                "schema": {
+                  "type": "string",
+                  "pattern": "no-store"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "找不到（CONTENT_NOT_FOUND）：內容不存在、不公開、slug 或 page 不合法、page 超過總頁數",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "WordPress 失聯、逾時、5xx、格式不符，或可見性證明過期且無法重新確認（CONTENT_UPSTREAM_UNAVAILABLE、CONTENT_MODEL_UNSUPPORTED）；絕不回舊正文",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/podcasts": {
+      "get": {
+        "operationId": "list_podcasts",
+        "summary": "Podcast列表（每頁 12）",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$，前後空白先去掉）；其他值與超過總頁數一律 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponse"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "一律 no-store",
+                "schema": {
+                  "type": "string",
+                  "pattern": "no-store"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "找不到（CONTENT_NOT_FOUND）：內容不存在、不公開、slug 或 page 不合法、page 超過總頁數",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "WordPress 失聯、逾時、5xx、格式不符，或可見性證明過期且無法重新確認（CONTENT_UPSTREAM_UNAVAILABLE、CONTENT_MODEL_UNSUPPORTED）；絕不回舊正文",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/podcasts/{slug}": {
+      "get": {
+        "operationId": "show_podcasts",
+        "summary": "Podcast單篇",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "1～200 個非斜線字元（[^/]{1,200}），中文 slug 為百分比編碼",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "單篇",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailResponse"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "一律 no-store",
+                "schema": {
+                  "type": "string",
+                  "pattern": "no-store"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "找不到（CONTENT_NOT_FOUND）：內容不存在、不公開、slug 或 page 不合法、page 超過總頁數",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "WordPress 失聯、逾時、5xx、格式不符，或可見性證明過期且無法重新確認（CONTENT_UPSTREAM_UNAVAILABLE、CONTENT_MODEL_UNSUPPORTED）；絕不回舊正文",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pages/{slug}": {
+      "get": {
+        "operationId": "show_pages",
+        "summary": "一般頁面",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "1～200 個非斜線字元（[^/]{1,200}），中文 slug 為百分比編碼",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "頁面",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailResponse"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "一律 no-store",
+                "schema": {
+                  "type": "string",
+                  "pattern": "no-store"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "找不到（CONTENT_NOT_FOUND）：內容不存在、不公開、slug 或 page 不合法、page 超過總頁數",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "WordPress 失聯、逾時、5xx、格式不符，或可見性證明過期且無法重新確認（CONTENT_UPSTREAM_UNAVAILABLE、CONTENT_MODEL_UNSUPPORTED）；絕不回舊正文",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/categories/{slug}": {
+      "get": {
+        "operationId": "show_categories",
+        "summary": "分類彙整",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "1～200 個非斜線字元（[^/]{1,200}），中文 slug 為百分比編碼",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "description": "post、video、podcast；不帶時為總覽（此時帶 page 一律 404）；其他值 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$，前後空白先去掉）；其他值與超過總頁數一律 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "分類",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxonomyResponse"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "一律 no-store",
+                "schema": {
+                  "type": "string",
+                  "pattern": "no-store"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "找不到（CONTENT_NOT_FOUND）：內容不存在、不公開、slug 或 page 不合法、page 超過總頁數",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "WordPress 失聯、逾時、5xx、格式不符，或可見性證明過期且無法重新確認（CONTENT_UPSTREAM_UNAVAILABLE、CONTENT_MODEL_UNSUPPORTED）；絕不回舊正文",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tags/{slug}": {
+      "get": {
+        "operationId": "show_tags",
+        "summary": "標籤彙整",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "1～200 個非斜線字元（[^/]{1,200}），中文 slug 為百分比編碼",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "description": "post、video、podcast；不帶時為總覽（此時帶 page 一律 404）；其他值 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$，前後空白先去掉）；其他值與超過總頁數一律 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "標籤",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxonomyResponse"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "一律 no-store",
+                "schema": {
+                  "type": "string",
+                  "pattern": "no-store"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "找不到（CONTENT_NOT_FOUND）：內容不存在、不公開、slug 或 page 不合法、page 超過總頁數",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "WordPress 失聯、逾時、5xx、格式不符，或可見性證明過期且無法重新確認（CONTENT_UPSTREAM_UNAVAILABLE、CONTENT_MODEL_UNSUPPORTED）；絕不回舊正文",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/search": {
+      "get": {
+        "operationId": "search",
+        "summary": "站內搜尋",
+        "description": "不在 Laravel 限流（next 模式下 Laravel 看到的來源是前端容器）；每 IP 限流在 gateway（D13a），超限時 gateway 回正體中文 HTML 429 頁，不是 JSON。",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "description": "最長 100 字（去頭尾空白、合併連續空白後計算）",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "description": "post、video、podcast、page；其他值 422；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "1～1000 的正整數（^[1-9]\\d{0,3}$，前後空白先去掉）；其他值與超過總頁數一律 404；空字串或只有空白視同未帶（全域 TrimStrings、ConvertEmptyStringsToNull，與 Blade 相同）",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "搜尋結果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "一律 no-store",
+                "schema": {
+                  "type": "string",
+                  "pattern": "no-store"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "找不到（CONTENT_NOT_FOUND）：內容不存在、不公開、slug 或 page 不合法、page 超過總頁數",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "參數不合法（SEARCH_INVALID）：q 超過 100 字或 type 不正確；message 為具體原因，前端在搜尋頁以 role=alert 顯示",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "WordPress 失聯、逾時、5xx、格式不符，或可見性證明過期且無法重新確認（CONTENT_UPSTREAM_UNAVAILABLE、CONTENT_MODEL_UNSUPPORTED）；絕不回舊正文",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Image": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url",
+          "alt",
+          "width",
+          "height"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "只輸出通過 MediaPolicy::imageUrl（Sanitizer::isAllowedMediaUrl）的網址"
+          },
+          "alt": {
+            "type": "string"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "nullable": true
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1,
+            "nullable": true
+          }
+        },
+        "description": "圖片（對應 App\\Domain\\Content\\Dto\\Image）。不合政策的圖片整個輸出 null，前端顯示佔位。"
+      },
+      "Term": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "slug",
+          "name",
+          "path",
+          "count"
+        ],
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^/[^\\s]*$",
+            "description": "站內相對路徑；slug 以 rawurlencode 編碼"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          }
+        },
+        "description": "分類或標籤（對應 Term）。path 為 /categories/{slug} 或 /tags/{slug}。"
+      },
+      "MenuItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "url",
+          "external"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "external": {
+            "type": "boolean"
+          }
+        },
+        "description": "選單項目（對應 MenuItem）"
+      },
+      "SocialLink": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "url"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^https://"
+          }
+        }
+      },
+      "Video": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "youtube_id",
+          "watch_url",
+          "embed_url",
+          "duration_seconds",
+          "video_unavailable"
+        ],
+        "properties": {
+          "youtube_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{11}$",
+            "nullable": true
+          },
+          "watch_url": {
+            "type": "string",
+            "pattern": "^https://www\\.youtube\\.com/watch\\?v=[A-Za-z0-9_-]{11}$",
+            "nullable": true
+          },
+          "embed_url": {
+            "type": "string",
+            "pattern": "^https://www\\.youtube-nocookie\\.com/embed/[A-Za-z0-9_-]{11}\\?autoplay=1&rel=0$",
+            "nullable": true
+          },
+          "duration_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "video_unavailable": {
+            "type": "boolean"
+          }
+        },
+        "description": "影片（MediaPolicy::youtubeId）。ID 不合法時 youtube_id、watch_url、embed_url 皆為 null，video_unavailable 為 true。"
+      },
+      "Podcast": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "audio_url",
+          "audio_mime",
+          "duration_seconds",
+          "audio_unavailable"
+        ],
+        "properties": {
+          "audio_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "audio_mime": {
+            "type": "string",
+            "enum": [
+              "audio/mpeg",
+              "audio/mp3",
+              "audio/mp4",
+              "audio/x-m4a",
+              "audio/aac",
+              "audio/ogg",
+              "audio/opus",
+              "audio/wav",
+              "audio/x-wav",
+              "audio/wave",
+              "audio/webm",
+              "audio/flac"
+            ],
+            "nullable": true
+          },
+          "duration_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "audio_unavailable": {
+            "type": "boolean"
+          }
+        },
+        "description": "Podcast 音訊（MediaPolicy::audioSource／audioMime）。來源不合政策時 audio_url 為 null、audio_unavailable 為 true，簡介照常提供。"
+      },
+      "ContentSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "slug",
+          "path",
+          "title",
+          "excerpt",
+          "published_at",
+          "modified_at",
+          "author_name",
+          "cover",
+          "categories",
+          "tags",
+          "duration_seconds",
+          "is_sample"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "post",
+              "video",
+              "podcast",
+              "page"
+            ]
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^/[^\\s]*$",
+            "description": "站內相對路徑；slug 以 rawurlencode 編碼"
+          },
+          "title": {
+            "type": "string"
+          },
+          "excerpt": {
+            "type": "string",
+            "description": "純文字"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+            "description": "UTC，ISO 8601（ADR-012）"
+          },
+          "modified_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+            "description": "UTC，ISO 8601（ADR-012）"
+          },
+          "author_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "cover": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Image"
+              }
+            ]
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Term"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Term"
+            }
+          },
+          "duration_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "is_sample": {
+            "type": "boolean"
+          }
+        },
+        "description": "列表用摘要（對應 ContentItem 去掉正文）。duration_seconds 取影片或 Podcast 的片長，其他型別為 null。"
+      },
+      "ContentDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "slug",
+          "path",
+          "title",
+          "excerpt",
+          "published_at",
+          "modified_at",
+          "author_name",
+          "cover",
+          "categories",
+          "tags",
+          "duration_seconds",
+          "is_sample",
+          "content_html",
+          "video",
+          "podcast"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "post",
+              "video",
+              "podcast",
+              "page"
+            ]
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^/[^\\s]*$",
+            "description": "站內相對路徑；slug 以 rawurlencode 編碼"
+          },
+          "title": {
+            "type": "string"
+          },
+          "excerpt": {
+            "type": "string",
+            "description": "純文字"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+            "description": "UTC，ISO 8601（ADR-012）"
+          },
+          "modified_at": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+            "description": "UTC，ISO 8601（ADR-012）"
+          },
+          "author_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "cover": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Image"
+              }
+            ]
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Term"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Term"
+            }
+          },
+          "duration_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "is_sample": {
+            "type": "boolean"
+          },
+          "content_html": {
+            "type": "string",
+            "description": "唯一淨化器 App\\Support\\Html\\Sanitizer 的輸出；沒有內文時為空字串。前端只能經 SafeHtml 輸出，不再淨化、不自行組 HTML。"
+          },
+          "video": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Video"
+              }
+            ]
+          },
+          "podcast": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Podcast"
+              }
+            ]
+          }
+        },
+        "description": "單篇（文章、影片、Podcast、一般頁面）。type 為 video 時 video 必不為 null；為 podcast 時 podcast 必不為 null；其他型別兩者皆為 null。"
+      },
+      "Pagination": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "page",
+          "per_page",
+          "total",
+          "total_pages"
+        ],
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "per_page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "total_pages": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "Seo": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "description",
+          "canonical_path",
+          "noindex",
+          "og_type",
+          "og_image",
+          "og_image_alt"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "頁面標題（不含站名）。前端組成 <title>：title 為空或等於站名時只用站名，否則「title｜站名」（PageMeta::fullTitle）"
+          },
+          "description": {
+            "type": "string"
+          },
+          "canonical_path": {
+            "type": "string",
+            "pattern": "^/",
+            "description": "canonical 的路徑與查詢字串（已正規化：page≤1 去掉、參數排序）。前端以主站公開網址環境變數組成完整網址，og:url 同值"
+          },
+          "noindex": {
+            "type": "boolean",
+            "description": "true 時 robots 為 noindex, nofollow（搜尋頁）"
+          },
+          "og_type": {
+            "type": "string",
+            "enum": [
+              "website",
+              "article",
+              "video.other"
+            ]
+          },
+          "og_image": {
+            "type": "string",
+            "nullable": true
+          },
+          "og_image_alt": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "description": "頁面中繼資料（對應 App\\Domain\\Content\\Seo\\PageMeta）"
+      },
+      "Collection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "label",
+          "title",
+          "lede"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "post",
+              "video",
+              "podcast"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "lede": {
+            "type": "string"
+          }
+        },
+        "description": "列表頁的型別標題與引言（ContentType::label／collectionTitle／collectionLede）"
+      },
+      "Site": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "tagline",
+          "author_bio",
+          "social_links",
+          "logo",
+          "is_sample",
+          "fallback",
+          "menus",
+          "commerce_enabled"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tagline": {
+            "type": "string"
+          },
+          "author_bio": {
+            "type": "string",
+            "description": "純文字（現行 WordPress 欄位即純文字，頁尾以跳脫後輸出）"
+          },
+          "social_links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SocialLink"
+            }
+          },
+          "logo": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Image"
+              }
+            ]
+          },
+          "is_sample": {
+            "type": "boolean"
+          },
+          "fallback": {
+            "type": "boolean",
+            "description": "true 表示讀不到 WordPress 網站資訊，name 等欄位改用內建後備值（不回 503，讓錯誤頁仍有版面可畫）"
+          },
+          "menus": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "primary",
+              "footer"
+            ],
+            "properties": {
+              "primary": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/MenuItem"
+                }
+              },
+              "footer": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/MenuItem"
+                }
+              }
+            }
+          },
+          "commerce_enabled": {
+            "type": "boolean"
+          }
+        },
+        "description": "網站資訊與選單（現由 View::composer('layouts.app') 提供的同一批資料）"
+      },
+      "Error": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "error",
+          "message",
+          "request_id"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$",
+            "description": "錯誤碼：CONTENT_NOT_FOUND、CONTENT_UPSTREAM_UNAVAILABLE、CONTENT_MODEL_UNSUPPORTED、SEARCH_INVALID、HTTP_405（非 GET）、HTTP_500（未預期例外）、HTTP_503（Laravel 維護模式）（docs/API契約.md §6、docs/公開API契約.md）"
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "request_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          }
+        },
+        "description": "錯誤（ErrorRenderer 的 JSON 分支）"
+      },
+      "TaxonomySection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "total",
+          "per_page"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentSummary"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "per_page": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "SiteResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Site"
+          }
+        }
+      },
+      "HomeResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "seo"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "featured",
+              "posts",
+              "videos",
+              "podcasts"
+            ],
+            "properties": {
+              "featured": {
+                "nullable": true,
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ContentSummary"
+                  }
+                ]
+              },
+              "posts": {
+                "type": "array",
+                "maxItems": 6,
+                "items": {
+                  "$ref": "#/components/schemas/ContentSummary"
+                }
+              },
+              "videos": {
+                "type": "array",
+                "maxItems": 4,
+                "items": {
+                  "$ref": "#/components/schemas/ContentSummary"
+                }
+              },
+              "podcasts": {
+                "type": "array",
+                "maxItems": 4,
+                "items": {
+                  "$ref": "#/components/schemas/ContentSummary"
+                }
+              }
+            }
+          },
+          "seo": {
+            "$ref": "#/components/schemas/Seo"
+          }
+        }
+      },
+      "ListResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta",
+          "collection",
+          "seo"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "$ref": "#/components/schemas/ContentSummary"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Pagination"
+          },
+          "collection": {
+            "$ref": "#/components/schemas/Collection"
+          },
+          "seo": {
+            "$ref": "#/components/schemas/Seo"
+          }
+        }
+      },
+      "DetailResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "seo"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ContentDetail"
+          },
+          "seo": {
+            "$ref": "#/components/schemas/Seo"
+          }
+        }
+      },
+      "TaxonomyResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta",
+          "seo"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "label",
+              "term",
+              "mode",
+              "type",
+              "overview",
+              "items"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "category",
+                  "tag"
+                ]
+              },
+              "label": {
+                "type": "string",
+                "enum": [
+                  "分類",
+                  "標籤"
+                ]
+              },
+              "term": {
+                "$ref": "#/components/schemas/Term"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "overview",
+                  "listing"
+                ],
+                "description": "overview：不帶 type，各型別最新 6 筆；listing：帶 type，分頁列表"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "post",
+                  "video",
+                  "podcast"
+                ],
+                "nullable": true
+              },
+              "overview": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "post",
+                  "video",
+                  "podcast"
+                ],
+                "properties": {
+                  "post": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "items",
+                      "total",
+                      "per_page"
+                    ],
+                    "properties": {
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/ContentSummary"
+                        }
+                      },
+                      "total": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "per_page": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    }
+                  },
+                  "video": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "items",
+                      "total",
+                      "per_page"
+                    ],
+                    "properties": {
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/ContentSummary"
+                        }
+                      },
+                      "total": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "per_page": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    }
+                  },
+                  "podcast": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "items",
+                      "total",
+                      "per_page"
+                    ],
+                    "properties": {
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/ContentSummary"
+                        }
+                      },
+                      "total": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "per_page": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    }
+                  }
+                },
+                "nullable": true
+              },
+              "items": {
+                "type": "array",
+                "maxItems": 12,
+                "items": {
+                  "$ref": "#/components/schemas/ContentSummary"
+                },
+                "nullable": true
+              }
+            }
+          },
+          "meta": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Pagination"
+              }
+            ]
+          },
+          "seo": {
+            "$ref": "#/components/schemas/Seo"
+          }
+        },
+        "description": "mode 為 overview 時 overview 不為 null、items 與 meta 為 null；listing 時相反"
+      },
+      "SearchResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta",
+          "seo"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "q",
+              "type",
+              "searched",
+              "items"
+            ],
+            "properties": {
+              "q": {
+                "type": "string",
+                "maxLength": 100,
+                "description": "去頭尾空白、連續空白合併後的查詢詞"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "post",
+                  "video",
+                  "podcast",
+                  "page"
+                ],
+                "nullable": true
+              },
+              "searched": {
+                "type": "boolean",
+                "description": "q 為空時 false（只顯示搜尋表單），否則 true"
+              },
+              "items": {
+                "type": "array",
+                "maxItems": 12,
+                "items": {
+                  "$ref": "#/components/schemas/ContentSummary"
+                }
+              }
+            }
+          },
+          "meta": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Pagination"
+              }
+            ]
+          },
+          "seo": {
+            "$ref": "#/components/schemas/Seo"
+          }
+        }
+      }
+    }
+  }
+}

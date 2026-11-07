@@ -54,7 +54,7 @@
     @stack('head')
 </head>
 <body class="@yield('body_class')">
-    <a class="skip-link" href="#main">跳到主要內容</a>
+    <a class="skip-link" href="#main" data-skip-link>跳到主要內容</a>
     @include('layouts.partials.header')
     @yield('banner')
     <main id="main" class="site-main" tabindex="-1">

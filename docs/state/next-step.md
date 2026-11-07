@@ -1,25 +1,20 @@
 # next-step
 
-- 交付狀態：`CI_VERIFIED`。受測 commit `b2a91af`（PR #4 最後一個程式提交），GitHub Actions run 42203612453：content 與 simulation 兩個範圍全部步驟通過。
-  - PHPUnit 356 項，覆蓋率 94.83%
+- 交付狀態：`CI_VERIFIED`。受測 commit `7b07163`（PR #3 併入 main `27b6662` 之後），GitHub Actions run 42341629307（push）：content 與 simulation 兩個範圍全部步驟通過；PR 輪 run 42341633222 同樣全綠。
+  - PHPUnit 507 項，覆蓋率 94.91%
   - WP 契約 31 項
-  - E2E 162／165 項通過（content／simulation）
-  - doctor 14 項（含 GW-LOGIN-LIMIT）
+  - E2E 共 204 項：content 通過 162、略過 42；simulation 通過 165、略過 39（略過的是另一範圍專屬的測試）
+  - doctor 16 項（含 GW-PROBES、GW-API、GW-LOGIN-LIMIT）
   - 部署工具 39 項（含 S07）
   - 治理與弱點掃描 36 項
-  - 證據：`docs/evidence/gha-42203612453-1-*`（另有 `fa0c04d` 的 `gha-42181190540-1-*`）、`docs/evidence/bootstrap-source-41973465852/`
+  - 證據：`docs/evidence/gha-42341629307-1-*`（上一輪為 `b2a91af` 的 `gha-42203612453-1-*`）、`docs/evidence/bootstrap-source-41973465852/`
 - 驗收登錄表：PASS 89、BLOCKED_EXTERNAL 7（OPS-02、08、09、10、13、14、WP-10）、FAIL 0、NOT_RUN 0。
-- 程式已合併到 main：PR #1（`aad927e`）、PR #2（`98bd557`）、PR #4（本次，經委託人核准）。工作分支在每次合併後從 main 重新起算。
+- 程式已合併到 main：PR #1（`aad927e`）、PR #2（`98bd557`）、PR #4（`27b6662`）；PR #3 待委託人合併。工作分支在每次合併後從 main 重新起算。
 - 切片 `M1-09`（PR #4，VERIFIED）：gateway 登入限流原本只比對精確路徑，`POST /admin/login/`（結尾斜線）與 `/index.php/admin/login`（前端控制器別名）都能繞過 gateway 進到 Laravel 登入處理程式。已改為接受結尾斜線、`/index.php/` 前綴一律 404，並新增 doctor `GW-LOGIN-LIMIT`（實測）與部署工具 `S07`（http／https 模板一致性、規則不可重複）。
 - 切片 `M1-10`（PR #4，IMPLEMENTED）：全新開發環境的 `bootstrap.sh --env=development` 原本在 PHP 相依安裝失敗——沒帶 ADR-005 規定的 source 模式（代理擋 GitHub zipball），且 `dump-autoload` 後的 `package:discover` 在無設定的工具容器內被執行期設定檢查擋下。已改為依 `COMPOSER_PREFER` 加 `--prefer-install`、失敗重試一次，`composer.sh` 比照映像建置帶 `MYSITE_SKIP_CONFIG_VALIDATION=1`。
   - 本 VM 實測：清空 `app/vendor` 後重跑 bootstrap 成功、doctor 14 項全過；重試邏輯另以假 composer 測過四種情況。CI 只跑 testing 環境，不涵蓋這條 development 路徑。
   - 注意：source 模式的 `app/vendor` 約 7.5GB（含完整 git 歷史），Composer 快取約 6.7GB；VM 磁碟額度有限，不要另外複製 vendor。
-- **PR #3（`claude/happy-euler-evh676`）合併前必須先把 main（已含 PR #4）併入其分支，會有衝突**。已以 PR #3 的 `44696a2` 演練並驗證下列解法：
-  - 衝突檔：兩份 gateway 模板、`scripts/cloud/doctor.sh`（只有 `--help` 說明）、`docs/state/next-step.md`、`docs/state/status.json`；`tasks.json` 會自動合併。
-  - gateway 模板：登入 location 用 main 的 `/?$` 版（含三行註解）；main 的 `location ^~ /index.php/` 與其兩行註解**刪掉**，因為 PR #3 在 `/api/` 之後已有同一條且會自動併入。兩條都留會讓 nginx 報 `duplicate location` 無法啟動（S07 會擋）。PR #3 的 `deny-sensitive`、`= /index.php`、`\.php$`、`/api/` 照留。
-  - doctor：`--help` 兩段說明都留；GW-PROBES、GW-API、GW-LOGIN-LIMIT 三項檢查會自動並存。
-  - 驗證結果：state 檢查、S07、http／https `nginx -t` 通過；以合併後模板起臨時 gateway 接上開發環境網路實測 23 項全過（登入限流 11 個變體、`/index.php/` 別名 3 個、GET 登入頁不計入、PR #3 的 `/api/`、`/index.php/api/`、`.php`、敏感檔 7 項、`/index.php` 仍交給 Laravel）。
-  - state 檔依合併當下的 CI 結果重寫。
+- PR #3（`claude/happy-euler-evh676`，React 前端專案 F0～F2）：已處理——合併提交 `f59b615` 把 main（含 PR #4，`27b6662`）併入，衝突照 PR #4 會話演練的解法處理——gateway 登入 location 用 main 的 `/?$` 版，`location ^~ /index.php/` 只留一條；doctor 三項檢查並存。合併後 CI（run 42341629307、42341633222）全綠，證據已匯入。待委託人合併。
 - 目前任務：`M9A-01`（staging 主機開通與部署），被 BLK-HOST-01、BLK-DNS-01 阻擋，等委託人提供主機與網域。
 - 第一個可執行的下一步：委託人提供常駐 Linux 主機（或核准供應商與月費上限）與網域後，依 `docs/runbooks/主機開通.md` 的 P0–P8 進行，再跑 staging 驗收（OPS-02、08、09、10、13）。
 - 尚待真實環境的其他驗收：
@@ -30,6 +25,16 @@
   - `dependency-audit.yml` 每週排程已生效。
   - `sandbox.yml` 可手動觸發。
 - 恢復服務：`bash scripts/cloud/session-start.sh`；首次或缺件：`bash scripts/cloud/bootstrap.sh --env=development`。
-- 本 VM 的 testing 環境：子代理實測輪替後，金鑰與 APP_KEY 已換過；需要乾淨狀態時，重跑 `bootstrap.sh --env=testing` 即可，CI 不受影響。
+- 本 VM 的 testing 環境：目前停止中（見下方 React 段落的磁碟說明）；釋放空間後重跑 `bootstrap.sh --env=testing` 即可恢復，CI 不受影響。
 - 不可重跑的破壞性動作：無。開發資料卷只能由委託人明確要求後手動清除；正式環境不存在 reset。
-- 尚未推送的內容：以 `git status` 與 `git log origin/claude/wonderful-ritchie-jsf1rh..HEAD` 檢查。
+- 尚未推送的內容：以 `git status` 與 `git log origin/<目前工作分支>..HEAD` 檢查。
+- **MySite React 前端專案**（`docs/MySiteReact前端專案定案執行.md`，ADR-015）：
+  - F0 已做：定案執行書、v1、v2 三份原文逐位元組入 docs/；ADR-015（裁定紀錄＋v1 §1.4 範圍表）；v1 §1.4 各處行內修訂註記（原件雜湊以 `scripts/lib/plan_digest.py` 去註記後比對）；`claude/happy-euler-evh676` 依委託人裁定保留並併入 F0 PR。
+  - 已先行落實（與 blade 模式等價）：gateway 主站區塊照搬 app-web 的敏感檔與 `.php` 規則，doctor 新增 GW-PROBES 檢查；D13c 呼叫次數試算見 `docs/MySiteReact施工紀錄/D13c逾時試算.md`。
+  - F1 已做：契約 `app/resources/contracts/public-api-v1.openapi.json`（OpenAPI 3.0.3）＋樣本集（有效 54、無效 16）＋說明 `docs/公開API契約.md`（畫面欄位對照、導航狀態矩陣、`@DAT-04` 邊界）＋DOM 掛鉤清單 `tests/e2e/dom-hooks.json`。
+  - CI 讀回：提交 `e9eafcf`，run 42177692118 全綠（兩輪查錯後）。
+  - F2 已做：`/api/v1/*`（`app/routes/api.php`）、`MediaPolicy`／`PageMetaFactory`／`PublicContentInput` 與 Blade 共用、gateway 對外 `/api/` 回 404、假資料匯出指令 `content:export-api-mocks`；PAPI-01～07 在 development 實跑 PASS，PAPI-08 留 F6。紀錄 `docs/MySiteReact施工紀錄/F1F2施工紀錄.md`。
+  - F3 已做（MySiteStorage，PR Whenwhoengine/MySiteStorage#1）：骨架、資料層、受保護元件、Tailwind v4 複刻 Blade、AI_RULES／AGENTS、主 CI、受保護路徑守門工作流程（`protected-paths.yml`，以模擬測試驗證 18 個情境）、程式審查後的修正（2 項中等、13 項輕微）；單元 754、E2E 146 項全過；紀錄 `docs/MySiteReact施工紀錄/F3施工紀錄.md` 第 12～14 節。FE-11 實測待事件政策與合併。
+  - F6 前置：mysite E2E 改用 DOM 掛鉤（v1 F1 第 5 點排在 F6）已在本 VM 做好並驗證（改前改後同為 138 通過、33 略過），尚未提交；PR #3 合併後隨 F6 分支提交。
+  - 下一步：F0～F2 在 PR Whenwhoengine/mysite#3 待委託人合併（已把含 PR #4 的 main 併入並解開衝突）；MySiteStorage PR #1（CI run 42346173567 全綠）待委託人先建立事件政策（BLK-REACT-POLICY-01，Settings → Actions → Policies，只允許 `.github/workflows/protected-paths.yml` 使用 `pull_request_target`）再合併，合併後設定必要檢查 `frontend-ci`、`protected-paths`，施工者再以測試 PR 跑 FE-11；D13a（搜尋限流 30r/m、burst 29）、D13c（前端逾時 50000 毫秒）、D13f（frontend／frontend-api 兩張 internal 網路）已依委託人授權定值（`docs/MySiteReact施工紀錄/D13呈報.md` §3），D13b、D13d、D13e 待 F6 實測；F7 需主機（BLK-HOST-01）。
+  - 本 VM 的 testing 環境：2026-11-06 因磁碟配額不足（剩約 0.7 GB）重建映像失敗，目前已停止（資料卷保留）。CI 不受影響；要在本 VM 跑 testing 前須先釋放空間（Docker 建置快取約 9 GB 可回收、先前會話的 composer git 快取約 7 GB，清除須委託人同意）。

@@ -1,0 +1,59 @@
+{
+  "data": [
+    {
+      "type": "podcast",
+      "slug": "sample-episode",
+      "path": "/podcasts/sample-episode",
+      "title": "示例節目第一集",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/art.png",
+        "alt": "節目封面",
+        "width": 600,
+        "height": 600
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": 1800,
+      "is_sample": true
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 12,
+    "total": 1,
+    "total_pages": 1
+  },
+  "collection": {
+    "type": "podcast",
+    "label": "Podcast",
+    "title": "Podcast 節目",
+    "lede": "可直接收聽的音訊節目，附節目簡介。"
+  },
+  "seo": {
+    "title": "Podcast 節目",
+    "description": "Podcast 節目的說明。",
+    "canonical_path": "/podcasts",
+    "noindex": false,
+    "og_type": "website",
+    "og_image": null,
+    "og_image_alt": null
+  }
+}

@@ -22,9 +22,9 @@
 @section('body_class', 'page-error page-error--'.$status)
 
 @section('content')
-    <section class="state" aria-labelledby="state-title">
+    <section class="state" aria-labelledby="state-title" data-error-view="{{ $status }}">
         <p class="state__code" aria-hidden="true">{{ $status }}</p>
-        <h1 id="state-title" class="state__title">{{ $heading }}</h1>
+        <h1 id="state-title" class="state__title" data-error-title>{{ $heading }}</h1>
         <p class="state__message">{{ $message ?? '' }}</p>
 
         @if ($isPreview)
@@ -45,11 +45,11 @@
         @endif
 
         <p class="state__actions">
-            <a class="button button--primary" href="/">回首頁</a>
+            <a class="button button--primary" href="/" data-error-home-link>回首頁</a>
             @if (in_array($status, [503, 419, 429], true) && ! request()->is('preview', 'preview/*'))
-                <a class="button" href="{{ request()->getRequestUri() }}">重新整理</a>
+                <a class="button" href="{{ request()->getRequestUri() }}" data-error-retry-link>重新整理</a>
             @endif
         </p>
-        <p class="state__ref">請求編號：<code>{{ $requestId ?? '' }}</code></p>
+        <p class="state__ref" data-request-id>請求編號：<code>{{ $requestId ?? '' }}</code></p>
     </section>
 @endsection

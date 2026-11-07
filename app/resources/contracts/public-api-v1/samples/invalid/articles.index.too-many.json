@@ -1,0 +1,467 @@
+{
+  "data": [
+    {
+      "type": "post",
+      "slug": "sample-article",
+      "path": "/articles/sample-article",
+      "title": "示例文章標題",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "sample-article",
+      "path": "/articles/sample-article",
+      "title": "示例文章標題",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "sample-article",
+      "path": "/articles/sample-article",
+      "title": "示例文章標題",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "sample-article",
+      "path": "/articles/sample-article",
+      "title": "示例文章標題",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "sample-article",
+      "path": "/articles/sample-article",
+      "title": "示例文章標題",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "sample-article",
+      "path": "/articles/sample-article",
+      "title": "示例文章標題",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "sample-article",
+      "path": "/articles/sample-article",
+      "title": "示例文章標題",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "sample-article",
+      "path": "/articles/sample-article",
+      "title": "示例文章標題",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "sample-article",
+      "path": "/articles/sample-article",
+      "title": "示例文章標題",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "sample-article",
+      "path": "/articles/sample-article",
+      "title": "示例文章標題",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "sample-article",
+      "path": "/articles/sample-article",
+      "title": "示例文章標題",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "sample-article",
+      "path": "/articles/sample-article",
+      "title": "示例文章標題",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    },
+    {
+      "type": "post",
+      "slug": "sample-article",
+      "path": "/articles/sample-article",
+      "title": "示例文章標題",
+      "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+      "published_at": "2026-11-01T02:00:00Z",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "author_name": "編輯部",
+      "cover": {
+        "url": "/mock-media/cover.png",
+        "alt": "示例封面替代文字",
+        "width": 1200,
+        "height": 630
+      },
+      "categories": [
+        {
+          "slug": "news",
+          "name": "新聞",
+          "path": "/categories/news",
+          "count": null
+        }
+      ],
+      "tags": [
+        {
+          "slug": "demo",
+          "name": "示例",
+          "path": "/tags/demo",
+          "count": null
+        }
+      ],
+      "duration_seconds": null,
+      "is_sample": true
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 12,
+    "total": 30,
+    "total_pages": 3
+  },
+  "collection": {
+    "type": "post",
+    "label": "文章",
+    "title": "文章",
+    "lede": "長文、筆記與幕後紀錄。"
+  },
+  "seo": {
+    "title": "文章",
+    "description": "文章的說明。",
+    "canonical_path": "/articles",
+    "noindex": false,
+    "og_type": "website",
+    "og_image": null,
+    "og_image_alt": null
+  }
+}

@@ -30,7 +30,9 @@ fi
 plan_rel="$(jq -r '.source_plan_file // empty' docs/state/status.json 2>/dev/null || true)"
 plan_sha="$(jq -r '.plan_sha256 // empty' docs/state/status.json 2>/dev/null || true)"
 if [[ -n "$plan_rel" && -f "$plan_rel" ]]; then
-  if [[ "$(sha256sum "$plan_rel" | cut -d' ' -f1)" == "$plan_sha" ]]; then
+  # ADR-015：原件可帶行內修訂註記〔ADR-nnn 修訂註記…〕；去掉註記後必須與委託人原件逐位元組相同。
+  plan_now="$(python3 scripts/lib/plan_digest.py "$plan_rel" 2>/dev/null || sha256sum "$plan_rel" | cut -d' ' -f1)"
+  if [[ "$plan_now" == "$plan_sha" ]]; then
     echo "規劃書：${plan_rel}（SHA-256 與紀錄相符）"
   else
     echo "規劃書：${plan_rel} 的 SHA-256 與 status.json 不符；請停止依此檔施工並向委託人確認原件。"

@@ -6,6 +6,7 @@ namespace App\View\Components;
 
 use App\Domain\Content\Dto\Image as ImageDto;
 use App\Domain\Content\Dto\PodcastInfo;
+use App\Domain\Content\Media\MediaPolicy;
 use App\Domain\Content\Support\DisplayTime;
 use Illuminate\View\Component;
 use Illuminate\View\View;
@@ -16,8 +17,6 @@ use Illuminate\View\View;
  */
 final class AudioPlayer extends Component
 {
-    private const MIME_ALLOWLIST = ['audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/x-m4a', 'audio/aac', 'audio/ogg', 'audio/opus', 'audio/wav', 'audio/x-wav', 'audio/wave', 'audio/webm', 'audio/flac'];
-
     public readonly ?string $src;
 
     public readonly ?string $mime;
@@ -34,39 +33,17 @@ final class AudioPlayer extends Component
         public ?ImageDto $cover = null,
         public bool $preview = false,
     ) {
-        $url = $podcast?->audioUrl;
-        $this->src = self::isAllowedSource($url) ? $url : null;
-        $mime = strtolower(trim((string) $podcast?->audioMime));
-        $this->mime = in_array($mime, self::MIME_ALLOWLIST, true) ? $mime : null;
+        $this->src = MediaPolicy::audioSource($podcast?->audioUrl);
+        $this->mime = MediaPolicy::audioMime($podcast?->audioMime);
         $this->duration = DisplayTime::duration($podcast?->durationSeconds);
         $this->durationIso = DisplayTime::isoDuration($podcast?->durationSeconds);
         $this->durationSpoken = DisplayTime::durationSpoken($podcast?->durationSeconds);
     }
 
+    /** 政策本體在 MediaPolicy（v1 §5.6）；保留方法名稱供既有呼叫端使用。 */
     public static function isAllowedSource(?string $url): bool
     {
-        if ($url === null || $url === '' || preg_match('/[\x00-\x20\\\\]/', $url) === 1) {
-            return false;
-        }
-        $parts = parse_url($url);
-        if ($parts === false || isset($parts['user']) || isset($parts['pass'])) {
-            return false;
-        }
-        $scheme = strtolower((string) ($parts['scheme'] ?? ''));
-        $host = strtolower((string) ($parts['host'] ?? ''));
-        if ($host === '' || ! in_array($scheme, ['http', 'https'], true)) {
-            return false;
-        }
-
-        $wp = parse_url((string) config('mysite.wp_public_url'));
-        if (is_array($wp) && strtolower((string) ($wp['host'] ?? '')) === $host
-            && strtolower((string) ($wp['scheme'] ?? '')) === $scheme
-            && ($wp['port'] ?? null) === ($parts['port'] ?? null)) {
-            return true;
-        }
-        $allowed = array_map('strtolower', (array) config('mysite.content.podcast_audio_allowed_hosts', []));
-
-        return $scheme === 'https' && in_array($host, $allowed, true);
+        return MediaPolicy::isAllowedAudioSource($url);
     }
 
     public function mimeLabel(): ?string

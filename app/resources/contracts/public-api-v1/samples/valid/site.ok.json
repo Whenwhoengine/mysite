@@ -1,0 +1,58 @@
+{
+  "data": {
+    "name": "mysite",
+    "tagline": "MSMOCK-7F3A9C1E 影音創作紀錄",
+    "author_bio": "（示例內容）作者介紹。",
+    "social_links": [
+      {
+        "label": "示例連結",
+        "url": "https://example.com/"
+      }
+    ],
+    "logo": {
+      "url": "/mock-media/logo.png",
+      "alt": "示例標誌",
+      "width": 512,
+      "height": 512
+    },
+    "is_sample": true,
+    "fallback": false,
+    "menus": {
+      "primary": [
+        {
+          "label": "文章",
+          "url": "/articles",
+          "external": false
+        },
+        {
+          "label": "影片",
+          "url": "/videos",
+          "external": false
+        },
+        {
+          "label": "Podcast",
+          "url": "/podcasts",
+          "external": false
+        },
+        {
+          "label": "搜尋",
+          "url": "/search",
+          "external": false
+        }
+      ],
+      "footer": [
+        {
+          "label": "隱私說明",
+          "url": "/pages/privacy",
+          "external": false
+        },
+        {
+          "label": "示例外部連結",
+          "url": "https://example.com/",
+          "external": true
+        }
+      ]
+    },
+    "commerce_enabled": false
+  }
+}

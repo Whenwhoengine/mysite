@@ -4,7 +4,7 @@
     $type = $item->type;
     $T = \App\Domain\Content\Support\DisplayTime::class;
 @endphp
-<article class="entry entry--{{ $type->value }}" aria-labelledby="entry-title">
+<article class="entry entry--{{ $type->value }}" aria-labelledby="entry-title" data-entry>
     <header class="entry__header">
         <p class="entry__eyebrow">
             @if ($type !== \App\Domain\Content\ContentType::Page)
@@ -13,7 +13,7 @@
             @if ($item->isSample)<x-badge variant="sample">示例內容</x-badge>@endif
             @if ($preview)<x-badge variant="accent">預覽</x-badge>@endif
         </p>
-        <h1 id="entry-title" class="entry__title">{{ $item->title !== '' ? $item->title : '（未命名）' }}</h1>
+        <h1 id="entry-title" class="entry__title" data-entry-title>{{ $item->title !== '' ? $item->title : '（未命名）' }}</h1>
         @if ($item->excerpt !== '' && $type !== \App\Domain\Content\ContentType::Page)
             <p class="entry__lede">{{ $item->excerpt }}</p>
         @endif
@@ -39,7 +39,7 @@
         </figure>
     @endif
 
-    <div class="entry__body">
+    <div class="entry__body" data-entry-body>
         @if ($item->body !== null && ! $item->body->isEmpty())
             <x-rich-content :content="$item->body" />
         @else

@@ -1,0 +1,48 @@
+{
+  "data": {
+    "type": "post",
+    "slug": "sample-article",
+    "path": "/articles/sample-article",
+    "title": "示例文章標題",
+    "excerpt": "MSMOCK-7F3A9C1E 這是一段示例摘要。",
+    "published_at": "2026-11-01T02:00:00Z",
+    "modified_at": "2026-11-02T03:00:00Z",
+    "author_name": "編輯部",
+    "cover": {
+      "url": "/mock-media/cover.png",
+      "alt": "示例封面替代文字",
+      "width": 1200,
+      "height": 630
+    },
+    "categories": [
+      {
+        "slug": "news",
+        "name": "新聞",
+        "path": "/categories/news",
+        "count": null
+      }
+    ],
+    "tags": [
+      {
+        "slug": "demo",
+        "name": "示例",
+        "path": "/tags/demo",
+        "count": null
+      }
+    ],
+    "duration_seconds": null,
+    "is_sample": true,
+    "content_html": "<p>MSMOCK-7F3A9C1E</p><p>第一段正文。</p><h2>小標</h2><p>第二段正文。</p>",
+    "video": null,
+    "podcast": null
+  },
+  "seo": {
+    "title": "示例文章標題",
+    "description": "示例文章標題的說明。",
+    "canonical_path": "http://evil.example/articles/x",
+    "noindex": false,
+    "og_type": "article",
+    "og_image": "/mock-media/cover.png",
+    "og_image_alt": "示例封面替代文字"
+  }
+}

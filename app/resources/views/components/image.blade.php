@@ -1,5 +1,5 @@
 {{-- 封面圖：比例固定（避免 CLS）、延後載入；無封面或來源不合政策時顯示佔位。 --}}
-<div {{ $attributes->class(['media-frame', 'media-frame--'.$ratio, 'media-frame--empty' => $src === null]) }}>
+<div {{ $attributes->class(['media-frame', 'media-frame--'.$ratio, 'media-frame--empty' => $src === null]) }} data-media-frame>
     @if ($src !== null)
         <img src="{{ $src }}" alt="{{ $image->alt }}"
              @if ($image->width && $image->height) width="{{ $image->width }}" height="{{ $image->height }}" @endif

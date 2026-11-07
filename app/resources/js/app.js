@@ -47,8 +47,10 @@ function initYoutubePlayers() {
 }
 
 function markImageBroken(img) {
-    const frame = img.closest('.media-frame');
-    if (frame) frame.classList.add('is-broken');
+    const frame = img.closest('[data-media-frame]');
+    if (!frame) return;
+    frame.classList.add('is-broken');
+    frame.setAttribute('data-media-broken', '');
 }
 
 function markAudioBroken(el) {

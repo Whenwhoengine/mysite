@@ -1,0 +1,5 @@
+{
+  "error": "HTTP_503",
+  "message": "服務暫時無法使用，請稍後再試。",
+  "request_id": "0123456789abcdef0123456789abcdef"
+}

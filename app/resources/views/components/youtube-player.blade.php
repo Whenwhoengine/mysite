@@ -26,7 +26,7 @@
             </div>
         </div>
     @else
-        <div class="player__frame player__frame--static" role="note">
+        <div class="player__frame player__frame--static" role="note" data-youtube-unavailable>
             <div class="player__state">
                 <x-icon name="alert" class="player__state-icon" />
                 <p class="player__state-title">影片目前無法播放</p>

@@ -1,0 +1,24 @@
+{
+  "data": [],
+  "meta": {
+    "page": 1,
+    "per_page": 12,
+    "total": 0,
+    "total_pages": 0
+  },
+  "collection": {
+    "type": "video",
+    "label": "影片",
+    "title": "影片",
+    "lede": "影片作品與完整說明；點擊播放後才會連線到 YouTube。"
+  },
+  "seo": {
+    "title": "影片",
+    "description": "影片的說明。",
+    "canonical_path": "/videos",
+    "noindex": false,
+    "og_type": "website",
+    "og_image": null,
+    "og_image_alt": null
+  }
+}
