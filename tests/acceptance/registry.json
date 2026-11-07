@@ -15,8 +15,8 @@
         "governance:linux-only-build"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -34,8 +34,8 @@
         "governance:readme-and-history-preserved"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -53,8 +53,8 @@
         "governance:pushed-state-readable"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -74,8 +74,8 @@
         "static:secret-scan-tracked"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -95,8 +95,8 @@
         "wp-contract:seed_idempotent_and_refused_in_production"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -114,8 +114,8 @@
         "governance:fresh-runner-lockfile-rebuild"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -133,8 +133,8 @@
         "governance:state-resume-in-fresh-clone"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -152,8 +152,8 @@
         "governance:docker-unavailable-routes-to-actions"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -173,8 +173,8 @@
         "governance:no-swallowed-install-errors"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -192,8 +192,8 @@
         "governance:workflow-secret-isolation"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -213,8 +213,8 @@
         "doctor:INF-01-WP"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -236,8 +236,8 @@
         "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::root_database_user_is_rejected"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -267,8 +267,8 @@
         "e2e:desktop-1440 › infra.spec.mjs › gateway 與健康檢查 › CMS 敏感檔不可取得、uploads 不可執行 PHP"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -294,8 +294,8 @@
         "wp-contract:wp08_rest_nonce_upload_and_app_password_not_blocked"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -327,8 +327,8 @@
         "phpunit:Tests\\Feature\\System\\HealthTest::readiness_fails_when_database_unreachable_but_liveness_stays_ok"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -364,8 +364,8 @@
         "governance:verify-session"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -401,8 +401,8 @@
         "phpunit:Tests\\Feature\\System\\HealthTest::internal_diagnostics_requires_token"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -430,8 +430,8 @@
         "governance:host-disk-measured"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -455,8 +455,8 @@
         "wp-contract:wp01_editor_creates_and_edits_via_gateway"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -476,8 +476,8 @@
         "wp-contract:wp02_types_fields_tables_rebuildable"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -497,8 +497,8 @@
         "wp-contract:production_guards_for_test_hooks"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -516,8 +516,8 @@
         "wp-contract:wp04_editor_privilege_escalation_denied"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -535,8 +535,8 @@
         "wp-contract:wp05_setup_rerun_keeps_admin_and_foreign_caps"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -554,8 +554,8 @@
         "wp-contract:wp06_gutenberg_block_semantics"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -577,8 +577,8 @@
         "wp-contract:cms_maintenance_pauses_jobs_and_http_cron"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -608,8 +608,8 @@
         "wp-contract:cms_maintenance_blocks_writes_keeps_public_reads"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -629,8 +629,8 @@
         "wp-contract:wp09_acf_version_traceable"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -648,8 +648,8 @@
         "wp-contract:wp10_two_factor_gate_logic"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": "BLK-APPROVAL-01",
       "note": "CI 已驗證機制（見證據）；本項須在真實 staging／production 驗收，尚未執行。"
@@ -685,8 +685,8 @@
         "phpunit:Tests\\Integration\\Content\\WordPressContentTest::search_taxonomies_menus_and_site_from_real_wordpress"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -722,8 +722,8 @@
         "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::client_errors_are_not_retried"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -751,8 +751,8 @@
         "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::missing_or_malformed_slugs_are_404"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -778,8 +778,8 @@
         "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::configured_base_urls_outside_the_allowlist_never_send_requests"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -815,8 +815,8 @@
         "phpunit:Tests\\Feature\\Content\\BladeRawCheckTest::raw_output_outside_rich_content_is_blocked"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -852,8 +852,8 @@
         "phpunit:Tests\\Feature\\Content\\ContentEventKeyRingTest::each_rotation_phase_accepts_exactly_the_keys_in_the_keyring"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -879,8 +879,8 @@
         "phpunit:Tests\\Feature\\Content\\ContentEventTest::failed_processing_is_retried_on_redelivery_but_processed_events_are_not"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -904,8 +904,8 @@
         "phpunit:Tests\\Feature\\Content\\ContentEventTest::redelivery_with_a_new_timestamp_is_acknowledged_but_applied_once"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -920,15 +920,19 @@
       "status": "PASS",
       "tests": [
         "wp-contract:events_reconcile_recovers_after_hook_failure",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::unpublish_event_takes_effect_immediately",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::late_old_events_never_resurrect_taken_down_content",
         "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::unpublish_event_takes_effect_immediately",
         "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::late_old_events_never_resurrect_taken_down_content",
         "wp-contract:events_reconcile_recovers_after_hook_failure",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::unpublish_event_takes_effect_immediately",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::late_old_events_never_resurrect_taken_down_content",
         "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::unpublish_event_takes_effect_immediately",
         "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::late_old_events_never_resurrect_taken_down_content"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -942,11 +946,19 @@
       "verification_venue": "ci",
       "status": "PASS",
       "tests": [
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::visibility_lease_is_reused_until_it_expires",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::lease_never_exceeds_the_60_second_hard_limit",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::takedown_with_lost_event_and_wp_outage_stops_serving_after_the_lease",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::visible_false_returns_404_and_clears_cached_body",
         "phpunit:Tests\\Feature\\Content\\DatabaseCacheTest::leases_expire_by_clock_on_the_database_store",
         "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::visibility_lease_is_reused_until_it_expires",
         "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::lease_never_exceeds_the_60_second_hard_limit",
         "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::takedown_with_lost_event_and_wp_outage_stops_serving_after_the_lease",
         "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::visible_false_returns_404_and_clears_cached_body",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::visibility_lease_is_reused_until_it_expires",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::lease_never_exceeds_the_60_second_hard_limit",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::takedown_with_lost_event_and_wp_outage_stops_serving_after_the_lease",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::visible_false_returns_404_and_clears_cached_body",
         "phpunit:Tests\\Feature\\Content\\DatabaseCacheTest::leases_expire_by_clock_on_the_database_store",
         "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::visibility_lease_is_reused_until_it_expires",
         "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::lease_never_exceeds_the_60_second_hard_limit",
@@ -954,8 +966,8 @@
         "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::visible_false_returns_404_and_clears_cached_body"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -991,8 +1003,8 @@
         "phpunit:Tests\\Unit\\Preview\\PreviewKeyRingTest::retired_kid_is_rejected"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1020,8 +1032,8 @@
         "phpunit:Tests\\Feature\\Preview\\PreviewFlowTest::wp_rejection_or_mismatched_snapshot_is_preview_invalid_never_the_public_article"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1057,8 +1069,8 @@
         "wp-contract:preview_ticket_snapshot_and_rejections"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1080,8 +1092,8 @@
         "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::menu_fallback_commerce_link_and_no_private_fields"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1099,24 +1111,26 @@
         "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
         "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
         "wp-contract:events_reconcile_recovers_after_hook_failure",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::unpublish_event_takes_effect_immediately",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::updated_content_is_refetched_when_visibility_reports_a_newer_version",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::lists_feeds_and_sitemaps_are_invalidated_by_events_and_bounded_without_them",
         "phpunit:Tests\\Feature\\Content\\DatabaseCacheTest::generation_and_collections_work_on_the_database_store",
         "phpunit:Tests\\Feature\\Content\\DatabaseCacheTest::pruning_removes_only_expired_content_cache_rows",
         "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::unpublish_event_takes_effect_immediately",
-        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::updated_content_is_refetched_when_visibility_reports_a_newer_version",
-        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::lists_feeds_and_sitemaps_are_invalidated_by_events_and_bounded_without_them",
         "e2e:mobile-390 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
         "e2e:tablet-768 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
         "e2e:desktop-1440 › wp-editor.spec.mjs › WP 後臺編輯流程 › 編輯者在區塊編輯器發布、修改、撤下文章，主站 60 秒內反映",
         "wp-contract:events_reconcile_recovers_after_hook_failure",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::unpublish_event_takes_effect_immediately",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::updated_content_is_refetched_when_visibility_reports_a_newer_version",
+        "phpunit:Tests\\Feature\\Api\\PublicApiVisibilityTest::lists_feeds_and_sitemaps_are_invalidated_by_events_and_bounded_without_them",
         "phpunit:Tests\\Feature\\Content\\DatabaseCacheTest::generation_and_collections_work_on_the_database_store",
         "phpunit:Tests\\Feature\\Content\\DatabaseCacheTest::pruning_removes_only_expired_content_cache_rows",
-        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::unpublish_event_takes_effect_immediately",
-        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::updated_content_is_refetched_when_visibility_reports_a_newer_version",
-        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::lists_feeds_and_sitemaps_are_invalidated_by_events_and_bounded_without_them"
+        "phpunit:Tests\\Feature\\Content\\VisibilityLeaseTest::unpublish_event_takes_effect_immediately"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1146,8 +1160,8 @@
         "phpunit:Tests\\Unit\\Content\\WordPressRestClientTest::real_refused_connection_is_retried_exactly_once"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1183,8 +1197,8 @@
         "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::search_states"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1220,8 +1234,8 @@
         "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片詳情"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1257,8 +1271,8 @@
         "e2e:tablet-768 › media.spec.mjs › 失效與空狀態畫面 › 404 與無搜尋結果有明確畫面"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1294,8 +1308,8 @@
         "e2e:tablet-768 › a11y.spec.mjs › 鍵盤與焦點 › prefers-reduced-motion 生效：動態時間歸零"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1331,8 +1345,8 @@
         "e2e:tablet-768 › a11y.spec.mjs › axe-core 自動無障礙掃描 › axe 掃描：後臺登入（serious／critical 必須為 0）"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1368,8 +1382,8 @@
         "e2e:desktop-1440 › seo.spec.mjs › SEO 與公開邊界 › 各公開頁 title 唯一、canonical 指向主站本頁且不指向 CMS"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1405,8 +1419,8 @@
         "phpunit:Tests\\Feature\\Content\\PublicRoutesTest::podcast_player_requires_allowed_audio_host"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1442,8 +1456,8 @@
         "e2e:mobile-390 › layout.spec.mjs › 版面：無水平溢位與截圖 › 影片詳情"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1479,8 +1493,8 @@
         "phpunit:Tests\\Feature\\Commerce\\CommerceFlagTest::real_mode_at_runtime_is_rejected_as_simulation_only"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1516,8 +1530,8 @@
         "phpunit:Tests\\Unit\\Commerce\\MoneyTest::ratio_uses_integer_half_up_rounding"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1553,8 +1567,8 @@
         "phpunit:Tests\\Feature\\Commerce\\CartTest::add_update_and_remove_items"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1584,8 +1598,8 @@
         "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::checkout_chosen_as_deadlock_victim_is_retried_and_succeeds"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1621,8 +1635,8 @@
         "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::the_same_key_from_another_session_never_receives_someone_elses_order"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1650,8 +1664,8 @@
         "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::checkout_chosen_as_deadlock_victim_is_retried_and_succeeds"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1671,8 +1685,8 @@
         "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::later_price_changes_do_not_rewrite_order_item_snapshots"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1704,8 +1718,8 @@
         "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::concurrent_cancellations_restock_only_once"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1741,8 +1755,8 @@
         "phpunit:Tests\\Integration\\Commerce\\ConcurrentCheckoutTest::the_same_key_from_another_session_never_receives_someone_elses_order"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1778,8 +1792,8 @@
         "e2e:tablet-768 › admin-2fa.spec.mjs › 後臺 2FA（TOTP） › 拋棄式帳號完整啟用 2FA 並以 TOTP 登入，測後由 admin 停用"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1815,8 +1829,8 @@
         "phpunit:Tests\\Feature\\Commerce\\CheckoutTest::checkout_form_has_no_card_address_or_phone_fields"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1844,8 +1858,8 @@
         "phpunit:Tests\\Feature\\Commerce\\RetentionTest::retention_periods_have_bounded_project_defaults"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -1881,8 +1895,8 @@
         "phpunit:Tests\\Unit\\Content\\EventKeyRingVerificationTest::after_retire_the_old_key_is_rejected"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
@@ -1900,8 +1914,8 @@
         "wp-contract:wp_real_ip_from_gateway_not_spoofable"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": "BLK-HOST-01",
       "note": "CI 已驗證機制（見證據）；本項須在真實 staging／production 驗收，尚未執行。"
@@ -1937,8 +1951,8 @@
         "deploy:M10_envelope_strict_parsing"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
@@ -1968,8 +1982,8 @@
         "phpunit:Tests\\Feature\\System\\DeployStatusTest::it_reports_release_identity_without_sensitive_details"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
@@ -1991,8 +2005,8 @@
         "deploy:R10_pull_release_fixed_channel_backoff"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
@@ -2028,8 +2042,8 @@
         "phpunit:Tests\\Feature\\System\\HealthTest::health_and_deploy_status_stay_available_during_maintenance"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
@@ -2051,8 +2065,8 @@
         "deploy:I01_real_mysql_backup_isolated_restore"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
@@ -2067,8 +2081,8 @@
       "status": "BLOCKED_EXTERNAL",
       "tests": [],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": "BLK-HOST-01",
       "note": null
@@ -2083,8 +2097,8 @@
       "status": "BLOCKED_EXTERNAL",
       "tests": [],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": "BLK-HOST-01",
       "note": null
@@ -2099,8 +2113,8 @@
       "status": "BLOCKED_EXTERNAL",
       "tests": [],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": "BLK-HOST-01",
       "note": null
@@ -2124,8 +2138,8 @@
         "deploy:R12_cms_maintenance_failure_paths"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
@@ -2161,8 +2175,8 @@
         "e2e:desktop-1440 › cookies.spec.mjs › Cookie 與快取隔離 › 後臺、預覽、訂單回應為 private／no-store"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": "PASS 只涵蓋 CI 段；staging 段尚未執行（需常駐主機，見 BLK-HOST-01）。"
@@ -2177,8 +2191,8 @@
       "status": "BLOCKED_EXTERNAL",
       "tests": [],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": "BLK-HOST-01",
       "note": null
@@ -2193,8 +2207,8 @@
       "status": "BLOCKED_EXTERNAL",
       "tests": [],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": "BLK-HOST-01",
       "note": null
@@ -2230,8 +2244,8 @@
         "phpunit:Tests\\Unit\\Config\\MysiteConfigTest::root_database_user_is_rejected"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2255,8 +2269,8 @@
         "governance:wp-plugin-scan"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2274,8 +2288,8 @@
         "static:state-registry"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2311,8 +2325,8 @@
         "static:script-syntax-and-help"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2330,8 +2344,8 @@
         "governance:unknowns-marked-no-fabrication"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2359,8 +2373,8 @@
         "e2e:desktop-1440 › admin.spec.mjs › 後臺存取控制 › viewer 看得到但不能寫入：介面無寫入按鈕，偽造請求伺服器回 403"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2378,8 +2392,8 @@
         "governance:data-inventory-complete"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2413,8 +2427,8 @@
         "phpunit:Tests\\Feature\\Admin\\AdminOrderTest::export_is_admin_only_audited_and_contains_no_tokens_or_bindings"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2432,8 +2446,8 @@
         "governance:rights-request-deadlines"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2463,8 +2477,8 @@
         "wp-contract:dat04_privacy_page_reflects_behaviour"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2488,8 +2502,8 @@
         "static:secret-scan-tracked"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2509,8 +2523,8 @@
         "phpunit:Tests\\Feature\\Commerce\\RetentionTest::deletion_log_is_reapplied_after_restoring_an_old_backup"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2528,8 +2542,8 @@
         "governance:plan-integrity-and-missing-plan-path"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2547,8 +2561,8 @@
         "governance:first-run-no-missing-files"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2584,8 +2598,8 @@
         "governance:imported-evidence-traceable"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2603,8 +2617,8 @@
         "governance:external-blockers-scoped"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2622,8 +2636,8 @@
         "governance:artifact-secret-hygiene"
       ],
       "evidence": [
-        "docs/evidence/gha-42203612453-1-content/summary.json",
-        "docs/evidence/gha-42203612453-1-simulation/summary.json"
+        "docs/evidence/gha-42341629307-1-content/summary.json",
+        "docs/evidence/gha-42341629307-1-simulation/summary.json"
       ],
       "blocker_id": null,
       "note": null
@@ -2631,15 +2645,15 @@
   ],
   "last_import": [
     {
-      "run_id": "gha-42203612453-1-content",
-      "gh_run": "42203612453",
-      "commit": "b2a91af6abcf5305e8f81a47070535e3435fe84c",
+      "run_id": "gha-42341629307-1-content",
+      "gh_run": "42341629307",
+      "commit": "7b07163e8f9e5cf5ddcd8e6ea65ee349716720f8",
       "scope": "content"
     },
     {
-      "run_id": "gha-42203612453-1-simulation",
-      "gh_run": "42203612453",
-      "commit": "b2a91af6abcf5305e8f81a47070535e3435fe84c",
+      "run_id": "gha-42341629307-1-simulation",
+      "gh_run": "42341629307",
+      "commit": "7b07163e8f9e5cf5ddcd8e6ea65ee349716720f8",
       "scope": "simulation"
     }
   ]
