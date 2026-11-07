@@ -16,8 +16,8 @@
     "core_checksums_sha256": "10cf841c0a63458cf9a361a9c7758aac5e3bb1051e9ab64ba22989c598034827",
     "locale_pack": {
       "locale": "zh_TW",
-      "version": "7.0.8",
-      "sha256": "ba5ac121db7ceac5d7a27dfdb1650f7bf1f4c3805944258df9b306b09e4aa6ce"
+      "version": "7.1.4",
+      "sha256": "a5fe391e41ec1e9f0681b7d4be8aeeaeaaa5c0cc142ce90b481c9bafb3e28ce2"
     }
   },
   "laravel": {
