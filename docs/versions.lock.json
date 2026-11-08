@@ -17,7 +17,9 @@
     "locale_pack": {
       "locale": "zh_TW",
       "version": "7.1.4",
-      "sha256": "a5fe391e41ec1e9f0681b7d4be8aeeaeaaa5c0cc142ce90b481c9bafb3e28ce2"
+      "sha256": "a5fe391e41ec1e9f0681b7d4be8aeeaeaaa5c0cc142ce90b481c9bafb3e28ce2",
+      "vendored_file": "infra/third-party/wordpress/zh_TW-7.1.4.zip",
+      "source_url": "https://downloads.wordpress.org/translation/core/7.1.4/zh_TW.zip"
     }
   },
   "laravel": {
