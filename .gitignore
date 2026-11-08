@@ -35,6 +35,8 @@ cookies.txt
 *.bak
 *.tar.gz
 *.zip
+# 例外：本專案保存的已查核第三方檔（上游網址內容會變，見 infra/third-party/README.md）
+!/infra/third-party/wordpress/*.zip
 backup/
 backups/
 restic-cache/

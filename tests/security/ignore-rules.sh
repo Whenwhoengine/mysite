@@ -9,11 +9,12 @@ must_ignore=(
   ".env" "app/.env" ".env.production" ".runtime/secrets/development/app_key" "backup/site.sql" "dump.sql.gz"
   "app/vendor/autoload.php" "app/node_modules/vite/package.json" "wp/uploads/2026/11/a.jpg" "secrets/key.pem"
   "id_ed25519" "tests/e2e/.auth/state.json" "storageState.json" "auth.json" "release.envelope.key" "site.sqlite"
-  "app/storage/logs/laravel.log" "wp/core/wp-load.php" "podcast.mp3"
+  "app/storage/logs/laravel.log" "wp/core/wp-load.php" "podcast.mp3" "export.zip" "infra/third-party/other.tar.gz"
 )
 must_track=(
   ".env.example" "app/.env.example" "app/composer.lock" "app/package-lock.json" "wp/plugins/site-content/site-content.php"
   "wp/acf-json/group_example.json" "app/database/migrations/2026_01_01_000000_example.php" "tests/fixtures/media/sample.wav"
+  "infra/third-party/wordpress/zh_TW-7.1.4.zip"
 )
 for p in "${must_ignore[@]}"; do
   if ! git check-ignore -q --no-index "$p"; then echo "FAIL：應被忽略但未被忽略：$p"; fail=1; fi

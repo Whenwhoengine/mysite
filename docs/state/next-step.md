@@ -14,7 +14,7 @@
 - 切片 `M1-10`（PR #4，IMPLEMENTED）：全新開發環境的 `bootstrap.sh --env=development` 原本在 PHP 相依安裝失敗——沒帶 ADR-005 規定的 source 模式（代理擋 GitHub zipball），且 `dump-autoload` 後的 `package:discover` 在無設定的工具容器內被執行期設定檢查擋下。已改為依 `COMPOSER_PREFER` 加 `--prefer-install`、失敗重試一次，`composer.sh` 比照映像建置帶 `MYSITE_SKIP_CONFIG_VALIDATION=1`。
   - 本 VM 實測：清空 `app/vendor` 後重跑 bootstrap 成功、doctor 14 項全過；重試邏輯另以假 composer 測過四種情況。CI 只跑 testing 環境，不涵蓋這條 development 路徑。
   - 注意：source 模式的 `app/vendor` 約 7.5GB（含完整 git 歷史），Composer 快取約 6.7GB；VM 磁碟額度有限，不要另外複製 vendor。
-- PR #3 合併後 main 的 CI（run 42359119404）在 bootstrap 以「SHA-256 不符：zh_TW.zip」中止：WordPress.org 的語系包網址會在譯者更新後重新產生，原固定的 hash 失效（不是程式問題）。PR #5 依原選取規則改用 zh_TW 7.1.4 套件並查核內容只有翻譯資料（`docs/版本查核.md`「語系包重新固定」）。以後仍可能再發生；要根治須改由本專案保存查核過的副本，待委託人裁定。
+- PR #3 合併後 main 的 CI（run 42359119404）在 bootstrap 以「SHA-256 不符：zh_TW.zip」中止：WordPress.org 的語系包網址會在譯者更新後重新產生，原固定的 hash 失效（不是程式問題）。PR #5 依原選取規則改用 zh_TW 7.1.4 套件並查核內容只有翻譯資料（`docs/版本查核.md`「語系包重新固定」）。2026-11-08 再次發生後，依委託人裁定根治：語系包改由本專案保存已查核副本（`infra/third-party/wordpress/`），建置不再下載。
 - 目前任務：`M9A-01`（staging 主機開通與部署），被 BLK-HOST-01、BLK-DNS-01 阻擋，等委託人提供主機與網域。
 - 第一個可執行的下一步：委託人提供常駐 Linux 主機（或核准供應商與月費上限）與網域後，依 `docs/runbooks/主機開通.md` 的 P0–P8 進行，再跑 staging 驗收（OPS-02、08、09、10、13）。
 - 尚待真實環境的其他驗收：

@@ -27,7 +27,7 @@ it_restic() {
   sha="${sha:-f415415624dcc452f2a02b8c33641791a8c6d6d3b65bbb3543fcf9a25151585c}"
   cache="$T_REPO/.runtime/cache/restic-$ver"; mkdir -p "$cache"
   if ! printf '%s  %s\n' "$sha" "$cache/restic.bz2" | sha256sum -c --status - 2>/dev/null; then
-    curl -fsSL --proto '=https' --tlsv1.2 --max-time 180 -o "$cache/restic.bz2.part" \
+    curl -fsSL --proto '=https' --tlsv1.2 --max-time 180 --retry 3 --retry-delay 2 -o "$cache/restic.bz2.part" \
       "https://github.com/restic/restic/releases/download/v${ver}/restic_${ver}_linux_amd64.bz2" || return 1
     printf '%s  %s\n' "$sha" "$cache/restic.bz2.part" | sha256sum -c --status - || { rm -f "$cache/restic.bz2.part"; return 1; }
     mv "$cache/restic.bz2.part" "$cache/restic.bz2"

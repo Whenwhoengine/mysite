@@ -247,7 +247,7 @@ if (( install_restic )); then
     ms_info "restic ${rv} 已安裝"
   else
     tmpd="$(mktemp -d)"
-    curl -fsSL --proto '=https' --tlsv1.2 --max-time 300 -o "$tmpd/restic.bz2" \
+    curl -fsSL --proto '=https' --tlsv1.2 --max-time 300 --retry 3 --retry-delay 2 -o "$tmpd/restic.bz2" \
       "https://github.com/restic/restic/releases/download/v${rv}/restic_${rv}_linux_amd64.bz2" \
       || { rm -rf -- "$tmpd"; ms_die "$EXIT_EXTERNAL" "restic 下載失敗"; }
     printf '%s  %s\n' "$rsha" "$tmpd/restic.bz2" | sha256sum -c --status - || { rm -rf -- "$tmpd"; ms_die "$EXIT_FORBIDDEN" "restic SHA-256 不符，拒絕安裝"; }
